@@ -1,0 +1,13 @@
+.mypy_cache/
+/.coverage
+/.coverage.*
+/.nox/
+/.python-version
+/.pytype/
+/dist/
+/docs/_build/
+/flask_jeroboam/*.egg-info/
+__pycache__/
+.vscode
+.venv
+.pytest_cache
