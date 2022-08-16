@@ -67,6 +67,7 @@ tests = ["tests", "*/tests"]
 
 [tool.coverage.run]
 branch = true
+relative_files = true
 source = ["flask_jeroboam"]
 
 [tool.coverage.report]
