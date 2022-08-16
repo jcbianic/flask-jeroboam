@@ -132,6 +132,7 @@ def precommit(session: Session) -> None:
         "pre-commit",
         "pre-commit-hooks",
         "pyupgrade",
+        "pycln",
     )
     session.run("pre-commit", *args)
     if args and args[0] == "install":
