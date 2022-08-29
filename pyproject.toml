@@ -72,7 +72,7 @@ relative_files = true
 source = ["flask_jeroboam"]
 
 [tool.coverage.report]
-fail_under = 95
+fail_under = 100
 show_missing = true
 
 [tool.isort]
