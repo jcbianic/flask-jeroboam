@@ -1,5 +1,4 @@
-"""
-"""
+"""Testing Exceptions."""
 from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.exceptions import RessourceNotFound
 from flask_jeroboam.exceptions import ServerError
