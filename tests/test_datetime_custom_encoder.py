@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient

@@ -1,4 +1,8 @@
-from typing import Any, Callable, List, Optional, Sequence
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Optional
+from typing import Sequence
 
 from fastapi.security.base import SecurityBase
 from pydantic.fields import ModelField

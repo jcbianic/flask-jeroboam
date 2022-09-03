@@ -1,7 +1,7 @@
 import pytest
+from docs_src.header_params.tutorial001 import app
 from fastapi.testclient import TestClient
 
-from docs_src.header_params.tutorial001 import app
 
 client = TestClient(app)
 

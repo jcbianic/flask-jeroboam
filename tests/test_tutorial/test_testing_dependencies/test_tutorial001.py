@@ -1,10 +1,8 @@
-from docs_src.dependency_testing.tutorial001 import (
-    app,
-    client,
-    test_override_in_items,
-    test_override_in_items_with_params,
-    test_override_in_items_with_q,
-)
+from docs_src.dependency_testing.tutorial001 import app
+from docs_src.dependency_testing.tutorial001 import client
+from docs_src.dependency_testing.tutorial001 import test_override_in_items
+from docs_src.dependency_testing.tutorial001 import test_override_in_items_with_params
+from docs_src.dependency_testing.tutorial001 import test_override_in_items_with_q
 
 
 def test_override_in_items_run():

@@ -1,10 +1,12 @@
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
 from .utils import needs_py37
+
 
 # In Python 3.6:
 # u = Union[ExtendedItem, Item] == __main__.Item

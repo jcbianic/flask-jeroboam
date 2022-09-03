@@ -1,9 +1,13 @@
 from typing import Optional
 
 import pytest
-from fastapi import Depends, FastAPI
+from fastapi import Depends
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from pydantic import BaseModel, ValidationError, validator
+from pydantic import BaseModel
+from pydantic import ValidationError
+from pydantic import validator
+
 
 app = FastAPI()
 

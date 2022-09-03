@@ -1,7 +1,11 @@
-from typing import Dict, List, Optional, Tuple
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 import pytest
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
+from fastapi import Query
 from pydantic import BaseModel
 
 

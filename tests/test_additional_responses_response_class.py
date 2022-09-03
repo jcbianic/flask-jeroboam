@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
+
 app = FastAPI()
 
 

@@ -1,8 +1,11 @@
 from typing import Optional
 
 import pytest
-from fastapi import APIRouter, Depends, FastAPI
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
+
 
 app = FastAPI()
 

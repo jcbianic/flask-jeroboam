@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+
 app = FastAPI(
     servers=[
         {"url": "/", "description": "Default, relative server"},

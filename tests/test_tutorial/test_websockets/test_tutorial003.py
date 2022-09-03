@@ -1,6 +1,7 @@
+from docs_src.websockets.tutorial003 import app
+from docs_src.websockets.tutorial003 import html
 from fastapi.testclient import TestClient
 
-from docs_src.websockets.tutorial003 import app, html
 
 client = TestClient(app)
 

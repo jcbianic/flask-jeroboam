@@ -1,11 +1,17 @@
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 from enum import Enum
-from pathlib import PurePath, PurePosixPath, PureWindowsPath
+from pathlib import PurePath
+from pathlib import PurePosixPath
+from pathlib import PureWindowsPath
 from typing import Optional
 
 import pytest
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel, Field, ValidationError, create_model
+from pydantic import BaseModel
+from pydantic import Field
+from pydantic import ValidationError
+from pydantic import create_model
 
 
 class Person:

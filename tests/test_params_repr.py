@@ -1,7 +1,15 @@
-from typing import Any, List
+from typing import Any
+from typing import List
 
 import pytest
-from fastapi.params import Body, Cookie, Depends, Header, Param, Path, Query
+from fastapi.params import Body
+from fastapi.params import Cookie
+from fastapi.params import Depends
+from fastapi.params import Header
+from fastapi.params import Param
+from fastapi.params import Path
+from fastapi.params import Query
+
 
 test_data: List[Any] = ["teststr", None, ..., 1, []]
 

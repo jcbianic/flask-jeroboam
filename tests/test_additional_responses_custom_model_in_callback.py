@@ -1,6 +1,8 @@
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
+from pydantic import HttpUrl
 from starlette.responses import JSONResponse
 
 

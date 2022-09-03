@@ -1,5 +1,8 @@
-from fastapi import Depends, FastAPI, Security
+from fastapi import Depends
+from fastapi import FastAPI
+from fastapi import Security
 from fastapi.testclient import TestClient
+
 
 app = FastAPI()
 

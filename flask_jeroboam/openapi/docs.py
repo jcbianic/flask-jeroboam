@@ -1,8 +1,11 @@
 import json
-from typing import Any, Dict, Optional
+from typing import Any
+from typing import Dict
+from typing import Optional
 
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import HTMLResponse
+
 
 swagger_ui_default_parameters = {
     "dom_id": "#swagger-ui",

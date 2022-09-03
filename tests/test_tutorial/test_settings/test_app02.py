@@ -1,7 +1,8 @@
+from docs_src.settings.app02 import main
+from docs_src.settings.app02 import test_main
 from fastapi.testclient import TestClient
 from pytest import MonkeyPatch
 
-from docs_src.settings.app02 import main, test_main
 
 client = TestClient(main.app)
 

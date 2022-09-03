@@ -1,7 +1,7 @@
 import pytest
+from docs_src.body_multiple_params.tutorial003 import app
 from fastapi.testclient import TestClient
 
-from docs_src.body_multiple_params.tutorial003 import app
 
 client = TestClient(app)
 

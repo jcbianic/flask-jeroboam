@@ -1,9 +1,9 @@
 from base64 import b64encode
 
+from docs_src.security.tutorial006 import app
 from fastapi.testclient import TestClient
 from requests.auth import HTTPBasicAuth
 
-from docs_src.security.tutorial006 import app
 
 client = TestClient(app)
 

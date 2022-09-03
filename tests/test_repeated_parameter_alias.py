@@ -1,5 +1,9 @@
-from fastapi import FastAPI, Path, Query, status
+from fastapi import FastAPI
+from fastapi import Path
+from fastapi import Query
+from fastapi import status
 from fastapi.testclient import TestClient
+
 
 app = FastAPI()
 

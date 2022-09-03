@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter
+from fastapi import Body
+
 
 router = APIRouter()
 

@@ -1,10 +1,12 @@
-from typing import List, Optional
+from typing import List
+from typing import Optional
 
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 from pydantic.dataclasses import dataclass
+
 
 app = FastAPI()
 

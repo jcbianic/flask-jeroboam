@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 
 from ...utils import needs_py39
 
+
 openapi_schema = {
     "openapi": "3.0.2",
     "info": {"title": "FastAPI", "version": "0.1.0"},
@@ -265,7 +266,8 @@ def test_incorrect_token_type(client: TestClient):
 
 @needs_py39
 def test_verify_password():
-    from docs_src.security.tutorial005_py39 import fake_users_db, verify_password
+    from docs_src.security.tutorial005_py39 import fake_users_db
+    from docs_src.security.tutorial005_py39 import verify_password
 
     assert verify_password("secret", fake_users_db["johndoe"]["hashed_password"])
 

@@ -1,8 +1,11 @@
 from typing import Dict
 
 import pytest
-from fastapi import BackgroundTasks, Depends, FastAPI
+from fastapi import BackgroundTasks
+from fastapi import Depends
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
+
 
 app = FastAPI()
 state = {

@@ -1,5 +1,7 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
+from fastapi import Request
 from fastapi.testclient import TestClient
+
 
 app = FastAPI(openapi_prefix="/api/v1")
 

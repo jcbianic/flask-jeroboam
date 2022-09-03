@@ -2,59 +2,63 @@ import dataclasses
 import inspect
 from contextlib import contextmanager
 from copy import deepcopy
-from typing import (
-    Any,
-    Callable,
-    Coroutine,
-    Dict,
-    List,
-    Mapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-    cast,
-)
+from typing import Any
+from typing import Callable
+from typing import Coroutine
+from typing import Dict
+from typing import List
+from typing import Mapping
+from typing import Optional
+from typing import Sequence
+from typing import Tuple
+from typing import Type
+from typing import Union
+from typing import cast
 
 import anyio
 from fastapi import params
-from fastapi.concurrency import (
-    AsyncExitStack,
-    asynccontextmanager,
-    contextmanager_in_threadpool,
-)
-from fastapi.dependencies.models import Dependant, SecurityRequirement
+from fastapi.concurrency import AsyncExitStack
+from fastapi.concurrency import asynccontextmanager
+from fastapi.concurrency import contextmanager_in_threadpool
+from fastapi.dependencies.models import Dependant
+from fastapi.dependencies.models import SecurityRequirement
 from fastapi.logger import logger
 from fastapi.security.base import SecurityBase
-from fastapi.security.oauth2 import OAuth2, SecurityScopes
+from fastapi.security.oauth2 import OAuth2
+from fastapi.security.oauth2 import SecurityScopes
 from fastapi.security.open_id_connect_url import OpenIdConnect
-from fastapi.utils import create_response_field, get_path_param_names
-from pydantic import BaseModel, create_model
+from fastapi.utils import create_response_field
+from fastapi.utils import get_path_param_names
+from pydantic import BaseModel
+from pydantic import create_model
 from pydantic.error_wrappers import ErrorWrapper
 from pydantic.errors import MissingError
-from pydantic.fields import (
-    SHAPE_FROZENSET,
-    SHAPE_LIST,
-    SHAPE_SEQUENCE,
-    SHAPE_SET,
-    SHAPE_SINGLETON,
-    SHAPE_TUPLE,
-    SHAPE_TUPLE_ELLIPSIS,
-    FieldInfo,
-    ModelField,
-    Required,
-    Undefined,
-)
+from pydantic.fields import SHAPE_FROZENSET
+from pydantic.fields import SHAPE_LIST
+from pydantic.fields import SHAPE_SEQUENCE
+from pydantic.fields import SHAPE_SET
+from pydantic.fields import SHAPE_SINGLETON
+from pydantic.fields import SHAPE_TUPLE
+from pydantic.fields import SHAPE_TUPLE_ELLIPSIS
+from pydantic.fields import FieldInfo
+from pydantic.fields import ModelField
+from pydantic.fields import Required
+from pydantic.fields import Undefined
 from pydantic.schema import get_annotation_from_field_info
-from pydantic.typing import ForwardRef, evaluate_forwardref
+from pydantic.typing import ForwardRef
+from pydantic.typing import evaluate_forwardref
 from pydantic.utils import lenient_issubclass
 from starlette.background import BackgroundTasks
 from starlette.concurrency import run_in_threadpool
-from starlette.datastructures import FormData, Headers, QueryParams, UploadFile
-from starlette.requests import HTTPConnection, Request
+from starlette.datastructures import FormData
+from starlette.datastructures import Headers
+from starlette.datastructures import QueryParams
+from starlette.datastructures import UploadFile
+from starlette.requests import HTTPConnection
+from starlette.requests import Request
 from starlette.responses import Response
 from starlette.websockets import WebSocket
+
 
 sequence_shapes = {
     SHAPE_LIST,

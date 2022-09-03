@@ -1,4 +1,5 @@
-from docs_src.app_testing.tutorial002 import test_read_main, test_websocket
+from docs_src.app_testing.tutorial002 import test_read_main
+from docs_src.app_testing.tutorial002 import test_websocket
 
 
 def test_main():

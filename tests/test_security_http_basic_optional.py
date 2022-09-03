@@ -1,10 +1,13 @@
 from base64 import b64encode
 from typing import Optional
 
-from fastapi import FastAPI, Security
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import FastAPI
+from fastapi import Security
+from fastapi.security import HTTPBasic
+from fastapi.security import HTTPBasicCredentials
 from fastapi.testclient import TestClient
 from requests.auth import HTTPBasicAuth
+
 
 app = FastAPI()
 

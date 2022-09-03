@@ -1,5 +1,7 @@
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
+
 
 router = APIRouter()
 

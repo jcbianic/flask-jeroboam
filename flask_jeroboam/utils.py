@@ -3,16 +3,29 @@ import re
 import warnings
 from dataclasses import is_dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, Optional, Set, Type, Union, cast
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Set
+from typing import Type
+from typing import Union
+from typing import cast
 
 import fastapi
-from fastapi.datastructures import DefaultPlaceholder, DefaultType
+from fastapi.datastructures import DefaultPlaceholder
+from fastapi.datastructures import DefaultType
 from fastapi.openapi.constants import REF_PREFIX
-from pydantic import BaseConfig, BaseModel, create_model
+from pydantic import BaseConfig
+from pydantic import BaseModel
+from pydantic import create_model
 from pydantic.class_validators import Validator
-from pydantic.fields import FieldInfo, ModelField, UndefinedType
+from pydantic.fields import FieldInfo
+from pydantic.fields import ModelField
+from pydantic.fields import UndefinedType
 from pydantic.schema import model_process_schema
 from pydantic.utils import lenient_issubclass
+
 
 if TYPE_CHECKING:  # pragma: nocover
     from .routing import APIRoute

@@ -1,4 +1,6 @@
-from docs_src.app_testing.test_main import client, test_read_main
+from docs_src.app_testing.test_main import client
+from docs_src.app_testing.test_main import test_read_main
+
 
 openapi_schema = {
     "openapi": "3.0.2",

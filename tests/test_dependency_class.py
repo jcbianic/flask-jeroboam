@@ -1,8 +1,11 @@
-from typing import AsyncGenerator, Generator
+from typing import AsyncGenerator
+from typing import Generator
 
 import pytest
-from fastapi import Depends, FastAPI
+from fastapi import Depends
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
+
 
 app = FastAPI()
 

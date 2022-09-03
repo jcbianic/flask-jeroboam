@@ -1,18 +1,14 @@
 import sys
-from typing import AsyncGenerator, ContextManager, TypeVar
+from typing import AsyncGenerator
+from typing import ContextManager
+from typing import TypeVar
 
 from starlette.concurrency import iterate_in_threadpool as iterate_in_threadpool  # noqa
 from starlette.concurrency import run_in_threadpool as run_in_threadpool  # noqa
-from starlette.concurrency import (  # noqa
-    run_until_first_complete as run_until_first_complete,
-)
+from starlette.concurrency import run_until_first_complete as run_until_first_complete  # noqa
 
-if sys.version_info >= (3, 7):
-    from contextlib import AsyncExitStack as AsyncExitStack
-    from contextlib import asynccontextmanager as asynccontextmanager
-else:
-    from contextlib2 import AsyncExitStack as AsyncExitStack  # noqa
-    from contextlib2 import asynccontextmanager as asynccontextmanager  # noqa
+
+from contextlib import asynccontextmanager as asynccontextmanager
 
 
 _T = TypeVar("_T")

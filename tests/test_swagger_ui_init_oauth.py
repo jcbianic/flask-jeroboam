@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+
 swagger_ui_init_oauth = {"clientId": "the-foo-clients", "appName": "The Predendapp"}
 
 app = FastAPI(swagger_ui_init_oauth=swagger_ui_init_oauth)

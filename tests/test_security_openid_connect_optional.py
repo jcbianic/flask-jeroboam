@@ -1,9 +1,12 @@
 from typing import Optional
 
-from fastapi import Depends, FastAPI, Security
+from fastapi import Depends
+from fastapi import FastAPI
+from fastapi import Security
 from fastapi.security.open_id_connect_url import OpenIdConnect
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
+
 
 app = FastAPI()
 

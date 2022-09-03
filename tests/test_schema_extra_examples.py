@@ -1,8 +1,14 @@
 from typing import Union
 
-from fastapi import Body, Cookie, FastAPI, Header, Path, Query
+from fastapi import Body
+from fastapi import Cookie
+from fastapi import FastAPI
+from fastapi import Header
+from fastapi import Path
+from fastapi import Query
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
+
 
 app = FastAPI()
 

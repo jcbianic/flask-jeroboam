@@ -1,5 +1,9 @@
-from fastapi import APIRouter, Depends, FastAPI, WebSocket
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import FastAPI
+from fastapi import WebSocket
 from fastapi.testclient import TestClient
+
 
 router = APIRouter()
 prefix_router = APIRouter()

@@ -2,7 +2,9 @@ from typing import List
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from pydantic import Field
+
 
 app = FastAPI()
 

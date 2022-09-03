@@ -1,8 +1,10 @@
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
+
 
 app = FastAPI()
 

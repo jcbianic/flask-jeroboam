@@ -1,7 +1,11 @@
 import http
-from typing import FrozenSet, Optional
+from typing import FrozenSet
+from typing import Optional
 
-from fastapi import FastAPI, Path, Query
+from fastapi import FastAPI
+from fastapi import Path
+from fastapi import Query
+
 
 app = FastAPI()
 

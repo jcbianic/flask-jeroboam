@@ -3,7 +3,9 @@ from typing import List
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from pydantic import BaseModel, condecimal
+from pydantic import BaseModel
+from pydantic import condecimal
+
 
 app = FastAPI()
 

@@ -1,8 +1,8 @@
 from copy import deepcopy
 
+from docs_src.dataclasses.tutorial002 import app
 from fastapi.testclient import TestClient
 
-from docs_src.dataclasses.tutorial002 import app
 
 client = TestClient(app)
 

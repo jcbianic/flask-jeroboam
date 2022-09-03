@@ -1,8 +1,11 @@
-from typing import List, Tuple
+from typing import List
+from typing import Tuple
 
-from fastapi import FastAPI, Form
+from fastapi import FastAPI
+from fastapi import Form
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
+
 
 app = FastAPI()
 

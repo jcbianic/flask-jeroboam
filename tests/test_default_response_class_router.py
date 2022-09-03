@@ -1,5 +1,8 @@
-from fastapi import APIRouter, FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
+from fastapi import APIRouter
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from fastapi.responses import JSONResponse
+from fastapi.responses import PlainTextResponse
 from fastapi.testclient import TestClient
 
 

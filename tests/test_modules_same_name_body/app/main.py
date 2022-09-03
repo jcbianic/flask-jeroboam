@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 
-from . import a, b
+from . import a
+from . import b
+
 
 app = FastAPI()
 

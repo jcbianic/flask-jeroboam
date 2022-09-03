@@ -1,7 +1,9 @@
 from typing import List
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
+from fastapi import Query
 from fastapi.testclient import TestClient
+
 
 app = FastAPI()
 

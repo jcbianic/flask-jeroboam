@@ -1,7 +1,11 @@
 from typing import Optional
 
-from fastapi import Depends, FastAPI, Query, status
+from fastapi import Depends
+from fastapi import FastAPI
+from fastapi import Query
+from fastapi import status
 from fastapi.testclient import TestClient
+
 
 app = FastAPI()
 

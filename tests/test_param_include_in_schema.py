@@ -1,8 +1,13 @@
 from typing import Optional
 
 import pytest
-from fastapi import Cookie, FastAPI, Header, Path, Query
+from fastapi import Cookie
+from fastapi import FastAPI
+from fastapi import Header
+from fastapi import Path
+from fastapi import Query
 from fastapi.testclient import TestClient
+
 
 app = FastAPI()
 
