@@ -1,9 +1,9 @@
 import pytest
-from fastapi import Body
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi import HTTPException
-from fastapi.testclient import TestClient
+from flask-jeroboam import Body
+from flask-jeroboam import Depends
+from flask-jeroboam import FastAPI
+from flask-jeroboam import HTTPException
+from flask-jeroboam.testclient import TestClient
 
 
 initial_fake_database = {"rick": "Rick Sanchez"}

@@ -1,12 +1,12 @@
 from typing import Any
 
 import orjson
-from fastapi import APIRouter
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
-from fastapi.responses import JSONResponse
-from fastapi.responses import PlainTextResponse
-from fastapi.testclient import TestClient
+from flask-jeroboam import APIRouter
+from flask-jeroboam import FastAPI
+from flask-jeroboam.responses import HTMLResponse
+from flask-jeroboam.responses import JSONResponse
+from flask-jeroboam.responses import PlainTextResponse
+from flask-jeroboam.testclient import TestClient
 
 
 class ORJSONResponse(JSONResponse):

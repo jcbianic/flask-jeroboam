@@ -1,8 +1,8 @@
 from typing import Optional
 
-from fastapi import FastAPI
-from fastapi.params import Param
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam.params import Param
+from flask-jeroboam.testclient import TestClient
 
 
 app = FastAPI()

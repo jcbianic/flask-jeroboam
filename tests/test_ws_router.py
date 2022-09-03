@@ -1,8 +1,8 @@
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi import WebSocket
-from fastapi.testclient import TestClient
+from flask-jeroboam import APIRouter
+from flask-jeroboam import Depends
+from flask-jeroboam import FastAPI
+from flask-jeroboam import WebSocket
+from flask-jeroboam.testclient import TestClient
 
 
 router = APIRouter()

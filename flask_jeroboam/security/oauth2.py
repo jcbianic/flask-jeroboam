@@ -4,15 +4,16 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from fastapi.exceptions import HTTPException
-from fastapi.openapi.models import OAuth2 as OAuth2Model
-from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
-from fastapi.param_functions import Form
-from fastapi.security.base import SecurityBase
-from fastapi.security.utils import get_authorization_scheme_param
 from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED
 from starlette.status import HTTP_403_FORBIDDEN
+
+from flask_jeroboam.exceptions import HTTPException
+from flask_jeroboam.openapi.models import OAuth2 as OAuth2Model
+from flask_jeroboam.openapi.models import OAuthFlows as OAuthFlowsModel
+from flask_jeroboam.param_functions import Form
+from flask_jeroboam.security.base import SecurityBase
+from flask_jeroboam.security.utils import get_authorization_scheme_param
 
 
 class OAuth2PasswordRequestForm:

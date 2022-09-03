@@ -2,13 +2,13 @@ from typing import Any
 from typing import List
 
 import pytest
-from fastapi.params import Body
-from fastapi.params import Cookie
-from fastapi.params import Depends
-from fastapi.params import Header
-from fastapi.params import Param
-from fastapi.params import Path
-from fastapi.params import Query
+from flask-jeroboam.params import Body
+from flask-jeroboam.params import Cookie
+from flask-jeroboam.params import Depends
+from flask-jeroboam.params import Header
+from flask-jeroboam.params import Param
+from flask-jeroboam.params import Path
+from flask-jeroboam.params import Query
 
 
 test_data: List[Any] = ["teststr", None, ..., 1, []]

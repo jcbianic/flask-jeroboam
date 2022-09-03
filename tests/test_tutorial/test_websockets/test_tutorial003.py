@@ -1,6 +1,6 @@
 from docs_src.websockets.tutorial003 import app
 from docs_src.websockets.tutorial003 import html
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 
 client = TestClient(app)

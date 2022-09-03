@@ -1,10 +1,10 @@
 import pytest
-from fastapi import FastAPI
-from fastapi import File
-from fastapi import Form
-from fastapi import UploadFile
-from fastapi.dependencies.utils import multipart_incorrect_install_error
-from fastapi.dependencies.utils import multipart_not_installed_error
+from flask-jeroboam import FastAPI
+from flask-jeroboam import File
+from flask-jeroboam import Form
+from flask-jeroboam import UploadFile
+from flask-jeroboam.dependencies.utils import multipart_incorrect_install_error
+from flask-jeroboam.dependencies.utils import multipart_not_installed_error
 
 
 def test_incorrect_multipart_installed_form(monkeypatch):

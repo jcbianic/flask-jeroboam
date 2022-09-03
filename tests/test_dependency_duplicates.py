@@ -1,8 +1,8 @@
 from typing import List
 
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
+from flask-jeroboam import Depends
+from flask-jeroboam import FastAPI
+from flask-jeroboam.testclient import TestClient
 from pydantic import BaseModel
 
 

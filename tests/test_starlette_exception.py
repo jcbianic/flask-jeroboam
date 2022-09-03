@@ -1,6 +1,6 @@
-from fastapi import FastAPI
-from fastapi import HTTPException
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam import HTTPException
+from flask-jeroboam.testclient import TestClient
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 

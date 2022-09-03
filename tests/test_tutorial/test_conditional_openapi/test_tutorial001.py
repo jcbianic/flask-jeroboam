@@ -1,7 +1,7 @@
 import importlib
 
 from docs_src.conditional_openapi import tutorial001
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 
 openapi_schema = {

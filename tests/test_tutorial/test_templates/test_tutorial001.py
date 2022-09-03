@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 
 def test_main():

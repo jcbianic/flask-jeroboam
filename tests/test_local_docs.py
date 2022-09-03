@@ -1,7 +1,7 @@
 import inspect
 
-from fastapi.openapi.docs import get_redoc_html
-from fastapi.openapi.docs import get_swagger_ui_html
+from flask-jeroboam.openapi.docs import get_redoc_html
+from flask-jeroboam.openapi.docs import get_swagger_ui_html
 
 
 def test_strings_in_generated_swagger():

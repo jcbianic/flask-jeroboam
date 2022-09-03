@@ -3,8 +3,8 @@ import json
 
 import pytest
 from docs_src.custom_request_and_route.tutorial001 import app
-from fastapi import Request
-from fastapi.testclient import TestClient
+from flask-jeroboam import Request
+from flask-jeroboam.testclient import TestClient
 
 
 @app.get("/check-class")

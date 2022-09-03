@@ -1,8 +1,8 @@
 from typing import Optional
 
-from fastapi import APIRouter
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
+from flask-jeroboam import APIRouter
+from flask-jeroboam import FastAPI
+from flask-jeroboam.testclient import TestClient
 from pydantic import BaseModel
 from pydantic import HttpUrl
 

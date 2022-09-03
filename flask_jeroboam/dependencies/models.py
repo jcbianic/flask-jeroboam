@@ -4,8 +4,9 @@ from typing import List
 from typing import Optional
 from typing import Sequence
 
-from fastapi.security.base import SecurityBase
 from pydantic.fields import ModelField
+
+from flask_jeroboam.security.base import SecurityBase
 
 
 class SecurityRequirement:

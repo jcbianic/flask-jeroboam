@@ -1,9 +1,9 @@
 from typing import List
 from typing import Tuple
 
-from fastapi import FastAPI
-from fastapi import Form
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Form
+from flask-jeroboam.testclient import TestClient
 from pydantic import BaseModel
 
 

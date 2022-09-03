@@ -13,9 +13,6 @@ from typing import Union
 from typing import cast
 
 import fastapi
-from fastapi.datastructures import DefaultPlaceholder
-from fastapi.datastructures import DefaultType
-from fastapi.openapi.constants import REF_PREFIX
 from pydantic import BaseConfig
 from pydantic import BaseModel
 from pydantic import create_model
@@ -25,6 +22,10 @@ from pydantic.fields import ModelField
 from pydantic.fields import UndefinedType
 from pydantic.schema import model_process_schema
 from pydantic.utils import lenient_issubclass
+
+from flask_jeroboam.datastructures import DefaultPlaceholder
+from flask_jeroboam.datastructures import DefaultType
+from flask_jeroboam.openapi.constants import REF_PREFIX
 
 
 if TYPE_CHECKING:  # pragma: nocover

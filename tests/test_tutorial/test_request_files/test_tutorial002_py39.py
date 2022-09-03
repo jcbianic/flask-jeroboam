@@ -1,6 +1,6 @@
 import pytest
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam.testclient import TestClient
 
 from ...utils import needs_py39
 

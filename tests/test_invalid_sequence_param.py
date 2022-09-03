@@ -4,8 +4,8 @@ from typing import Optional
 from typing import Tuple
 
 import pytest
-from fastapi import FastAPI
-from fastapi import Query
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Query
 from pydantic import BaseModel
 
 

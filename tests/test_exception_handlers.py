@@ -1,8 +1,8 @@
 import pytest
-from fastapi import FastAPI
-from fastapi import HTTPException
-from fastapi.exceptions import RequestValidationError
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam import HTTPException
+from flask-jeroboam.exceptions import RequestValidationError
+from flask-jeroboam.testclient import TestClient
 from starlette.responses import JSONResponse
 
 

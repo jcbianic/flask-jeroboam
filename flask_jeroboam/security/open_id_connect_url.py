@@ -1,10 +1,11 @@
 from typing import Optional
 
-from fastapi.openapi.models import OpenIdConnect as OpenIdConnectModel
-from fastapi.security.base import SecurityBase
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
+
+from flask_jeroboam.openapi.models import OpenIdConnect as OpenIdConnectModel
+from flask_jeroboam.security.base import SecurityBase
 
 
 class OpenIdConnect(SecurityBase):

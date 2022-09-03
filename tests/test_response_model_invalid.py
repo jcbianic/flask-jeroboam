@@ -1,8 +1,8 @@
 from typing import List
 
 import pytest
-from fastapi import FastAPI
-from fastapi.exceptions import FastAPIError
+from flask-jeroboam import FastAPI
+from flask-jeroboam.exceptions import FastAPIError
 
 
 class NonPydanticModel:

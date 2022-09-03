@@ -1,5 +1,5 @@
 from docs_src.async_sql_databases.tutorial001 import app
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 
 openapi_schema = {

@@ -4,8 +4,9 @@ from typing import Dict
 from typing import Optional
 from typing import Sequence
 
-from fastapi import params
 from pydantic.fields import Undefined
+
+from flask_jeroboam import params
 
 
 def Path(  # noqa: N802

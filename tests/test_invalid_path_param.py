@@ -3,7 +3,7 @@ from typing import List
 from typing import Tuple
 
 import pytest
-from fastapi import FastAPI
+from flask-jeroboam import FastAPI
 from pydantic import BaseModel
 
 

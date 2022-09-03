@@ -1,12 +1,12 @@
 import warnings
 
 import pytest
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi import Response
-from fastapi.responses import JSONResponse
-from fastapi.testclient import TestClient
+from flask-jeroboam import APIRouter
+from flask-jeroboam import Depends
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Response
+from flask-jeroboam.responses import JSONResponse
+from flask-jeroboam.testclient import TestClient
 
 
 class ResponseLevel0(JSONResponse):

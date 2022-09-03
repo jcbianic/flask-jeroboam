@@ -1,6 +1,6 @@
-from fastapi import FastAPI
-from fastapi.responses import ORJSONResponse
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam.responses import ORJSONResponse
+from flask-jeroboam.testclient import TestClient
 from sqlalchemy.sql.elements import quoted_name
 
 

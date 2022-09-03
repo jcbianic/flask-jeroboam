@@ -1,11 +1,11 @@
 from base64 import b64encode
 from typing import Optional
 
-from fastapi import FastAPI
-from fastapi import Security
-from fastapi.security import HTTPBasic
-from fastapi.security import HTTPBasicCredentials
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Security
+from flask-jeroboam.security import HTTPBasic
+from flask-jeroboam.security import HTTPBasicCredentials
+from flask-jeroboam.testclient import TestClient
 from requests.auth import HTTPBasicAuth
 
 

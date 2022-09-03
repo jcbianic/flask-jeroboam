@@ -1,5 +1,5 @@
-from fastapi import APIRouter
-from fastapi import Body
+from flask-jeroboam import APIRouter
+from flask-jeroboam import Body
 
 
 router = APIRouter()

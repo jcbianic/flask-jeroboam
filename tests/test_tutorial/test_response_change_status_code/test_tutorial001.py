@@ -1,5 +1,5 @@
 from docs_src.response_change_status_code.tutorial001 import app
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 
 client = TestClient(app)

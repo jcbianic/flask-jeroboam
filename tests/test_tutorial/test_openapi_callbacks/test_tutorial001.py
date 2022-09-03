@@ -1,6 +1,6 @@
 from docs_src.openapi_callbacks.tutorial001 import app
 from docs_src.openapi_callbacks.tutorial001 import invoice_notification
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 
 client = TestClient(app)

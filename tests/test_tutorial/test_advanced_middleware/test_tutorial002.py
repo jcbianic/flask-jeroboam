@@ -1,5 +1,5 @@
 from docs_src.advanced_middleware.tutorial002 import app
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 
 def test_middleware():

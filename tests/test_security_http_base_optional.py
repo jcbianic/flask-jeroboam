@@ -1,10 +1,10 @@
 from typing import Optional
 
-from fastapi import FastAPI
-from fastapi import Security
-from fastapi.security.http import HTTPAuthorizationCredentials
-from fastapi.security.http import HTTPBase
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Security
+from flask-jeroboam.security.http import HTTPAuthorizationCredentials
+from flask-jeroboam.security.http import HTTPBase
+from flask-jeroboam.testclient import TestClient
 
 
 app = FastAPI()

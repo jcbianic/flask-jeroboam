@@ -1,9 +1,9 @@
 import typing
 
-from fastapi import FastAPI
-from fastapi import Response
-from fastapi.responses import JSONResponse
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Response
+from flask-jeroboam.responses import JSONResponse
+from flask-jeroboam.testclient import TestClient
 from pydantic import BaseModel
 
 

@@ -1,8 +1,8 @@
 from functools import partial
 from typing import Optional
 
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam.testclient import TestClient
 
 
 def main(some_arg, q: Optional[str] = None):

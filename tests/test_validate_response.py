@@ -3,8 +3,8 @@ from typing import Optional
 from typing import Union
 
 import pytest
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam.testclient import TestClient
 from pydantic import BaseModel
 from pydantic import ValidationError
 

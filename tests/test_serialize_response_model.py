@@ -2,7 +2,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
-from fastapi import FastAPI
+from flask-jeroboam import FastAPI
 from pydantic import BaseModel
 from pydantic import Field
 from starlette.testclient import TestClient

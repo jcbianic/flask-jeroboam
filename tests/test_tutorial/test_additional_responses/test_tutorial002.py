@@ -2,7 +2,7 @@ import os
 import shutil
 
 from docs_src.additional_responses.tutorial002 import app
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 
 client = TestClient(app)

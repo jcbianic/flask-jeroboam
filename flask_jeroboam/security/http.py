@@ -2,15 +2,16 @@ import binascii
 from base64 import b64decode
 from typing import Optional
 
-from fastapi.exceptions import HTTPException
-from fastapi.openapi.models import HTTPBase as HTTPBaseModel
-from fastapi.openapi.models import HTTPBearer as HTTPBearerModel
-from fastapi.security.base import SecurityBase
-from fastapi.security.utils import get_authorization_scheme_param
 from pydantic import BaseModel
 from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED
 from starlette.status import HTTP_403_FORBIDDEN
+
+from flask_jeroboam.exceptions import HTTPException
+from flask_jeroboam.openapi.models import HTTPBase as HTTPBaseModel
+from flask_jeroboam.openapi.models import HTTPBearer as HTTPBearerModel
+from flask_jeroboam.security.base import SecurityBase
+from flask_jeroboam.security.utils import get_authorization_scheme_param
 
 
 class HTTPBasicCredentials(BaseModel):

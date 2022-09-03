@@ -1,8 +1,8 @@
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi import Security
-from fastapi.security import APIKeyCookie
-from fastapi.testclient import TestClient
+from flask-jeroboam import Depends
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Security
+from flask-jeroboam.security import APIKeyCookie
+from flask-jeroboam.testclient import TestClient
 from pydantic import BaseModel
 
 

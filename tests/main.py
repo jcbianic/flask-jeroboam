@@ -2,9 +2,9 @@ import http
 from typing import FrozenSet
 from typing import Optional
 
-from fastapi import FastAPI
-from fastapi import Path
-from fastapi import Query
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Path
+from flask-jeroboam import Query
 
 
 app = FastAPI()

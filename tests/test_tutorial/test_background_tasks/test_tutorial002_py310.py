@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 from ...utils import needs_py310
 

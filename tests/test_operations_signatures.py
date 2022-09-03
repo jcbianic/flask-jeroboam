@@ -1,7 +1,7 @@
 import inspect
 
-from fastapi import APIRouter
-from fastapi import FastAPI
+from flask-jeroboam import APIRouter
+from flask-jeroboam import FastAPI
 
 
 method_names = ["get", "put", "post", "delete", "options", "head", "patch", "trace"]

@@ -1,10 +1,10 @@
 from typing import Optional
 
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi import Security
-from fastapi.security.open_id_connect_url import OpenIdConnect
-from fastapi.testclient import TestClient
+from flask-jeroboam import Depends
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Security
+from flask-jeroboam.security.open_id_connect_url import OpenIdConnect
+from flask-jeroboam.testclient import TestClient
 from pydantic import BaseModel
 
 

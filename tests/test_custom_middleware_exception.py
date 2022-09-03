@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter
-from fastapi import FastAPI
-from fastapi import File
-from fastapi import UploadFile
-from fastapi.exceptions import HTTPException
-from fastapi.testclient import TestClient
+from flask-jeroboam import APIRouter
+from flask-jeroboam import FastAPI
+from flask-jeroboam import File
+from flask-jeroboam import UploadFile
+from flask-jeroboam.exceptions import HTTPException
+from flask-jeroboam.testclient import TestClient
 
 
 app = FastAPI()

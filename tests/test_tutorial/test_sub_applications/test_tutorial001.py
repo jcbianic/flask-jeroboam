@@ -1,5 +1,5 @@
 from docs_src.sub_applications.tutorial001 import app
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 
 client = TestClient(app)

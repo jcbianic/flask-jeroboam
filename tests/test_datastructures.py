@@ -1,6 +1,6 @@
 import pytest
-from fastapi import UploadFile
-from fastapi.datastructures import Default
+from flask-jeroboam import UploadFile
+from flask-jeroboam.datastructures import Default
 
 
 def test_upload_file_invalid():

@@ -1,6 +1,6 @@
-from fastapi import FastAPI
-from fastapi import Request
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Request
+from flask-jeroboam.testclient import TestClient
 
 
 app = FastAPI(openapi_prefix="/api/v1")

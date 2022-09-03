@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 import pytest
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 from ...utils import needs_py310
 

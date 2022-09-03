@@ -10,23 +10,6 @@ from typing import Sequence
 from typing import Type
 from typing import Union
 
-from fastapi import routing
-from fastapi.datastructures import Default
-from fastapi.datastructures import DefaultPlaceholder
-from fastapi.encoders import DictIntStrAny
-from fastapi.encoders import SetIntStr
-from fastapi.exception_handlers import http_exception_handler
-from fastapi.exception_handlers import request_validation_exception_handler
-from fastapi.exceptions import RequestValidationError
-from fastapi.logger import logger
-from fastapi.middleware.asyncexitstack import AsyncExitStackMiddleware
-from fastapi.openapi.docs import get_redoc_html
-from fastapi.openapi.docs import get_swagger_ui_html
-from fastapi.openapi.docs import get_swagger_ui_oauth2_redirect_html
-from fastapi.openapi.utils import get_openapi
-from fastapi.params import Depends
-from fastapi.types import DecoratedCallable
-from fastapi.utils import generate_unique_id
 from starlette.applications import Starlette
 from starlette.datastructures import State
 from starlette.exceptions import ExceptionMiddleware
@@ -42,6 +25,24 @@ from starlette.types import ASGIApp
 from starlette.types import Receive
 from starlette.types import Scope
 from starlette.types import Send
+
+from flask_jeroboam import routing
+from flask_jeroboam.datastructures import Default
+from flask_jeroboam.datastructures import DefaultPlaceholder
+from flask_jeroboam.encoders import DictIntStrAny
+from flask_jeroboam.encoders import SetIntStr
+from flask_jeroboam.exception_handlers import http_exception_handler
+from flask_jeroboam.exception_handlers import request_validation_exception_handler
+from flask_jeroboam.exceptions import RequestValidationError
+from flask_jeroboam.logger import logger
+from flask_jeroboam.middleware.asyncexitstack import AsyncExitStackMiddleware
+from flask_jeroboam.openapi.docs import get_redoc_html
+from flask_jeroboam.openapi.docs import get_swagger_ui_html
+from flask_jeroboam.openapi.docs import get_swagger_ui_oauth2_redirect_html
+from flask_jeroboam.openapi.utils import get_openapi
+from flask_jeroboam.params import Depends
+from flask_jeroboam.types import DecoratedCallable
+from flask_jeroboam.utils import generate_unique_id
 
 
 class FastAPI(Starlette):

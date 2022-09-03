@@ -1,8 +1,8 @@
 import typing
 
-from fastapi import Body
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
+from flask-jeroboam import Body
+from flask-jeroboam import FastAPI
+from flask-jeroboam.testclient import TestClient
 from pydantic import BaseModel
 
 

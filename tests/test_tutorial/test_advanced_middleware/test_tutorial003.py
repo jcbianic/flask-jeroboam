@@ -1,6 +1,6 @@
 from docs_src.advanced_middleware.tutorial003 import app
-from fastapi.responses import PlainTextResponse
-from fastapi.testclient import TestClient
+from flask-jeroboam.responses import PlainTextResponse
+from flask-jeroboam.testclient import TestClient
 
 
 @app.get("/large")

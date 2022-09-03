@@ -7,10 +7,11 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from fastapi.logger import logger
 from pydantic import AnyUrl
 from pydantic import BaseModel
 from pydantic import Field
+
+from flask_jeroboam.logger import logger
 
 
 try:

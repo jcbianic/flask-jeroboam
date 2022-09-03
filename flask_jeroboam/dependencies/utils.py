@@ -16,19 +16,6 @@ from typing import Union
 from typing import cast
 
 import anyio
-from fastapi import params
-from fastapi.concurrency import AsyncExitStack
-from fastapi.concurrency import asynccontextmanager
-from fastapi.concurrency import contextmanager_in_threadpool
-from fastapi.dependencies.models import Dependant
-from fastapi.dependencies.models import SecurityRequirement
-from fastapi.logger import logger
-from fastapi.security.base import SecurityBase
-from fastapi.security.oauth2 import OAuth2
-from fastapi.security.oauth2 import SecurityScopes
-from fastapi.security.open_id_connect_url import OpenIdConnect
-from fastapi.utils import create_response_field
-from fastapi.utils import get_path_param_names
 from pydantic import BaseModel
 from pydantic import create_model
 from pydantic.error_wrappers import ErrorWrapper
@@ -58,6 +45,20 @@ from starlette.requests import HTTPConnection
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.websockets import WebSocket
+
+from flask_jeroboam import params
+from flask_jeroboam.concurrency import AsyncExitStack
+from flask_jeroboam.concurrency import asynccontextmanager
+from flask_jeroboam.concurrency import contextmanager_in_threadpool
+from flask_jeroboam.dependencies.models import Dependant
+from flask_jeroboam.dependencies.models import SecurityRequirement
+from flask_jeroboam.logger import logger
+from flask_jeroboam.security.base import SecurityBase
+from flask_jeroboam.security.oauth2 import OAuth2
+from flask_jeroboam.security.oauth2 import SecurityScopes
+from flask_jeroboam.security.open_id_connect_url import OpenIdConnect
+from flask_jeroboam.utils import create_response_field
+from flask_jeroboam.utils import get_path_param_names
 
 
 sequence_shapes = {

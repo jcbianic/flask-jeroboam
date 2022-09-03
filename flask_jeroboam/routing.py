@@ -17,25 +17,6 @@ from typing import Tuple
 from typing import Type
 from typing import Union
 
-from fastapi import params
-from fastapi.datastructures import Default
-from fastapi.datastructures import DefaultPlaceholder
-from fastapi.dependencies.models import Dependant
-from fastapi.dependencies.utils import get_body_field
-from fastapi.dependencies.utils import get_dependant
-from fastapi.dependencies.utils import get_parameterless_sub_dependant
-from fastapi.dependencies.utils import solve_dependencies
-from fastapi.encoders import DictIntStrAny
-from fastapi.encoders import SetIntStr
-from fastapi.encoders import jsonable_encoder
-from fastapi.exceptions import RequestValidationError
-from fastapi.exceptions import WebSocketRequestValidationError
-from fastapi.types import DecoratedCallable
-from fastapi.utils import create_cloned_field
-from fastapi.utils import create_response_field
-from fastapi.utils import generate_unique_id
-from fastapi.utils import get_value_or_default
-from fastapi.utils import is_body_allowed_for_status_code
 from pydantic import BaseModel
 from pydantic.error_wrappers import ErrorWrapper
 from pydantic.error_wrappers import ValidationError
@@ -58,6 +39,26 @@ from starlette.status import WS_1008_POLICY_VIOLATION
 from starlette.types import ASGIApp
 from starlette.types import Scope
 from starlette.websockets import WebSocket
+
+from flask_jeroboam import params
+from flask_jeroboam.datastructures import Default
+from flask_jeroboam.datastructures import DefaultPlaceholder
+from flask_jeroboam.dependencies.models import Dependant
+from flask_jeroboam.dependencies.utils import get_body_field
+from flask_jeroboam.dependencies.utils import get_dependant
+from flask_jeroboam.dependencies.utils import get_parameterless_sub_dependant
+from flask_jeroboam.dependencies.utils import solve_dependencies
+from flask_jeroboam.encoders import DictIntStrAny
+from flask_jeroboam.encoders import SetIntStr
+from flask_jeroboam.encoders import jsonable_encoder
+from flask_jeroboam.exceptions import RequestValidationError
+from flask_jeroboam.exceptions import WebSocketRequestValidationError
+from flask_jeroboam.types import DecoratedCallable
+from flask_jeroboam.utils import create_cloned_field
+from flask_jeroboam.utils import create_response_field
+from flask_jeroboam.utils import generate_unique_id
+from flask_jeroboam.utils import get_value_or_default
+from flask_jeroboam.utils import is_body_allowed_for_status_code
 
 
 def _prepare_response_content(

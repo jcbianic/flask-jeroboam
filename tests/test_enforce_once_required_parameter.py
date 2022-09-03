@@ -1,10 +1,10 @@
 from typing import Optional
 
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi import Query
-from fastapi import status
-from fastapi.testclient import TestClient
+from flask-jeroboam import Depends
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Query
+from flask-jeroboam import status
+from flask-jeroboam.testclient import TestClient
 
 
 app = FastAPI()

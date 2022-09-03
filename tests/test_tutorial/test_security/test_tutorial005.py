@@ -3,7 +3,7 @@ from docs_src.security.tutorial005 import create_access_token
 from docs_src.security.tutorial005 import fake_users_db
 from docs_src.security.tutorial005 import get_password_hash
 from docs_src.security.tutorial005 import verify_password
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 
 
 client = TestClient(app)

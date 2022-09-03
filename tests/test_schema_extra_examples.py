@@ -1,12 +1,12 @@
 from typing import Union
 
-from fastapi import Body
-from fastapi import Cookie
-from fastapi import FastAPI
-from fastapi import Header
-from fastapi import Path
-from fastapi import Query
-from fastapi.testclient import TestClient
+from flask-jeroboam import Body
+from flask-jeroboam import Cookie
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Header
+from flask-jeroboam import Path
+from flask-jeroboam import Query
+from flask-jeroboam.testclient import TestClient
 from pydantic import BaseModel
 
 

@@ -3,8 +3,9 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-from fastapi.encoders import jsonable_encoder
 from starlette.responses import HTMLResponse
+
+from flask_jeroboam.encoders import jsonable_encoder
 
 
 swagger_ui_default_parameters = {

@@ -1,7 +1,7 @@
 import pytest
 from docs_src.websockets.tutorial002 import app
-from fastapi.testclient import TestClient
-from fastapi.websockets import WebSocketDisconnect
+from flask-jeroboam.testclient import TestClient
+from flask-jeroboam.websockets import WebSocketDisconnect
 
 
 client = TestClient(app)

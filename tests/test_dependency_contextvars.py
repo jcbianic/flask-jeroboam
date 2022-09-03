@@ -5,11 +5,11 @@ from typing import Callable
 from typing import Dict
 from typing import Optional
 
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi import Request
-from fastapi import Response
-from fastapi.testclient import TestClient
+from flask-jeroboam import Depends
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Request
+from flask-jeroboam import Response
+from flask-jeroboam.testclient import TestClient
 
 
 legacy_request_state_context_var: ContextVar[Optional[Dict[str, Any]]] = ContextVar(

@@ -1,11 +1,11 @@
 import pytest
-from fastapi import FastAPI
-from fastapi import Request
-from fastapi import WebSocket
-from fastapi import WebSocketDisconnect
-from fastapi.routing import APIRoute
-from fastapi.routing import APIWebSocketRoute
-from fastapi.testclient import TestClient
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Request
+from flask-jeroboam import WebSocket
+from flask-jeroboam import WebSocketDisconnect
+from flask-jeroboam.routing import APIRoute
+from flask-jeroboam.routing import APIWebSocketRoute
+from flask-jeroboam.testclient import TestClient
 
 
 app = FastAPI()

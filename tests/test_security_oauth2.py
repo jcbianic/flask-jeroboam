@@ -1,10 +1,10 @@
 import pytest
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi import Security
-from fastapi.security import OAuth2
-from fastapi.security import OAuth2PasswordRequestFormStrict
-from fastapi.testclient import TestClient
+from flask-jeroboam import Depends
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Security
+from flask-jeroboam.security import OAuth2
+from flask-jeroboam.security import OAuth2PasswordRequestFormStrict
+from flask-jeroboam.testclient import TestClient
 from pydantic import BaseModel
 
 

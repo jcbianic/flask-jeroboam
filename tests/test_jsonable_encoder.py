@@ -7,7 +7,7 @@ from pathlib import PureWindowsPath
 from typing import Optional
 
 import pytest
-from fastapi.encoders import jsonable_encoder
+from flask-jeroboam.encoders import jsonable_encoder
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import ValidationError

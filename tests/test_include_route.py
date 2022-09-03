@@ -1,8 +1,8 @@
-from fastapi import APIRouter
-from fastapi import FastAPI
-from fastapi import Request
-from fastapi.responses import JSONResponse
-from fastapi.testclient import TestClient
+from flask-jeroboam import APIRouter
+from flask-jeroboam import FastAPI
+from flask-jeroboam import Request
+from flask-jeroboam.responses import JSONResponse
+from flask-jeroboam.testclient import TestClient
 
 
 app = FastAPI()

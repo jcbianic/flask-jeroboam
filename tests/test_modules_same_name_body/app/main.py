@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from flask-jeroboam import FastAPI
 
 from . import a
 from . import b

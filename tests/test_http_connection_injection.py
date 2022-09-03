@@ -1,7 +1,7 @@
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi.requests import HTTPConnection
-from fastapi.testclient import TestClient
+from flask-jeroboam import Depends
+from flask-jeroboam import FastAPI
+from flask-jeroboam.requests import HTTPConnection
+from flask-jeroboam.testclient import TestClient
 from starlette.websockets import WebSocket
 
 

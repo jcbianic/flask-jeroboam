@@ -1,6 +1,6 @@
 from docs_src.settings.app02 import main
 from docs_src.settings.app02 import test_main
-from fastapi.testclient import TestClient
+from flask-jeroboam.testclient import TestClient
 from pytest import MonkeyPatch
 
 
