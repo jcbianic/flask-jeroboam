@@ -1,3 +1,8 @@
+"""Param Function.
+
+A collection of factory to create Parameters.
+Will be used to type Parameters in endpoints.
+"""
 from typing import Any
 from typing import Callable
 from typing import Dict
@@ -28,6 +33,7 @@ def Path(  # noqa: N802
     include_in_schema: bool = True,
     **extra: Any,
 ) -> Any:
+    """Factory to create a Path parameter."""
     return params.Path(
         default=default,
         alias=alias,
@@ -67,6 +73,7 @@ def Query(  # noqa: N802
     include_in_schema: bool = True,
     **extra: Any,
 ) -> Any:
+    """Factory to create a Query parameter."""
     return params.Query(
         default=default,
         alias=alias,
@@ -107,6 +114,7 @@ def Header(  # noqa: N802
     include_in_schema: bool = True,
     **extra: Any,
 ) -> Any:
+    """Factory to create a Header parameter."""
     return params.Header(
         default=default,
         alias=alias,
@@ -147,6 +155,7 @@ def Cookie(  # noqa: N802
     include_in_schema: bool = True,
     **extra: Any,
 ) -> Any:
+    """Factory to create a Cookie parameter."""
     return params.Cookie(
         default=default,
         alias=alias,
@@ -186,6 +195,7 @@ def Body(  # noqa: N802
     examples: Optional[Dict[str, Any]] = None,
     **extra: Any,
 ) -> Any:
+    """Factory to create a Body parameter."""
     return params.Body(
         default=default,
         embed=embed,
@@ -224,6 +234,7 @@ def Form(  # noqa: N802
     examples: Optional[Dict[str, Any]] = None,
     **extra: Any,
 ) -> Any:
+    """Factory to create a Form parameter."""
     return params.Form(
         default=default,
         media_type=media_type,
@@ -261,6 +272,7 @@ def File(  # noqa: N802
     examples: Optional[Dict[str, Any]] = None,
     **extra: Any,
 ) -> Any:
+    """Factory to create a File parameter."""
     return params.File(
         default=default,
         media_type=media_type,
@@ -283,6 +295,7 @@ def File(  # noqa: N802
 def Depends(  # noqa: N802
     dependency: Optional[Callable[..., Any]] = None, *, use_cache: bool = True
 ) -> Any:
+    """Factory to create a Depends parameter."""
     return params.Depends(dependency=dependency, use_cache=use_cache)
 
 
@@ -292,4 +305,5 @@ def Security(  # noqa: N802
     scopes: Optional[Sequence[str]] = None,
     use_cache: bool = True,
 ) -> Any:
+    """Factory to create a Security parameter."""
     return params.Security(dependency=dependency, scopes=scopes, use_cache=use_cache)

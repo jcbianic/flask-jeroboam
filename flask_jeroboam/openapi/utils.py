@@ -1,3 +1,4 @@
+"""OpenAPI Parsing."""
 import http.client
 import inspect
 import warnings
@@ -20,26 +21,28 @@ from pydantic.schema import field_schema
 from pydantic.schema import get_flat_models_from_fields
 from pydantic.schema import get_model_name_map
 from pydantic.utils import lenient_issubclass
-from starlette.responses import JSONResponse
-from starlette.routing import BaseRoute
-from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
 from flask_jeroboam import routing
+from flask_jeroboam._utils import deep_dict_update
+from flask_jeroboam._utils import generate_operation_id_for_path
+from flask_jeroboam._utils import get_model_definitions
+from flask_jeroboam._utils import is_body_allowed_for_status_code
 from flask_jeroboam.datastructures import DefaultPlaceholder
 from flask_jeroboam.dependencies.models import Dependant
 from flask_jeroboam.dependencies.utils import get_flat_dependant
 from flask_jeroboam.dependencies.utils import get_flat_params
 from flask_jeroboam.encoders import jsonable_encoder
-from flask_jeroboam.openapi.constants import METHODS_WITH_BODY
-from flask_jeroboam.openapi.constants import REF_PREFIX
+from flask_jeroboam.openapi._constants import METHODS_WITH_BODY
+from flask_jeroboam.openapi._constants import REF_PREFIX
 from flask_jeroboam.openapi.models import OpenAPI
 from flask_jeroboam.params import Body
 from flask_jeroboam.params import Param
 from flask_jeroboam.responses import Response
-from flask_jeroboam.utils import deep_dict_update
-from flask_jeroboam.utils import generate_operation_id_for_path
-from flask_jeroboam.utils import get_model_definitions
-from flask_jeroboam.utils import is_body_allowed_for_status_code
+
+from ..responses import JSONResponse
+
+
+# TODO: c'est là que ce passe le gros du travail !!
 
 
 validation_error_definition = {
@@ -82,6 +85,13 @@ status_code_ranges: Dict[str, str] = {
 def get_openapi_security_definitions(
     flat_dependant: Dependant,
 ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    """Parse endpoint params dependencies for Security.
+
+    It returns the security definitions
+    and operation security for the openapi Schema.
+    TODO: Adapt to Flask way of securing Endpoints.
+    TODO: Understand the flat_dependant thing.
+    """
     security_definitions = {}
     operation_security = []
     for security_requirement in flat_dependant.security_requirements:
@@ -101,6 +111,7 @@ def get_openapi_operation_parameters(
     all_route_params: Sequence[ModelField],
     model_name_map: Dict[Union[Type[BaseModel], Type[Enum]], str],
 ) -> List[Dict[str, Any]]:
+    """Parse all endpoint params dependencies for OpenAPI parameters."""
     parameters = []
     for param in all_route_params:
         field_info = param.field_info
@@ -132,6 +143,10 @@ def get_openapi_operation_request_body(
     body_field: Optional[ModelField],
     model_name_map: Dict[Union[Type[BaseModel], Type[Enum]], str],
 ) -> Optional[Dict[str, Any]]:
+    """Parse endpoint params dependencies marked as Body for OpenAPI parameters.
+
+    TODO: Remove assert.
+    """
     if not body_field:
         return None
     assert isinstance(body_field, ModelField)

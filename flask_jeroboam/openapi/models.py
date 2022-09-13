@@ -11,8 +11,6 @@ from pydantic import AnyUrl
 from pydantic import BaseModel
 from pydantic import Field
 
-from flask_jeroboam.logger import logger
-
 
 try:
     import email_validator  # type: ignore

@@ -1,3 +1,4 @@
+"""Dependencies Models."""
 from typing import Any
 from typing import Callable
 from typing import List
@@ -10,6 +11,10 @@ from flask_jeroboam.security.base import SecurityBase
 
 
 class SecurityRequirement:
+    """Security Requirement."""
+
+    __slots__ = ("security_scheme", "scopes")
+
     def __init__(
         self, security_scheme: SecurityBase, scopes: Optional[Sequence[str]] = None
     ):
@@ -18,6 +23,8 @@ class SecurityRequirement:
 
 
 class Dependant:
+    """Dependant."""
+
     def __init__(
         self,
         *,

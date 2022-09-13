@@ -1,6 +1,9 @@
 from typing import Tuple
 
 
+# TODO: utiliser dans la génération OpenAPI ???
+
+
 def get_authorization_scheme_param(authorization_header_value: str) -> Tuple[str, str]:
     if not authorization_header_value:
         return "", ""

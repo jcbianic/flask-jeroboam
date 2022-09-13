@@ -1,6 +1,7 @@
+"""Jerobam Flask Override."""
+
 from enum import Enum
 from typing import Any
-from typing import Awaitable
 from typing import Callable
 from typing import Coroutine
 from typing import Dict
@@ -10,192 +11,63 @@ from typing import Sequence
 from typing import Type
 from typing import Union
 
-from starlette.applications import Starlette
-from starlette.datastructures import State
-from starlette.exceptions import ExceptionMiddleware
-from starlette.exceptions import HTTPException
-from starlette.middleware import Middleware
-from starlette.middleware.errors import ServerErrorMiddleware
-from starlette.requests import Request
-from starlette.responses import HTMLResponse
-from starlette.responses import JSONResponse
-from starlette.responses import Response
-from starlette.routing import BaseRoute
-from starlette.types import ASGIApp
-from starlette.types import Receive
-from starlette.types import Scope
-from starlette.types import Send
+from flask import Flask
+from flask import Response
+from flask import jsonify
 
 from flask_jeroboam import routing
+from flask_jeroboam._types import DecoratedCallable
 from flask_jeroboam.datastructures import Default
 from flask_jeroboam.datastructures import DefaultPlaceholder
 from flask_jeroboam.encoders import DictIntStrAny
 from flask_jeroboam.encoders import SetIntStr
-from flask_jeroboam.exception_handlers import http_exception_handler
-from flask_jeroboam.exception_handlers import request_validation_exception_handler
-from flask_jeroboam.exceptions import RequestValidationError
-from flask_jeroboam.logger import logger
-from flask_jeroboam.middleware.asyncexitstack import AsyncExitStackMiddleware
 from flask_jeroboam.openapi.docs import get_redoc_html
 from flask_jeroboam.openapi.docs import get_swagger_ui_html
 from flask_jeroboam.openapi.docs import get_swagger_ui_oauth2_redirect_html
 from flask_jeroboam.openapi.utils import get_openapi
 from flask_jeroboam.params import Depends
-from flask_jeroboam.types import DecoratedCallable
 from flask_jeroboam.utils import generate_unique_id
 
 
-class FastAPI(Starlette):
+# TODO: Adapter l'ajout des routes OpenAPI.
+# Evaluer Intérêt des GET...
+
+
+class Jeroboam(Flask):
     def __init__(
         self,
+        import_name: str,
         *,
-        debug: bool = False,
-        routes: Optional[List[BaseRoute]] = None,
         title: str = "FastAPI",
-        description: str = "",
         version: str = "0.1.0",
+        description: str = "",
         openapi_url: Optional[str] = "/openapi.json",
         openapi_tags: Optional[List[Dict[str, Any]]] = None,
-        servers: Optional[List[Dict[str, Union[str, Any]]]] = None,
-        dependencies: Optional[Sequence[Depends]] = None,
-        default_response_class: Type[Response] = Default(JSONResponse),
         docs_url: Optional[str] = "/docs",
         redoc_url: Optional[str] = "/redoc",
-        swagger_ui_oauth2_redirect_url: Optional[str] = "/docs/oauth2-redirect",
-        swagger_ui_init_oauth: Optional[Dict[str, Any]] = None,
-        middleware: Optional[Sequence[Middleware]] = None,
-        exception_handlers: Optional[
-            Dict[
-                Union[int, Type[Exception]],
-                Callable[[Request, Any], Coroutine[Any, Any, Response]],
-            ]
-        ] = None,
-        on_startup: Optional[Sequence[Callable[[], Any]]] = None,
-        on_shutdown: Optional[Sequence[Callable[[], Any]]] = None,
         terms_of_service: Optional[str] = None,
-        contact: Optional[Dict[str, Union[str, Any]]] = None,
+        contact: Optional[Dict[str, Any]] = None,
         license_info: Optional[Dict[str, Union[str, Any]]] = None,
         openapi_prefix: str = "",
-        root_path: str = "",
-        root_path_in_servers: bool = True,
-        responses: Optional[Dict[Union[int, str], Dict[str, Any]]] = None,
-        callbacks: Optional[List[BaseRoute]] = None,
-        deprecated: Optional[bool] = None,
-        include_in_schema: bool = True,
-        swagger_ui_parameters: Optional[Dict[str, Any]] = None,
-        generate_unique_id_function: Callable[[routing.APIRoute], str] = Default(
-            generate_unique_id
-        ),
-        **extra: Any,
+        servers: Optional[List[Dict[str, Union[str, Any]]]] = None,
     ) -> None:
-        self._debug: bool = debug
+        # Switch to Config
+        self.version = version
         self.title = title
         self.description = description
-        self.version = version
         self.terms_of_service = terms_of_service
-        self.contact = contact
-        self.license_info = license_info
         self.openapi_url = openapi_url
         self.openapi_tags = openapi_tags
-        self.root_path_in_servers = root_path_in_servers
+        self.openapi_version = "3.0.2"
         self.docs_url = docs_url
         self.redoc_url = redoc_url
-        self.swagger_ui_oauth2_redirect_url = swagger_ui_oauth2_redirect_url
-        self.swagger_ui_init_oauth = swagger_ui_init_oauth
-        self.swagger_ui_parameters = swagger_ui_parameters
-        self.servers = servers or []
-        self.extra = extra
-        self.openapi_version = "3.0.2"
+        self.contact = contact
+        self.license_info = license_info
+        self.openapi_prefix = openapi_prefix
+        self.servers = servers
         self.openapi_schema: Optional[Dict[str, Any]] = None
-        if self.openapi_url:
-            assert self.title, "A title must be provided for OpenAPI, e.g.: 'My API'"
-            assert self.version, "A version must be provided for OpenAPI, e.g.: '2.1.0'"
-        # TODO: remove when discarding the openapi_prefix parameter
-        if openapi_prefix:
-            logger.warning(
-                '"openapi_prefix" has been deprecated in favor of "root_path", which '
-                "follows more closely the ASGI standard, is simpler, and more "
-                "automatic. Check the docs at "
-                "https://fastapi.tiangolo.com/advanced/sub-applications/"
-            )
-        self.root_path = root_path or openapi_prefix
-        self.state: State = State()
-        self.dependency_overrides: Dict[Callable[..., Any], Callable[..., Any]] = {}
-        self.router: routing.APIRouter = routing.APIRouter(
-            routes=routes,
-            dependency_overrides_provider=self,
-            on_startup=on_startup,
-            on_shutdown=on_shutdown,
-            default_response_class=default_response_class,
-            dependencies=dependencies,
-            callbacks=callbacks,
-            deprecated=deprecated,
-            include_in_schema=include_in_schema,
-            responses=responses,
-            generate_unique_id_function=generate_unique_id_function,
-        )
-        self.exception_handlers: Dict[
-            Any, Callable[[Request, Any], Union[Response, Awaitable[Response]]]
-        ] = ({} if exception_handlers is None else dict(exception_handlers))
-        self.exception_handlers.setdefault(HTTPException, http_exception_handler)
-        self.exception_handlers.setdefault(
-            RequestValidationError, request_validation_exception_handler
-        )
-
-        self.user_middleware: List[Middleware] = (
-            [] if middleware is None else list(middleware)
-        )
-        self.middleware_stack: ASGIApp = self.build_middleware_stack()
-        self.setup()
-
-    def build_middleware_stack(self) -> ASGIApp:
-        # Duplicate/override from Starlette to add AsyncExitStackMiddleware
-        # inside of ExceptionMiddleware, inside of custom user middlewares
-        debug = self.debug
-        error_handler = None
-        exception_handlers = {}
-
-        for key, value in self.exception_handlers.items():
-            if key in (500, Exception):
-                error_handler = value
-            else:
-                exception_handlers[key] = value
-
-        middleware = (
-            [Middleware(ServerErrorMiddleware, handler=error_handler, debug=debug)]
-            + self.user_middleware
-            + [
-                Middleware(
-                    ExceptionMiddleware, handlers=exception_handlers, debug=debug
-                ),
-                # Add FastAPI-specific AsyncExitStackMiddleware for dependencies with
-                # contextvars.
-                # This needs to happen after user middlewares because those create a
-                # new contextvars context copy by using a new AnyIO task group.
-                # The initial part of dependencies with yield is executed in the
-                # FastAPI code, inside all the middlewares, but the teardown part
-                # (after yield) is executed in the AsyncExitStack in this middleware,
-                # if the AsyncExitStack lived outside of the custom middlewares and
-                # contextvars were set in a dependency with yield in that internal
-                # contextvars context, the values would not be available in the
-                # outside context of the AsyncExitStack.
-                # By putting the middleware and the AsyncExitStack here, inside all
-                # user middlewares, the code before and after yield in dependencies
-                # with yield is executed in the same contextvars context, so all values
-                # set in contextvars before yield is still available after yield as
-                # would be expected.
-                # Additionally, by having this AsyncExitStack here, after the
-                # ExceptionMiddleware, now dependencies can catch handled exceptions,
-                # e.g. HTTPException, to customize the teardown code (e.g. DB session
-                # rollback).
-                Middleware(AsyncExitStackMiddleware),
-            ]
-        )
-
-        app = self.router
-        for cls, options in reversed(middleware):
-            app = cls(app=app, **options)
-        return app
+        super().__init__(import_name)
+        self.setup_open_api()
 
     def openapi(self) -> Dict[str, Any]:
         if not self.openapi_schema:
@@ -207,28 +79,30 @@ class FastAPI(Starlette):
                 terms_of_service=self.terms_of_service,
                 contact=self.contact,
                 license_info=self.license_info,
-                routes=self.routes,
+                routes=self.url_map,
                 tags=self.openapi_tags,
                 servers=self.servers,
             )
         return self.openapi_schema
 
-    def setup(self) -> None:
+    def setup_open_api(self) -> None:
+        # On ajoute les route pour OpenAPI mais selon le mode Flask
         if self.openapi_url:
             urls = (server_data.get("url") for server_data in self.servers)
             server_urls = {url for url in urls if url}
 
+            @self.get(self.openapi_url, include_in_schema=False)
             async def openapi(req: Request) -> JSONResponse:
                 root_path = req.scope.get("root_path", "").rstrip("/")
                 if root_path not in server_urls:
                     if root_path and self.root_path_in_servers:
                         self.servers.insert(0, {"url": root_path})
                         server_urls.add(root_path)
-                return JSONResponse(self.openapi())
+                return jsonify(self.openapi())
 
-            self.add_route(self.openapi_url, openapi, include_in_schema=False)
         if self.openapi_url and self.docs_url:
 
+            @self.get(self.openapi_url, include_in_schema=False)
             async def swagger_ui_html(req: Request) -> HTMLResponse:
                 root_path = req.scope.get("root_path", "").rstrip("/")
                 openapi_url = root_path + self.openapi_url
@@ -242,8 +116,6 @@ class FastAPI(Starlette):
                     init_oauth=self.swagger_ui_init_oauth,
                     swagger_ui_parameters=self.swagger_ui_parameters,
                 )
-
-            self.add_route(self.docs_url, swagger_ui_html, include_in_schema=False)
 
             if self.swagger_ui_oauth2_redirect_url:
 
@@ -265,11 +137,6 @@ class FastAPI(Starlette):
                 )
 
             self.add_route(self.redoc_url, redoc_html, include_in_schema=False)
-
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if self.root_path:
-            scope["root_path"] = self.root_path
-        await super().__call__(scope, receive, send)
 
     def add_api_route(
         self,
@@ -389,49 +256,6 @@ class FastAPI(Starlette):
             return func
 
         return decorator
-
-    def add_api_websocket_route(
-        self, path: str, endpoint: Callable[..., Any], name: Optional[str] = None
-    ) -> None:
-        self.router.add_api_websocket_route(path, endpoint, name=name)
-
-    def websocket(
-        self, path: str, name: Optional[str] = None
-    ) -> Callable[[DecoratedCallable], DecoratedCallable]:
-        def decorator(func: DecoratedCallable) -> DecoratedCallable:
-            self.add_api_websocket_route(path, func, name=name)
-            return func
-
-        return decorator
-
-    def include_router(
-        self,
-        router: routing.APIRouter,
-        *,
-        prefix: str = "",
-        tags: Optional[List[Union[str, Enum]]] = None,
-        dependencies: Optional[Sequence[Depends]] = None,
-        responses: Optional[Dict[Union[int, str], Dict[str, Any]]] = None,
-        deprecated: Optional[bool] = None,
-        include_in_schema: bool = True,
-        default_response_class: Type[Response] = Default(JSONResponse),
-        callbacks: Optional[List[BaseRoute]] = None,
-        generate_unique_id_function: Callable[[routing.APIRoute], str] = Default(
-            generate_unique_id
-        ),
-    ) -> None:
-        self.router.include_router(
-            router,
-            prefix=prefix,
-            tags=tags,
-            dependencies=dependencies,
-            responses=responses,
-            deprecated=deprecated,
-            include_in_schema=include_in_schema,
-            default_response_class=default_response_class,
-            callbacks=callbacks,
-            generate_unique_id_function=generate_unique_id_function,
-        )
 
     def get(
         self,

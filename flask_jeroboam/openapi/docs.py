@@ -8,6 +8,9 @@ from starlette.responses import HTMLResponse
 from flask_jeroboam.encoders import jsonable_encoder
 
 
+# TODO: Faire les HTMLResponse
+
+
 swagger_ui_default_parameters = {
     "dom_id": "#swagger-ui",
     "layout": "BaseLayout",

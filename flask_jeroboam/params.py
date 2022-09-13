@@ -1,3 +1,7 @@
+"""Param Classes to declare arguments.
+
+A collection of classes bound to factories in previous file.
+"""
 from enum import Enum
 from typing import Any
 from typing import Callable
@@ -10,6 +14,8 @@ from pydantic.fields import Undefined
 
 
 class ParamTypes(Enum):
+    """Enum to declare location of Parameter."""
+
     query = "query"
     header = "header"
     path = "path"
@@ -17,6 +23,8 @@ class ParamTypes(Enum):
 
 
 class Param(FieldInfo):
+    """Generic Parameter."""
+
     in_: ParamTypes
 
     def __init__(
@@ -63,6 +71,8 @@ class Param(FieldInfo):
 
 
 class Path(Param):
+    """Parameter located in the Path."""
+
     in_ = ParamTypes.path
 
     def __init__(
@@ -107,6 +117,8 @@ class Path(Param):
 
 
 class Query(Param):
+    """Parameter located in the QueryString."""
+
     in_ = ParamTypes.query
 
     def __init__(
@@ -150,6 +162,8 @@ class Query(Param):
 
 
 class Header(Param):
+    """Parameter located in the Header."""
+
     in_ = ParamTypes.header
 
     def __init__(
@@ -195,6 +209,8 @@ class Header(Param):
 
 
 class Cookie(Param):
+    """Parameter located in a Cookie."""
+
     in_ = ParamTypes.cookie
 
     def __init__(
@@ -238,6 +254,8 @@ class Cookie(Param):
 
 
 class Body(FieldInfo):
+    """Parameter located in the Body."""
+
     def __init__(
         self,
         default: Any = Undefined,
@@ -282,6 +300,8 @@ class Body(FieldInfo):
 
 
 class Form(Body):
+    """Parameter located in the Form."""
+
     def __init__(
         self,
         default: Any,
@@ -322,6 +342,8 @@ class Form(Body):
 
 
 class File(Form):
+    """Parameter located in the File."""
+
     def __init__(
         self,
         default: Any,
@@ -361,6 +383,8 @@ class File(Form):
 
 
 class Depends:
+    """Dependency Injection."""
+
     def __init__(
         self, dependency: Optional[Callable[..., Any]] = None, *, use_cache: bool = True
     ):
@@ -374,6 +398,8 @@ class Depends:
 
 
 class Security(Depends):
+    """Security Dependency Injection."""
+
     def __init__(
         self,
         dependency: Optional[Callable[..., Any]] = None,

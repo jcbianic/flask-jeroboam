@@ -1,3 +1,4 @@
+"""Collection of Utilities."""
 import functools
 import re
 import warnings
@@ -12,7 +13,6 @@ from typing import Type
 from typing import Union
 from typing import cast
 
-import fastapi
 from pydantic import BaseConfig
 from pydantic import BaseModel
 from pydantic import create_model
@@ -23,9 +23,10 @@ from pydantic.fields import UndefinedType
 from pydantic.schema import model_process_schema
 from pydantic.utils import lenient_issubclass
 
+import flask_jeroboam
 from flask_jeroboam.datastructures import DefaultPlaceholder
 from flask_jeroboam.datastructures import DefaultType
-from flask_jeroboam.openapi.constants import REF_PREFIX
+from flask_jeroboam.openapi._constants import REF_PREFIX
 
 
 if TYPE_CHECKING:  # pragma: nocover
@@ -33,6 +34,7 @@ if TYPE_CHECKING:  # pragma: nocover
 
 
 def is_body_allowed_for_status_code(status_code: Union[int, str, None]) -> bool:
+    """Check if the body is allowed for the given status code."""
     if status_code is None:
         return True
     current_status_code = int(status_code)
@@ -58,6 +60,7 @@ def get_model_definitions(
 
 
 def get_path_param_names(path: str) -> Set[str]:
+    # TODO: adapt to Flask
     return set(re.findall("{(.*?)}", path))
 
 
@@ -91,9 +94,9 @@ def create_response_field(
     try:
         return response_field(field_info=field_info)
     except RuntimeError:
-        raise fastapi.exceptions.FastAPIError(
+        raise flask_jeroboam.exceptions.FlaskJeroboamError(
             f"Invalid args for response field! Hint: check that {type_} is a valid pydantic field type"
-        )
+        ) from RuntimeError
 
 
 def create_cloned_field(

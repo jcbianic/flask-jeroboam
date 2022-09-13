@@ -1,37 +1,72 @@
+"""A few wrappers arount Responses."""
+
 from typing import Any
 
-from starlette.responses import FileResponse as FileResponse  # noqa
-from starlette.responses import HTMLResponse as HTMLResponse  # noqa
-from starlette.responses import JSONResponse as JSONResponse  # noqa
-from starlette.responses import PlainTextResponse as PlainTextResponse  # noqa
-from starlette.responses import RedirectResponse as RedirectResponse  # noqa
-from starlette.responses import Response as Response  # noqa
-from starlette.responses import StreamingResponse as StreamingResponse  # noqa
+from flask import Response as BaseResponse
 
 
-try:
-    import ujson
-except ImportError:  # pragma: nocover
-    ujson = None  # type: ignore
+class Response(BaseResponse):
+    """Flask Response Object with a render method."""
+
+    charset = "utf-8"
+
+    def render(self, content: Any) -> Any:
+        """Default render method. Not Sure to use it in Flask Context"""
+        if content is None:
+            return b""
+        if isinstance(content, bytes):
+            return content
+        return content.encode(self.charset)
 
 
-try:
-    import orjson
-except ImportError:  # pragma: nocover
-    orjson = None  # type: ignore
+class HTMLResponse(Response):
+    """Response class for HTML."""
+
+    default_mimetype = "text/html"
 
 
-class UJSONResponse(JSONResponse):
+class JSONResponse(Response):
+    """Response class for JSON."""
+
+    default_mimetype = "application/json"
+
+
+class FileResponse(Response):
+    """Response class for files."""
+
+    default_mimetype = "application/octet-stream"
+
+
+class PlainTextResponse(Response):
+    """Response class for plain text."""
+
+    default_mimetype = "text/plain"
+
+
+class RedirectResponse(Response):
+    """Response class for redirects."""
+
+    default_mimetype = "text/html"
+
+
+class StreamingResponse(Response):
+    """Response class for streaming."""
+
+    default_mimetype = "text/html"
+
+
+class CustomJSONResponse(JSONResponse):
+    """Response class for UJSON."""
+
     def render(self, content: Any) -> bytes:
-        assert ujson is not None, "ujson must be installed to use UJSONResponse"
-        return ujson.dumps(content, ensure_ascii=False).encode("utf-8")
+        """Overirde render method to use Custom JSON Module.
 
-
-class ORJSONResponse(JSONResponse):
-    media_type = "application/json"
-
-    def render(self, content: Any) -> bytes:
-        assert orjson is not None, "orjson must be installed to use ORJSONResponse"
-        return orjson.dumps(
-            content, option=orjson.OPT_NON_STR_KEYS | orjson.OPT_SERIALIZE_NUMPY
+        Example:
+        def render(self, content: Any) -> bytes:
+           return ujson.dumps(content, ensure)
+        def render(self, content: Any) -> bytes:
+           return orjson.dumps(content, option=orjson.OPT_NON_STR_KEYS | orjson.OPT_SERIALIZE_NUMPY)
+        """
+        raise NotImplementedError(
+            "You must override render() with a custom JSON encoder."
         )

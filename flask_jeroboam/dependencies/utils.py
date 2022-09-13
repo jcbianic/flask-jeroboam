@@ -1,6 +1,6 @@
+"""Utils for dependency injection."""
 import dataclasses
 import inspect
-from contextlib import contextmanager
 from copy import deepcopy
 from typing import Any
 from typing import Callable
@@ -15,7 +15,7 @@ from typing import Type
 from typing import Union
 from typing import cast
 
-import anyio
+from flask.wrappers import Request
 from pydantic import BaseModel
 from pydantic import create_model
 from pydantic.error_wrappers import ErrorWrapper
@@ -35,30 +35,19 @@ from pydantic.schema import get_annotation_from_field_info
 from pydantic.typing import ForwardRef
 from pydantic.typing import evaluate_forwardref
 from pydantic.utils import lenient_issubclass
-from starlette.background import BackgroundTasks
-from starlette.concurrency import run_in_threadpool
-from starlette.datastructures import FormData
-from starlette.datastructures import Headers
-from starlette.datastructures import QueryParams
-from starlette.datastructures import UploadFile
-from starlette.requests import HTTPConnection
-from starlette.requests import Request
-from starlette.responses import Response
-from starlette.websockets import WebSocket
 
 from flask_jeroboam import params
-from flask_jeroboam.concurrency import AsyncExitStack
-from flask_jeroboam.concurrency import asynccontextmanager
-from flask_jeroboam.concurrency import contextmanager_in_threadpool
+from flask_jeroboam._logger import logger
+from flask_jeroboam._utils import create_response_field
+from flask_jeroboam._utils import get_path_param_names
+from flask_jeroboam.datastructures import UploadFile
 from flask_jeroboam.dependencies.models import Dependant
 from flask_jeroboam.dependencies.models import SecurityRequirement
-from flask_jeroboam.logger import logger
+from flask_jeroboam.responses import Response
 from flask_jeroboam.security.base import SecurityBase
 from flask_jeroboam.security.oauth2 import OAuth2
 from flask_jeroboam.security.oauth2 import SecurityScopes
 from flask_jeroboam.security.open_id_connect_url import OpenIdConnect
-from flask_jeroboam.utils import create_response_field
-from flask_jeroboam.utils import get_path_param_names
 
 
 sequence_shapes = {
@@ -95,6 +84,7 @@ multipart_incorrect_install_error = (
 
 
 def check_file_field(field: ModelField) -> None:
+    """Check for multipart package version."""
     field_info = field.field_info
     if isinstance(field_info, params.Form):
         try:
@@ -109,15 +99,16 @@ def check_file_field(field: ModelField) -> None:
                 assert parse_options_header
             except ImportError:
                 logger.error(multipart_incorrect_install_error)
-                raise RuntimeError(multipart_incorrect_install_error)
+                raise RuntimeError(multipart_incorrect_install_error) from ImportError
         except ImportError:
             logger.error(multipart_not_installed_error)
-            raise RuntimeError(multipart_not_installed_error)
+            raise RuntimeError(multipart_not_installed_error) from ImportError
 
 
 def get_param_sub_dependant(
     *, param: inspect.Parameter, path: str, security_scopes: Optional[List[str]] = None
 ) -> Dependant:
+    """Wrapper for get_sub_dependant for Params."""
     depends: params.Depends = param.default
     if depends.dependency:
         dependency = depends.dependency
@@ -133,6 +124,7 @@ def get_param_sub_dependant(
 
 
 def get_parameterless_sub_dependant(*, depends: params.Depends, path: str) -> Dependant:
+    """Wrapper for get_sub_dependant for NoParams."""
     assert callable(
         depends.dependency
     ), "A parameter-less dependency must have a callable dependency"
@@ -147,17 +139,19 @@ def get_sub_dependant(
     name: Optional[str] = None,
     security_scopes: Optional[List[str]] = None,
 ) -> Dependant:
+    """Traverse Dependency tree to go one level down."""
     security_requirement = None
     security_scopes = security_scopes or []
     if isinstance(depends, params.Security):
         dependency_scopes = depends.scopes
         security_scopes.extend(dependency_scopes)
-    if isinstance(dependency, SecurityBase):
+    # Use dependency() instead of dependy To solve Typing Issue
+    if isinstance(dependency(), SecurityBase):
         use_scopes: List[str] = []
-        if isinstance(dependency, (OAuth2, OpenIdConnect)):
+        if isinstance(dependency(), (OAuth2, OpenIdConnect)):
             use_scopes = security_scopes
         security_requirement = SecurityRequirement(
-            security_scheme=dependency, scopes=use_scopes
+            security_scheme=dependency(), scopes=use_scopes
         )
     sub_dependant = get_dependant(
         path=path,
@@ -337,17 +331,8 @@ def add_non_field_param_to_dependency(
     if lenient_issubclass(param.annotation, Request):
         dependant.request_param_name = param.name
         return True
-    elif lenient_issubclass(param.annotation, WebSocket):
-        dependant.websocket_param_name = param.name
-        return True
-    elif lenient_issubclass(param.annotation, HTTPConnection):
-        dependant.http_connection_param_name = param.name
-        return True
     elif lenient_issubclass(param.annotation, Response):
         dependant.response_param_name = param.name
-        return True
-    elif lenient_issubclass(param.annotation, BackgroundTasks):
-        dependant.background_tasks_param_name = param.name
         return True
     elif lenient_issubclass(param.annotation, SecurityScopes):
         dependant.security_scopes_param_name = param.name
@@ -430,47 +415,35 @@ def is_coroutine_callable(call: Callable[..., Any]) -> bool:
         return inspect.iscoroutinefunction(call)
     if inspect.isclass(call):
         return False
-    call = getattr(call, "__call__", None)
-    return inspect.iscoroutinefunction(call)
+    called = getattr(call, "__call__", None)
+    return inspect.iscoroutinefunction(called)
 
 
 def is_async_gen_callable(call: Callable[..., Any]) -> bool:
     if inspect.isasyncgenfunction(call):
         return True
-    call = getattr(call, "__call__", None)
-    return inspect.isasyncgenfunction(call)
+    called = getattr(call, "__call__", None)
+    return inspect.isasyncgenfunction(called)
 
 
 def is_gen_callable(call: Callable[..., Any]) -> bool:
     if inspect.isgeneratorfunction(call):
         return True
-    call = getattr(call, "__call__", None)
-    return inspect.isgeneratorfunction(call)
-
-
-async def solve_generator(
-    *, call: Callable[..., Any], stack: AsyncExitStack, sub_values: Dict[str, Any]
-) -> Any:
-    if is_gen_callable(call):
-        cm = contextmanager_in_threadpool(contextmanager(call)(**sub_values))
-    elif is_async_gen_callable(call):
-        cm = asynccontextmanager(call)(**sub_values)
-    return await stack.enter_async_context(cm)
+    called = getattr(call, "__call__", None)
+    return inspect.isgeneratorfunction(called)
 
 
 async def solve_dependencies(
     *,
-    request: Union[Request, WebSocket],
+    request: Request,
     dependant: Dependant,
     body: Optional[Union[Dict[str, Any], FormData]] = None,
-    background_tasks: Optional[BackgroundTasks] = None,
     response: Optional[Response] = None,
     dependency_overrides_provider: Optional[Any] = None,
     dependency_cache: Optional[Dict[Tuple[Callable[..., Any], Tuple[str]], Any]] = None,
 ) -> Tuple[
     Dict[str, Any],
     List[ErrorWrapper],
-    Optional[BackgroundTasks],
     Response,
     Dict[Tuple[Callable[..., Any], Tuple[str]], Any],
 ]:
@@ -509,7 +482,6 @@ async def solve_dependencies(
             request=request,
             dependant=use_sub_dependant,
             body=body,
-            background_tasks=background_tasks,
             response=response,
             dependency_overrides_provider=dependency_overrides_provider,
             dependency_cache=dependency_cache,

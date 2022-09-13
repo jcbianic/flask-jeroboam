@@ -10,6 +10,10 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import NotFound
 
 
+class FlaskJeroboamError(RuntimeError):
+    """A generic, Package-specific error."""
+
+
 class RessourceNotFound(NotFound):
     """A slightly modified version of Werkzeug's RessourceNotFound Exception."""
 
@@ -38,9 +42,15 @@ class RessourceNotFound(NotFound):
 class InvalidRequest(BadRequest):
     """A slightly modifiedversion of Werkzeug's BadRequest Exception."""
 
-    def __init__(self, msg_to_user: str, context: Optional[str] = None):
+    def __init__(
+        self,
+        msg_to_user: str,
+        context: Optional[str] = None,
+        errors: Optional[dict] = None,
+    ):
         self.msg_to_user = msg_to_user
         self.context = context
+        self.errors = errors
 
     def __str__(self) -> str:
         return f"BadRequest: {self.msg_to_user}"

@@ -1,6 +1,7 @@
 """Blueprint overriding Flask's default routing."""
 from flask.blueprints import Blueprint
 
+# TODO: remplacer par Routing.
 from ._route import route
 
 
