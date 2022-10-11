@@ -1,11 +1,11 @@
 """Testing Base Class from Flask-Jeroboam."""
 from unittest import mock
 
-from flask import Blueprint
+from flask import Blueprint as FlaskBlueprint
 from flask import Flask
 from pydantic import BaseModel
 
-from flask_jeroboam.blueprint import APIBlueprint
+from flask_jeroboam.jeroboam import Blueprint
 from flask_jeroboam.jeroboam import Jeroboam
 
 
@@ -14,9 +14,9 @@ def test_blueprint(
     reponse_model_test_class,
 ):
     """Test BluePrint Initialisation"""
-    blueprint = APIBlueprint("test", __name__)
+    blueprint = Blueprint("test", __name__)
 
-    assert issubclass(blueprint.__class__, Blueprint)
+    assert issubclass(blueprint.__class__, FlaskBlueprint)
 
 
 def test_jeroboam(

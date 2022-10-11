@@ -2,6 +2,9 @@ import json
 import typing as t
 from enum import Enum
 from functools import wraps
+from typing import Any
+from typing import Callable
+from typing import Dict
 
 from flask import request
 from pydantic import BaseModel
@@ -57,3 +60,19 @@ def parser(method: MethodEnum):
         return wrapper
 
     return parser_decorator
+
+
+class Parser:
+    """The Parser is responsible for parsing incoming request data."""
+
+    def __init__(
+        self,
+        view_function: Callable,
+        options: Dict[str, Any],
+    ):
+        self.view_function = view_function
+        self.options = options
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        """Parsing the request data."""
+        return args, kwargs
