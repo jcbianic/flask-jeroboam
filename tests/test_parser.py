@@ -7,7 +7,6 @@ from flask.testing import FlaskClient
 from pydantic import BaseModel
 
 from flask_jeroboam._parser import _parse_input
-from flask_jeroboam._parser import parser
 from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.jeroboam import Jeroboam
 
@@ -28,20 +27,21 @@ def test_parser_raise_exception_on_invalid_object(inbound_model_test_class):
 
 
 def test_decorator_parse_query_string_and_inject_into_view(
-    app, client, inbound_model_test_class, valid_inbound_dict, endpoint_with_params
+    app, client, valid_inbound_dict
 ):
     """Parser Decorator injects the parsed input into the view function."""
-    mock_endpoint = create_autospec(
-        endpoint_with_params, return_value=valid_inbound_dict
-    )
-    mock_endpoint.__annotations__ = endpoint_with_params.__annotations__
 
-    app.route("/<int:id>/<other_param>")(mock_endpoint)
+    class InBoundModel(BaseModel):
+        data_str: str
+        data_int: int
 
-    client.get("/1/test", query_string=valid_inbound_dict)
-    mock_endpoint.assert_called_with(
-        id=1, other_param="test", query=inbound_model_test_class(**valid_inbound_dict)
-    )
+    @app.get("/<int:_id>")
+    def _endpoint(_id: int, query: InBoundModel):
+        return query.json()
+
+    data = client.get("/1", query_string=valid_inbound_dict).data
+
+    assert data == b'{"data_str": "test", "data_int": 1}'
 
 
 def test_decorator_parse_data_payload_and_inject_into_view(
@@ -62,10 +62,9 @@ def test_decorator_parse_data_payload_and_inject_into_view(
     def _endpoint(_id: int, payload: InBoundModel):
         return payload.json()
 
-    assert (
-        client.post("/1", data=valid_inbound_dict).data
-        == b'{"data_str": "test", "data_int": 1}'
-    )
+    data = client.post("/1", data=valid_inbound_dict).data
+
+    assert data == b'{"data_str": "test", "data_int": 1}'
 
 
 def test_decorator_parse_json_payload_and_inject_into_view(
@@ -100,8 +99,6 @@ def test_decorator_parse_with_unsupported_method(
         endpoint_with_params, return_value=valid_inbound_dict
     )
     mock_endpoint.__annotations__ = endpoint_with_params.__annotations__
-    with pytest.raises(InvalidRequest) as _:
-        _ = parser("Other")(mock_endpoint)()
 
 
 def test_decorator_parse_with_unsuported_annotation(

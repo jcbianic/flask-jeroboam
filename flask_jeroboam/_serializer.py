@@ -67,10 +67,13 @@ class Serializer:
         self.status_code = options.get("status_code", 200)
         self.response_model = options.get("response_model", None)
         self.response_class = options.get("response_class", Response)
+        self.processor: Callable = self._choose_processor()
+
+    def _choose_processor(self) -> Callable:
+        """Choose the processor for the endpoint."""
         if self.response_model is not None:
-            self.processor = self._make_response
-        else:
-            self.processor = lambda x: x
+            return self._make_response
+        return lambda x: x
 
     def is_body_allowed(self) -> bool:
         """Check if Body is allowed for the status code."""
@@ -94,4 +97,4 @@ class Serializer:
 
     def __call__(self, raw_result: Any):
         """Add the serialization behavior to the endpoint."""
-        return self._make_response(raw_result)
+        return self.processor(raw_result)

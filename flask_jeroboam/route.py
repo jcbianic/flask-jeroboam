@@ -6,8 +6,6 @@ from typing import TypeVar
 from flask.scaffold import Scaffold
 from typing_extensions import ParamSpec
 
-from flask_jeroboam.exceptions import InvalidRequest
-
 from ._parser import Parser
 from ._serializer import Serializer
 
@@ -40,12 +38,9 @@ class Route:
         """Return the name of the view function."""
         return self.view_function.__name__
 
-    def __call__(self, *_args: P.args, **_kwargs: P.kwargs):
+    def __call__(self, *args: P.args, **kwargs: P.kwargs):
         """In the end a route is just a callable."""
-        values, errors = self.parser()
-        if errors:
-            raise InvalidRequest(errors)
-        raw_result = self.view_function(**values)
+        raw_result = self.parser(*args, **kwargs)
         response = self.serializer(raw_result)
         return response
 
@@ -58,6 +53,7 @@ def route_overide(
     def register_route(f: F) -> Route:
         endpoint = options.pop("endpoint", None)
         route = Route(f, options)
+        options.pop("response_model", None)
         self.add_url_rule(rule, endpoint, route, **options)
         return route
 
