@@ -1,6 +1,5 @@
 """Testing for the Parser decorator factory."""
 from unittest.mock import create_autospec
-from unittest.mock import patch
 
 import pytest
 from flask.testing import FlaskClient
@@ -63,7 +62,7 @@ def test_decorator_parse_data_payload_and_inject_into_view(
         return payload.json()
 
     assert (
-        client.post("/1", data=valid_inbound_dict).data
+        client.post("/1", json=valid_inbound_dict).data
         == b'{"data_str": "test", "data_int": 1}'
     )
 
@@ -101,23 +100,4 @@ def test_decorator_parse_with_unsupported_method(
     )
     mock_endpoint.__annotations__ = endpoint_with_params.__annotations__
     with pytest.raises(InvalidRequest) as _:
-        _ = parser("Other")(mock_endpoint)()
-
-
-def test_decorator_parse_with_unsuported_annotation(
-    app: Jeroboam, client: FlaskClient, request_context
-):
-    """GIVEN a post endpoint without any argument annotated as Pydantic Model
-    WHEN Called
-    THEN the request object is not parsed whatsoever.
-    """
-
-    @app.get("/<int:_id>/<other_param>")
-    def _endpoint(_id: int, other_param: str):
-        return {"id_": _id, "other_param": other_param}
-
-    with request_context:
-        mock_request = patch("flask_jeroboam._parser.request").start()
-
-    assert client.get("/1/test").data == b'{"id_":1,"other_param":"test"}\n'
-    mock_request.assert_not_called()
+        _ = parser("Other", "/<int:id>/my-rule")(mock_endpoint)()
