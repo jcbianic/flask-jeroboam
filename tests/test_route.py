@@ -1,11 +1,10 @@
 """Testing Base Class from Flask-Jeroboam."""
-from unittest import mock
 
-from flask import Blueprint
+from flask import Blueprint as FlaskBlueprint
 from flask import Flask
 from pydantic import BaseModel
 
-from flask_jeroboam.blueprint import APIBlueprint
+from flask_jeroboam.jeroboam import Blueprint
 from flask_jeroboam.jeroboam import Jeroboam
 
 
@@ -14,9 +13,9 @@ def test_blueprint(
     reponse_model_test_class,
 ):
     """Test BluePrint Initialisation"""
-    blueprint = APIBlueprint("test", __name__)
+    blueprint = Blueprint("test", __name__)
 
-    assert issubclass(blueprint.__class__, Blueprint)
+    assert issubclass(blueprint.__class__, FlaskBlueprint)
 
 
 def test_jeroboam(
@@ -29,33 +28,32 @@ def test_jeroboam(
     assert issubclass(app.__class__, Flask)
 
 
-@mock.patch("flask_jeroboam._route.serializer")
-def test_route_without_response_model(mock_serializer, app, client):
+def test_route_without_response_model(app, client):
     """Test Route Decorator"""
 
     @app.route("/test")
     def test():
         return "test"
 
-    assert mock_serializer.is_not_called()
-    assert client.get("/test").data == b"test"
+    data = client.get("/test").data
+
+    assert data == b"test"
 
 
-@mock.patch("flask_jeroboam._route.serializer")
-def test_route_with_response_model(mock_serializer, app, client):
+def test_route_with_response_model(app, client):
     """GIVEN a route decorator
     WHEN Called given a response_model
     THEN it generate a serializer
     """
 
-    class InBoundModel(BaseModel):
+    class OutBoundModel(BaseModel):
         data_str: str
         data_int: int
 
-    @app.route("/test", response_model=InBoundModel)
+    @app.get("/test", response_model=OutBoundModel)
     def test():
-        return "test"
+        return OutBoundModel(**{"data_str": "test", "data_int": 1})
 
-    mock_serializer.return_value = lambda c: c
+    data = client.get("/test").data
 
-    assert mock_serializer.is_called_with(InBoundModel, 200)
+    assert data == OutBoundModel(data_str="test", data_int=1).json()
