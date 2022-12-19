@@ -1,15 +1,18 @@
 """Testing for the Parser decorator factory."""
+from typing import Dict
+from typing import List
 from unittest.mock import create_autospec
-from unittest.mock import patch
 
 import pytest
 from flask.testing import FlaskClient
 from pydantic import BaseModel
+from pydantic import Field
 
 from flask_jeroboam._parser import _parse_input
 from flask_jeroboam._parser import parser
 from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.jeroboam import Jeroboam
+from flask_jeroboam.models import Parser
 
 
 def test_parser_parse_valid_object(inbound_model_test_class, valid_inbound_dict):
@@ -63,7 +66,7 @@ def test_decorator_parse_data_payload_and_inject_into_view(
         return payload.json()
 
     assert (
-        client.post("/1", data=valid_inbound_dict).data
+        client.post("/1", json=valid_inbound_dict).data
         == b'{"data_str": "test", "data_int": 1}'
     )
 
@@ -101,23 +104,36 @@ def test_decorator_parse_with_unsupported_method(
     )
     mock_endpoint.__annotations__ = endpoint_with_params.__annotations__
     with pytest.raises(InvalidRequest) as _:
-        _ = parser("Other")(mock_endpoint)()
+        _ = parser("Other", "/<int:id>/my-rule")(mock_endpoint)()
 
 
-def test_decorator_parse_with_unsuported_annotation(
-    app: Jeroboam, client: FlaskClient, request_context
-):
-    """GIVEN a post endpoint without any argument annotated as Pydantic Model
-    WHEN Called
-    THEN the request object is not parsed whatsoever.
+def test_invalid_request_on_rule_params(app, client):
+    """GIVEN a rule with a parameter
+    WHEN url is called with proper params
+    THEN the endpoint is called with the params
     """
 
-    @app.get("/<int:_id>/<other_param>")
-    def _endpoint(_id: int, other_param: str):
-        return {"id_": _id, "other_param": other_param}
+    @app.get("/wrong_params/<int:id>")
+    def ping(id: int):
+        return str(id)
 
-    with request_context:
-        mock_request = patch("flask_jeroboam._parser.request").start()
+    r = client.get("/wrong_params/3")
+    assert r.data == b"3"
 
-    assert client.get("/1/test").data == b'{"id_":1,"other_param":"test"}\n'
-    mock_request.assert_not_called()
+
+def test_query_string_for_list(app, client):
+    """GIVEN an endpoint that accepts list query string
+    WHEN called with a list
+    THEN the endpoint is called with the list
+    """
+
+    class QueryStringWithList(Parser):
+        id: List[int] = Field(alias="id[]")
+        order: List[Dict[str, str]] = Field(alias="order[]")
+
+    @app.get("/rule_with_list")
+    def ping(query_string: QueryStringWithList):
+        return ",".join([str(id) for id in query_string.id])
+
+    r = client.get("/rule_with_list?order[name]=asc&order[group]=desc&id[]=1&id[]=2")
+    assert r.data == b"1,2"

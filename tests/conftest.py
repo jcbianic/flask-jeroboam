@@ -6,6 +6,7 @@ import pytest
 from flask import Response
 from pydantic import BaseModel
 
+from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.jeroboam import Jeroboam
 
 
@@ -17,6 +18,7 @@ def app() -> Jeroboam:
         TESTING=True,
         SECRET_KEY="RandomSecretKey",
     )
+    app.register_error_handler(InvalidRequest, InvalidRequest.handle)
     return app
 
 
