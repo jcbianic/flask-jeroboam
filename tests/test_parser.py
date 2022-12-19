@@ -1,14 +1,18 @@
 """Testing for the Parser decorator factory."""
+from typing import Dict
+from typing import List
 from unittest.mock import create_autospec
 
 import pytest
 from flask.testing import FlaskClient
 from pydantic import BaseModel
+from pydantic import Field
 
 from flask_jeroboam._parser import _parse_input
 from flask_jeroboam._parser import parser
 from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.jeroboam import Jeroboam
+from flask_jeroboam.models import Parser
 
 
 def test_parser_parse_valid_object(inbound_model_test_class, valid_inbound_dict):
@@ -101,3 +105,35 @@ def test_decorator_parse_with_unsupported_method(
     mock_endpoint.__annotations__ = endpoint_with_params.__annotations__
     with pytest.raises(InvalidRequest) as _:
         _ = parser("Other", "/<int:id>/my-rule")(mock_endpoint)()
+
+
+def test_invalid_request_on_rule_params(app, client):
+    """GIVEN a rule with a parameter
+    WHEN url is called with proper params
+    THEN the endpoint is called with the params
+    """
+
+    @app.get("/wrong_params/<int:id>")
+    def ping(id: int):
+        return str(id)
+
+    r = client.get("/wrong_params/3")
+    assert r.data == b"3"
+
+
+def test_query_string_for_list(app, client):
+    """GIVEN an endpoint that accepts list query string
+    WHEN called with a list
+    THEN the endpoint is called with the list
+    """
+
+    class QueryStringWithList(Parser):
+        id: List[int] = Field(alias="id[]")
+        order: List[Dict[str, str]] = Field(alias="order[]")
+
+    @app.get("/rule_with_list")
+    def ping(query_string: QueryStringWithList):
+        return ",".join([str(id) for id in query_string.id])
+
+    r = client.get("/rule_with_list?order[name]=asc&order[group]=desc&id[]=1&id[]=2")
+    assert r.data == b"1,2"

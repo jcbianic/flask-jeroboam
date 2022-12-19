@@ -27,18 +27,7 @@ class MethodEnum(str, Enum):
     PATCH = "PATCH"
 
 
-pattern = r"(.*)\[\d*\]$"
-
-
-def _simple_parse_input(type_: T, payload: dict, key: str) -> T:
-    try:
-        input = payload.get(key, None)
-        return type_(input)
-    except ValueError as e:
-        raise InvalidRequest(
-            msg_to_user=str(e),
-            context=f"key: {key}, payload: {payload}, type_: {type_}",
-        ) from e
+pattern = r"(.*)\[(.+)\]$"
 
 
 def _parse_input(model: t.Type[BaseModel], **kwargs: ParamSpec) -> BaseModel:
@@ -51,17 +40,18 @@ def _parse_input(model: t.Type[BaseModel], **kwargs: ParamSpec) -> BaseModel:
 def _rename_keys(location: dict, pattern: str) -> dict:
     renamings = []
     for key, value in location.items():
-        if len(value) == 1 and not re.search(pattern, key):
-            location[key] = value[0]
         match = re.match(pattern, key)
-        if match:
+        if len(value) == 1 and match is None:
+            location[key] = value[0]
+        elif match is not None:
             new_key = match.group(1) + "[]"
-            renamings.append((key, new_key))
-    for key, new_key in renamings:
+            new_value = {match.group(2): value[0]}
+            renamings.append((key, new_key, new_value))
+    for key, new_key, new_value in renamings:
         if new_key not in location:
-            location[new_key] = location[key]
+            location[new_key] = [new_value]
         else:
-            location[new_key].extend(location[key])
+            location[new_key].extend(new_value)
         del location[key]
     return location
 
@@ -85,8 +75,6 @@ def parser(
             for arg_name, arg_type in func.__annotations__.items():
                 if issubclass(arg_type, BaseModel):
                     kwargs[arg_name] = _parse_input(arg_type, **location)
-                elif arg_name not in rule:
-                    kwargs[arg_name] = _simple_parse_input(arg_type, location, arg_name)
             return func(*args, **kwargs)
 
         return wrapper
