@@ -50,12 +50,6 @@ jobs:
               upload: false,
             }
           - {
-              python: "3.7",
-              os: "ubuntu-latest",
-              session: "mypy",
-              upload: false,
-            }
-          - {
               python: "3.11",
               os: "ubuntu-latest",
               session: "tests",
@@ -75,12 +69,6 @@ jobs:
             }
           - {
               python: "3.8",
-              os: "ubuntu-latest",
-              session: "tests",
-              upload: true,
-            }
-          - {
-              python: "3.7",
               os: "ubuntu-latest",
               session: "tests",
               upload: true,
