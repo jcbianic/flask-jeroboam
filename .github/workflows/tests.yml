@@ -132,7 +132,7 @@ jobs:
       - name: Install Poetry
         run: |
           pipx install poetry
-          poetry export --with workflows --format=constraints.txt > .github/workflows/constraints.txt
+          poetry export --with workflows --without-hashes --format=constraints.txt > .github/workflows/constraints.txt
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
           poetry --version
 
@@ -150,7 +150,6 @@ jobs:
           with open(os.environ["GITHUB_ENV"], mode="a") as io:
               print(f"VIRTUALENV_PIP={pip.__version__}", file=io)
 
-    
       - name: Install Nox
         run: |
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt nox
@@ -214,7 +213,7 @@ jobs:
       - name: Install Poetry
         run: |
           pipx install poetry
-          poetry export --with workflows --format=constraints.txt > .github/workflows/constraints.txt
+          poetry export --with workflows --without-hashed --format=constraints.txt > .github/workflows/constraints.txt
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
           poetry --version
 

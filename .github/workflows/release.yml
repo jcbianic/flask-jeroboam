@@ -23,7 +23,7 @@ jobs:
       - name: Install Poetry
         run: |
           pipx install poetry
-          poetry export --with workflows --format=constraints.txt > .github/workflows/constraints.txt
+          poetry export --with workflows --without-hashes --format=constraints.txt > .github/workflows/constraints.txt
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
           poetry --version
 
