@@ -11,4 +11,4 @@ class Jeroboam(Flask):
     route decorator.
     """
 
-    route = route
+    route = route  # type: ignore
