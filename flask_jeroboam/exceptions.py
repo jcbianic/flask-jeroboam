@@ -4,6 +4,7 @@ They are small wrappers around werkzeug HTTP exceptions that customize
 how the message is colllected and formatted.
 """
 from typing import Optional
+from typing import Tuple
 
 from werkzeug.exceptions import BadRequest
 from werkzeug.exceptions import InternalServerError
@@ -34,16 +35,23 @@ class RessourceNotFound(NotFound):
         else:
             return self.msg
 
+    def handle(self) -> Tuple[str, int]:
+        """Handle the exception and return a message to the user."""
+        return str(self), 404
+
 
 class InvalidRequest(BadRequest):
     """A slightly modifiedversion of Werkzeug's BadRequest Exception."""
 
-    def __init__(self, msg_to_user: str, context: Optional[str] = None):
-        self.msg_to_user = msg_to_user
-        self.context = context
+    def __init__(self, msg: Optional[str]):
+        self.msg = msg
 
     def __str__(self) -> str:
-        return f"BadRequest: {self.msg_to_user}"
+        return f"BadRequest: {self.msg}"
+
+    def handle(self) -> Tuple[str, int]:
+        """Handle the exception and return a message to the user."""
+        return str(self), 400
 
 
 class ServerError(InternalServerError):
@@ -59,3 +67,7 @@ class ServerError(InternalServerError):
 
     def __str__(self) -> str:
         return f"InternalServerError: {self.msg}"
+
+    def handle(self) -> Tuple[str, int]:
+        """Handle the exception and return a message to the user."""
+        return str(self), 500

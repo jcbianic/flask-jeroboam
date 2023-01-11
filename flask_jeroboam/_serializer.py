@@ -16,16 +16,8 @@ R = TypeVar("R")
 
 
 def _prepare_response(result: BaseModel, status: int = 200) -> Response:
-    """Wraps pydantic Serializer into flask Response Object."""
-    try:
-        return Response(result.json(), mimetype="application/json", status=status)
-    except AttributeError as e:
-        raise ServerError(
-            msg="Internal server error",
-            error=e,
-            trace=traceback.format_exc(),
-            context=f"Trying to jsonify result with value {result}.",
-        ) from e
+    """Wraps simple Response initialisation."""
+    return Response(result.json(), mimetype="application/json", status=status)
 
 
 def serializer(response_model: t.Type[BaseModel], status_code: int = 200):
@@ -38,7 +30,16 @@ def serializer(response_model: t.Type[BaseModel], status_code: int = 200):
         def inner(*args: P.args, **kwargs: P.kwargs) -> t.Union[R, Response]:
             response = func(*args, **kwargs)
             if isinstance(response, dict):
-                return _prepare_response(response_model(**response), status_code)
+                try:
+                    validated_response = response_model(**response)
+                except ValueError as e:
+                    raise ServerError(
+                        msg="Internal server error",
+                        error=e,
+                        trace=traceback.format_exc(),
+                        context=f"Trying to validate result with value {response}.",
+                    ) from e
+                return _prepare_response(validated_response, status_code)
             elif isinstance(response, response_model):
                 return _prepare_response(response, status_code)
             else:
