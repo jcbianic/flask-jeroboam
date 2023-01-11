@@ -1,6 +1,6 @@
 <h1 align="center">Flask-Jeroboam</h1>
 
-⚠️ Although Flask-Jeroboam has been extracted from code running in production, it is still in a very early stage, and still overfitted to one specific use case. Don't use in production just yet.
+⚠️ Although Flask-Jeroboam has been extracted from code running in production, it is still in a very early stage and overfitted to one specific use case. So don't use it in production just yet.
 
 <div align="center">
 
@@ -41,13 +41,13 @@ Flask-Jeroboam is a thin layer on top of Flask to make request parsing, response
 
 Its main features are:
 
-- OpenAPI Auto-Documentation based on endpoint type annotations
-- Request parsing of endpoint arguments based on type annotations with pydantic BaseModel
-- Response serialization facilitation with pydantic
+- Request parsing based on typed annotations of endpoint arguments
+- Response serialization facilitation
+- (Planned) OpenAPI auto-Documentation based on the latters
 
 ## How to install
 
-You can install _flask-jeroboam_ via [pip], or any other tool wired to [PyPI]:
+You can install _flask-jeroboam_ via [pip] or any other tool wired to [PyPI]:
 
 ```console
 $ pip install flask-jeroboam
@@ -55,7 +55,9 @@ $ pip install flask-jeroboam
 
 ## How to use: Minimum Relevant Example
 
-_flask-jeroboam_ exposes two public classes: **Jeroboam** and **APIBlueprint**. They can be used as drop-in replacement of Flask's **Flask** and **Blueprint** classes.
+### A toy example
+
+_flask-jeroboam_ exposes two public classes: **Jeroboam** and **APIBlueprint**. Use them to replace Flask's **Flask** and **Blueprint** classes.
 
 ```python
 from flask-jeroboam import Jeroboam
@@ -67,11 +69,13 @@ def ping():
     return "pong"
 ```
 
-This toy example would behave exactly like a regular Flask app. You would start your server just like you would with Flask. `flask run` would do perfectly fine here.
+This example would behave exactly like a regular Flask app. You would start your server just like with Flask. `flask run` would do perfectly fine here.
 
-Then hitting the endpoint with `curl localhost:5000/ping` would return text response `pong`.
+Then hitting the endpoint with `curl localhost:5000/ping` would return the text response `pong`.
 
-Let's try a more significant and relevant example and build a simplified endpoint to retrive a list of wines.
+Let's try a more significant and relevant example and build a simplified endpoint to retrieve a list of wines.
+
+### Searching for wines
 
 ```python
 from typing import List, Dict
@@ -125,7 +129,7 @@ wines: List[Dict[str, str]] = [
 
 
 class WineOut(BaseModel):
-    """Serialization Model for each individual wine."""
+    """Serialization Model for a single wine."""
 
     appellation: str
     domain: str
@@ -141,38 +145,41 @@ class WineListOut(BaseModel):
     total_count: int
 
 
-class WineListIn(BaseModel):
+class WineSearchIn(BaseModel):
     """The Request Model take pagination parameters and a search term."""
 
     page: int = Field(default=1, ge=1)
     per_page: int = Field(default=2, ge=1, le=5)
     search: Optional[str] = Field(default=None)
 
+    @property
+    def offset(self):
+        return (self.page - 1) * self.per_page
+
 
 # We then define a CRUD function to use inside our endpoint.
 
-def get_wines(wines_in: WineListIn) -> Tuple[List[Dict[str, str]], int]:
+def get_wines(wine_search: WineSearchIn) -> Tuple[List[Dict[str, str]], int]:
     """Basic READ function that take a parsed request object and return a list of matching wines."""
-    if wines_in.search:
+    if wine_search.search:
         selected_wines = [
             wine
             for wine in wines
-            if wines_in.search.lower() in [value.lower() for value in wine.values()]
+            if wine_search.search.lower() in [value.lower() for value in wine.values()]
         ]
     else:
         selected_wines = wines
     total_count = len(selected_wines)
-    offset = (wines_in.page - 1) * wines_in.per_page
-    max_bound = min(total_count, offset + wines_in.per_page)
-    selected_wines = selected_wines[offset:max_bound]
+    max_bound = min(total_count, wine_search.offset + wine_search.per_page)
+    selected_wines = selected_wines[wine_search.offset:max_bound]
     return selected_wines, total_count
 
 
 # Finally we glue everything together in an endpoint.
 @app.get("/wines", response_model=WineListOut)
-def read_wine_list(wines_in: WineListIn):
+def read_wine_list(wine_search: WineSearchIn):
     """Winelist endpoint."""
-    wines, total_count = get_wines(wines_in)
+    wines, total_count = get_wines(wine_search)
     return {"wines": wines, "count": len(wines), "total_count": total_count}
 
 
@@ -207,11 +214,11 @@ See the documentation on more advanced usage: [https://flask-jeroboam.readthedoc
 
 ## Motivation
 
-[FastAPI] has been rapidly gaining ground in Python Web Development since its inception in late 2018 ([1][survey]). Besides best-in-class performance, thanks to being based on Starlette, it brings a very compelling API for request parsing and response serialisation that speed up API development by catering for Developer Experience.
+[FastAPI] has been rapidly gaining ground in Python Web Development since its inception in late 2018 ([1][survey]). Besides best-in-class performance, thanks to being based on Starlette, it brings a very compelling API for request parsing and response serialization that speed up API development by catering for Developer Experience.
 
-While it is often compared to [Flask], ([1][ref#1], [2][ref#2] and [3][ref#3]), the comparaison feels a bit unfair. FastAPI is, in the words of its creator [@tiangolo] a thin layer on top of [Starlette], a _lightweight ASGI framework/toolkit, ... for building async web services in Python_ and [Pydantic]. To some extend, Flask is more related to Starlette than it is to [FastAPI].
+While it is often compared to [Flask], ([1][ref#1], [2][ref#2] and [3][ref#3]), the comparaison feels a bit unfair. FastAPI is, in the words of its creator [@tiangolo], a thin layer on top of [Starlette], a _lightweight ASGI framework/toolkit, ... for building async web services in Python_ and [Pydantic]. To some extent, Flask seats in-between Starlette and FastAPI regarding abstraction level.
 
-Although there are some excellent Flask extensions dealing with request parsing, response serialisation, and auto-documentation, I wanted something that feel closer to [FastAPI]'s DX, hence **Flask - Jeroboam**.
+Although some excellent Flask extensions deal with request parsing, response serialization, and auto-documentation, I wanted something closer to [FastAPI]'s DX without compromises, hence **Flask - Jeroboam**.
 
 [survey]: https://lp.jetbrains.com/python-developers-survey-2021/#FrameworksLibraries
 [ref#1]: https://testdriven.io/blog/moving-from-flask-to-fastapi/
@@ -220,11 +227,11 @@ Although there are some excellent Flask extensions dealing with request parsing,
 
 ## A word on performance
 
-One thing **Flask-Jeroboam** won't give you is performance improvement. The heavy lifting is still handled by Flask, so transitionning to **Flask-Jeroboam** won't speed up your app. Please bear in mind that FastAPI performance comes from Starlette, not FastAPI itself.
+One thing **Flask-Jeroboam** won't give you is performance improvement. Flask still handles the heavy lifting of a wsgi, so transitioning to **Flask-Jeroboam** won't speed up your app. Please remember that FastAPI's performance comes from Starlette, not FastAPI itself.
 
-## Who is it intended for ?
+## Intended audience
 
-Flask developers who find FastAPI compelling but have perfectly good reasons to stick to Flask.
+The intended audience of **Flask-Jeroboam** is Flask developers who find FastAPI compelling but have excellent reasons to stick to Flask.
 
 ## License
 
@@ -238,11 +245,9 @@ please [file an issue] along with a detailed description.
 
 ## Credits
 
-The main inspiration of this project comes from [@tiangolo]'s [FastAPI].
-
-The heavy-lifting if performed by [Flask] and [pydantic].
-
-The project was generated from [@cjolowicz]'s [Hypermodern Python Cookiecutter] template.
+The main inspiration for this project comes from [@tiangolo]'s [FastAPI].
+[Flask] and [pydantic] are the two dependencies and handle the heavy lifting.
+I used [@cjolowicz]'s [Hypermodern Python Cookiecutter] template to generate this project.
 
 [@cjolowicz]: https://github.com/cjolowicz
 [@tiangolo]: https://github.com/tiangolo
