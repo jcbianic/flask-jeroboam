@@ -129,6 +129,13 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
+      - name: Install Poetry
+        run: |
+          pipx install poetry
+          poetry export --with workflows --without-hashes --format=constraints.txt > .github/workflows/constraints.txt
+          pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
+          poetry --version
+
       - name: Upgrade pip
         run: |
           pip install --constraint=.github/workflows/constraints.txt pip
@@ -142,11 +149,6 @@ jobs:
 
           with open(os.environ["GITHUB_ENV"], mode="a") as io:
               print(f"VIRTUALENV_PIP={pip.__version__}", file=io)
-
-      - name: Install Poetry
-        run: |
-          pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
-          poetry --version
 
       - name: Install Nox
         run: |
@@ -208,15 +210,17 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install Poetry
+        run: |
+          pipx install poetry
+          poetry export --with workflows --without-hashes --format=constraints.txt > .github/workflows/constraints.txt
+          pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
+          poetry --version
+
       - name: Upgrade pip
         run: |
           pip install --constraint=.github/workflows/constraints.txt pip
           pip --version
-
-      - name: Install Poetry
-        run: |
-          pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
-          poetry --version
 
       - name: Install Nox
         run: |
