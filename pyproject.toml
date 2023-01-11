@@ -29,7 +29,16 @@ Flask = "^2.1.3"
 pydantic = "^1.10.2"
 python = "^3.7"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.workflows]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
 GitPython = "^3.1.30"
 Pallets-Sphinx-Themes = "^2.0.2"
 Pygments = ">=2.10.0"
@@ -61,6 +70,20 @@ sphinx-multiversion = "^0.2.4"
 typeguard = ">=2.13.3"
 xdoctest = {extras = ["colors"], version = ">=0.15.10"}
 certifi = ">=2022.12.7"
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "<5.3.0"
+sphinx-click = "^4.4.0"
+myst_parser = "^0.18.1"
+pallets_sphinx_themes= "^2.0.3"
+sphinx_multiversion = "^0.2.4"
+
+[tool.poetry.group.workflows.dependencies]
+pip = "^22.3.1"
+nox = "^2022.11.21"
+nox-poetry = "^1.0.2"
+poetry = "<1.3.1"
+virtualenv = "<=20.16.5"
 
 [tool.coverage.paths]
 source = ["flask_jeroboam", "*/site-packages"]

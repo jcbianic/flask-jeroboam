@@ -1,5 +1,0 @@
-sphinx==5.3.0
-sphinx-click==4.4.0
-myst_parser==0.18.1
-pallets_sphinx_themes==2.0.3
-sphinx_multiversion==0.2.4
