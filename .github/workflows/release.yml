@@ -23,7 +23,7 @@ jobs:
       - name: Install Poetry
         run: |
           python -m pip install pipx
-          python -m pipx ensurepath
+          pipx ensurepath
           pipx install poetry
           poetry export --with workflows --without-hashes --format=constraints.txt > .github/workflows/constraints.txt
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
@@ -41,7 +41,7 @@ jobs:
 
       - name: Detect and tag new version
         id: check-version
-        if: steps.check-parent-commit.outputs.sha
+        if: $GITHUB_OUTPUT.sha
         uses: salsify/action-detect-and-tag-new-version@v2.0.3
         with:
           version-command: |
