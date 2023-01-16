@@ -41,7 +41,7 @@ jobs:
 
       - name: Detect and tag new version
         id: check-version
-        if: $GITHUB_OUTPUT.sha
+        if: ${{ GITHUB_OUTPUT }}
         uses: salsify/action-detect-and-tag-new-version@v2.0.3
         with:
           version-command: |

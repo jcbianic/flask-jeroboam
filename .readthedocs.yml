@@ -6,7 +6,7 @@ build:
   jobs:
     post_install:
       - python -m pip install pipx
-      - python -m pipx ensurepath
+      - pipx ensurepath
       - pipx install poetry==1.2.0b1
       - poetry config virtualenvs.create false
       - poetry install --with docs
