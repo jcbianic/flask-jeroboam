@@ -221,6 +221,8 @@ def docs_build(session: Session) -> None:
         "myst-parser",
         "sphinx-multiversion",
         "gitpython",
+        "sphinx-tabs",
+        "sphinx-copybutton",
     )
 
     build_dir = Path("docs", "_build")

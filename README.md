@@ -1,10 +1,15 @@
+<div align="center">
+    <img
+        src="https://github.com/jcbianic/flask-jeroboam/blob/main/docs/_static/jeroboam_logo_with_text.png"
+        width="400px"
+        alt="jeroboam-logo">
+    </img>
+</div>
 <h1 align="center">Flask-Jeroboam</h1>
-
-⚠️ Although Flask-Jeroboam has been extracted from code running in production, it is still in a very early stage and overfitted to one specific use case. So don't use it in production just yet.
 
 <div align="center">
 
-<i>Flask-Jeroboam is a Flask extension for request parsing, response serialization and OpenAPI auto-documentation.</i>
+<i>Flask-Jeroboam is a Flask extension modeled after FastAPI. It uses Pydantic to provide easy-to-configure data validation in request parsing and response serialization.</i>
 
 [![PyPI](https://img.shields.io/pypi/v/flask-jeroboam.svg)][pypi_]
 [![Python Version](https://img.shields.io/pypi/pyversions/flask-jeroboam)][python version]
@@ -53,11 +58,11 @@ You can install _flask-jeroboam_ via [pip] or any other tool wired to [PyPI]:
 $ pip install flask-jeroboam
 ```
 
-## How to use: Minimum Relevant Example
+## How to use
 
 ### A toy example
 
-_flask-jeroboam_ exposes two public classes: **Jeroboam** and **APIBlueprint**. Use them to replace Flask's **Flask** and **Blueprint** classes.
+_Flask-Jeroboam_ subclasses both Flask and Blueprint classes. This means that the **Jeroboam** and **APIBlueprint** will behave exactly like their Flask counterparts unless you activate their extra behaviors.
 
 ```python
 from flask-jeroboam import Jeroboam
@@ -69,116 +74,38 @@ def ping():
     return "pong"
 ```
 
-This example would behave exactly like a regular Flask app. You would start your server just like with Flask. `flask run` would do perfectly fine here.
+This toy example would work exactly like a regular Flask app. You would start your server just like with Flask. `flask run` would do perfectly fine here.
 
 Then hitting the endpoint with `curl localhost:5000/ping` would return the text response `pong`.
 
-Let's try a more significant and relevant example and build a simplified endpoint to retrieve a list of wines.
+Let's try a more significant and relevant example and build a simplified endpoint to retrieve a list of wines, we are wine-themed afterall.
 
 ### Searching for wines
 
+Let's consider an endpoint meant to provide search capability onto a wine repository. It takes three arguments from the query string, feed them into a CRUD function `get_wines` that return a list of wines as well as the total count of wines matching the query.
+Additionnaly, this particular endpoint only need to return the name of the cuvee and the appellation and discard any other informations. Let's take a look at what it might look like with _Flask-Jeroboam_:
+
 ```python
-from typing import List, Dict
-from typing import Tuple, Optional
-
-from pydantic import BaseModel
-from pydantic import Field
-
-from flask_jeroboam import Jeroboam
-
+from flask_jeroboam import Jeroboam, Parser, Serializer
 
 app = Jeroboam(__name__)
 
-# First we hard-code a minimal wine database. Tasty.
-# In the real world this would obviously go in a proper database.
-wines: List[Dict[str, str]] = [
-    {
-        "appellation": "Margaux",
-        "domain": "Château Magaux",
-        "cuvee": "Pavillon Rouge",
-        "color": "Rouge",
-    },
-    {
-        "appellation": "Meursault",
-        "domain": "Domaine Comte Armand ",
-        "cuvee": "Meursault",
-        "color": "Blanc",
-    },
-    {
-        "appellation": "Champagne",
-        "domain": "Billecart-Salmon",
-        "cuvee": "Brut - Blanc de Blancs",
-        "color": "Blanc",
-    },
-    {
-        "appellation": "Champagne",
-        "domain": "Krug",
-        "cuvee": "Grande Cuvée - 170ème Edition",
-        "color": "Blanc",
-    },
-    {
-        "appellation": "Champagne",
-        "domain": "Maison Taittinger",
-        "cuvee": "Grand Cru - Brut - Prélude",
-        "color": "Blanc",
-    },
-]
+class PaginatedSearch(Parser):
+    page: int = Field(default=1)
+    per_page: int = Field(default=10)
+    search: Optional[str]
 
-# We then define Parser and Serialization Models.
-# In the real world this would definitely go into seperate files.
-
-
-class WineOut(BaseModel):
-    """Serialization Model for a single wine."""
-
-    appellation: str
-    domain: str
+class WineOut(Serializer):
     cuvee: str
-    color: str
+    appellation: str
 
-
-class WineListOut(BaseModel):
-    """Serialization Model for a list of wines."""
-
-    wines: List[WineOut]
+class WineListOut(Serializer):
+    wines: WineOut
     count: int
     total_count: int
 
-
-class WineSearchIn(BaseModel):
-    """The Request Model take pagination parameters and a search term."""
-
-    page: int = Field(default=1, ge=1)
-    per_page: int = Field(default=2, ge=1, le=5)
-    search: Optional[str] = Field(default=None)
-
-    @property
-    def offset(self):
-        return (self.page - 1) * self.per_page
-
-
-# We then define a CRUD function to use inside our endpoint.
-
-def get_wines(wine_search: WineSearchIn) -> Tuple[List[Dict[str, str]], int]:
-    """Basic READ function that take a parsed request object and return a list of matching wines."""
-    if wine_search.search:
-        selected_wines = [
-            wine
-            for wine in wines
-            if wine_search.search.lower() in [value.lower() for value in wine.values()]
-        ]
-    else:
-        selected_wines = wines
-    total_count = len(selected_wines)
-    max_bound = min(total_count, wine_search.offset + wine_search.per_page)
-    selected_wines = selected_wines[wine_search.offset:max_bound]
-    return selected_wines, total_count
-
-
-# Finally we glue everything together in an endpoint.
 @app.get("/wines", response_model=WineListOut)
-def read_wine_list(wine_search: WineSearchIn):
-    """Winelist endpoint."""
+def read_wine_list(wine_search: PaginatedSearch):
     wines, total_count = get_wines(wine_search)
     return {"wines": wines, "count": len(wines), "total_count": total_count}
 
@@ -187,22 +114,18 @@ if __name__ == "__main__":
     app.run()
 ```
 
-You start/restart your server, then hitting the endpoint with `curl "localhost:5000/wines?page=1&per_page=2&search=Champagne"` would return:
+Once you've started your server, then hitting the endpoint with `curl "localhost:5000/wines?page=1&per_page=2&search=Champagne"` would return something like:
 
 ```json
 {
   "wines": [
     {
       "appellation": "Champagne",
-      "domain": "Billecart-Salmon",
-      "cuvee": "Brut - Blanc de Blancs",
-      "color": "Blanc"
+      "cuvee": "Brut - Blanc de Blancs"
     },
     {
       "appellation": "Champagne",
-      "domain": "Krug",
-      "cuvee": "Grande Cuvée - 170ème Edition",
-      "color": "Blanc"
+      "cuvee": "Grande Cuvée - 170ème Edition"
     }
   ],
   "count": 2,
@@ -214,11 +137,9 @@ See the documentation on more advanced usage: [https://flask-jeroboam.readthedoc
 
 ## Motivation
 
-[FastAPI] has been rapidly gaining ground in Python Web Development since its inception in late 2018 ([1][survey]). Besides best-in-class performance, thanks to being based on Starlette, it brings a very compelling API for request parsing and response serialization that speed up API development by catering for Developer Experience.
+[FastAPI] has been rapidly gaining ground in Python Web Development since its inception in late 2018 ([1][survey]). It is indeed an amazing framework with killer documentation. Besides best-in-class performance, it brings a very compelling API for request parsing and response serialization that speed up API development and provide an incredibly smooth Developer Experience.
 
-While it is often compared to [Flask], ([1][ref#1], [2][ref#2] and [3][ref#3]), the comparaison feels a bit unfair. FastAPI is, in the words of its creator [@tiangolo], a thin layer on top of [Starlette], a _lightweight ASGI framework/toolkit, ... for building async web services in Python_ and [Pydantic]. To some extent, Flask seats in-between Starlette and FastAPI regarding abstraction level.
-
-Although some excellent Flask extensions deal with request parsing, response serialization, and auto-documentation, I wanted something closer to [FastAPI]'s DX without compromises, hence **Flask - Jeroboam**.
+Although trying to reproduce [FastAPI] [Starlette]-based performance in another framework like [Flask] would be rather hard and non-sensical, its API for defining endpoints is fair game. There are some excellent Flask extensions dealing with request parsing, response serialization, and auto-documentation, but nothing _exactly_ like [FastAPI]. That is what I started exploring with **Flask-Jeroboam**.
 
 [survey]: https://lp.jetbrains.com/python-developers-survey-2021/#FrameworksLibraries
 [ref#1]: https://testdriven.io/blog/moving-from-flask-to-fastapi/
@@ -227,26 +148,32 @@ Although some excellent Flask extensions deal with request parsing, response ser
 
 ## A word on performance
 
-One thing **Flask-Jeroboam** won't give you is performance improvement. Flask still handles the heavy lifting of a wsgi, so transitioning to **Flask-Jeroboam** won't speed up your app. Please remember that FastAPI's performance comes from Starlette, not FastAPI itself.
+One thing **Flask-Jeroboam** won't give you is performance improvement. Underneath Flask, werkzeug still handles the heavy lifting of a wsgi, so transitioning to **Flask-Jeroboam** won't speed up your app. Please remember that FastAPI's performance comes from Starlette, not FastAPI itself.
 
 ## Intended audience
 
-The intended audience of **Flask-Jeroboam** is Flask developers who find FastAPI compelling but have excellent reasons to stick to Flask.
+The intended audience of **Flask-Jeroboam** is Flask developers who find FastAPI very attractive but also have excellent reasons to stick to Flask.
+
+## About the name of the project
+
+A **Jeroboam** is a large bottle, or flask, containing either 3 or 6 liters of wines depending on the region of production. They are mainly used for fine wines destined to aging because they provide better condition for doing so. Their ratio between the volume of wine it contains and the surface of exchange between the wine and the air is more favorable and slows donw the oxidation reaction. Theses containers also take longer to cool down or warm up leading to less thermal violence to the wine during conservation.
+
+In other words they are more durable flasks for fine wines. The intention is to hold this promise for APIs.
+
+The wine-themed name is a tribute to the Bordeaux-based wine tech startup where the development of this package started.
 
 ## License
 
-Distributed under the terms of the [MIT license][license],
-**Flask-Jeroboam** is free and open source software.
+Distributed under the terms of the [MIT license][license], **Flask-Jeroboam** is free and open source software.
 
 ## Issues
 
-If you encounter any problems,
-please [file an issue] along with a detailed description.
+If you encounter any problems, please [file an issue] along with a detailed description.
 
 ## Credits
 
 The main inspiration for this project comes from [@tiangolo]'s [FastAPI].
-[Flask] and [pydantic] are the two dependencies and handle the heavy lifting.
+[Flask] and [pydantic] are the two direct dependencies and do most of the work.
 I used [@cjolowicz]'s [Hypermodern Python Cookiecutter] template to generate this project.
 
 [@cjolowicz]: https://github.com/cjolowicz
