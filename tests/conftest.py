@@ -27,8 +27,7 @@ def app() -> Jeroboam:
 @pytest.fixture
 def blueprint() -> APIBlueprint:
     """A Basic Jeroboam Test App."""
-    router = APIBlueprint("TestBluePrint", __name__)
-    return router
+    return APIBlueprint("TestBluePrint", __name__)
 
 
 @pytest.fixture

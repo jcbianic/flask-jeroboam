@@ -2,6 +2,8 @@
 import json
 import re
 from typing import Callable
+from typing import Dict
+from typing import List
 from typing import Union
 
 from pydantic import BaseModel
@@ -25,14 +27,12 @@ def convert_dict_keys_to(
             convert_dict_keys_to(e, convert_function) if isinstance(e, dict) else e
             for e in obj
         ]
-    new_object = {}
-    for key, value in obj.items():
-        new_object[convert_function(key)] = (
-            convert_dict_keys_to(value, convert_function)
-            if isinstance(value, dict) or isinstance(value, list)
-            else value
-        )
-    return new_object
+    return {
+        convert_function(key): convert_dict_keys_to(value, convert_function)
+        if isinstance(value, (Dict, List))
+        else value
+        for key, value in obj.items()
+    }
 
 
 def underscore_to_camel(key: str) -> str:

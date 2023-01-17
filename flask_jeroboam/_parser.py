@@ -51,8 +51,8 @@ def _rename_keys(location: dict, pattern: str) -> dict:
         if len(value) == 1 and match is None:
             location[key] = value[0]
         elif match is not None:
-            new_key = match.group(1) + "[]"
-            new_value = {match.group(2): value[0]}
+            new_key = f"{match[1]}[]"
+            new_value = {match[2]: value[0]}
             renamings.append((key, new_key, new_value))
     for key, new_key, new_value in renamings:
         if new_key not in location:

@@ -187,10 +187,7 @@ def test_optionnal_param(
 
     @app.get("/optionnal_param")
     def ping(payload: Optional[InBoundModel]):
-        if payload:
-            return payload.json()
-        else:
-            return {}
+        return payload.json() if payload else {}
 
     r = client.get("/optionnal_param")
 
