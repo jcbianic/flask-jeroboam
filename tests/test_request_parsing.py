@@ -42,6 +42,25 @@ def test_valid_payload_in_query_string_is_injected(
     assert r.data == b'{"page": 1, "type": "item"}'
 
 
+def test_forward_ref_in_query_string_is_injected(
+    app: Jeroboam,
+    client: FlaskClient,
+):
+    """GIVEN a GET endpoint with properly annotated  as forward ref
+    WHEN hit with a valid query string
+    THEN the parsed input is injected into the view function.
+    """
+
+    @app.get("/payload_in_query_string")
+    def read_test(payload: "InBoundModel"):
+        return payload.json()
+
+    r = client.get("/payload_in_query_string?page=1&type=item")
+
+    assert r.status_code == 200
+    assert r.data == b'{"page": 1, "type": "item"}'
+
+
 def test_valid_payload_in_json_is_injected(
     app: Jeroboam,
     client: FlaskClient,

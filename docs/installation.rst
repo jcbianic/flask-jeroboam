@@ -21,7 +21,7 @@ Install Flask-Jeroboam
          $ pip install flask-jeroboam
 
 
-**Flask-Jeroboam** is now installed along with its two direct dependencies, `Flask`_and `Pydantic`_ as well as their own dependencies tree. :ref:`see <Dependencies>`
+**Flask-Jeroboam** is now installed along with its two direct dependencies, `Flask`_ and `Pydantic`__ as well as their own dependencies tree. :ref:`see <Dependencies>`
 
 If you already have dependency management in Python figured out, skip our next section :ref:`About Dependency Management`. If not, :ref:`check it out <About Dependency Management>` before moving on to the :doc:`Getting Started Guide </getting_started>` or go to the
 :doc:`Documentation Overview </index>`.
