@@ -38,11 +38,17 @@ class MethodEnum(str, Enum):
 pattern = r"(.*)\[(.+)\]$"
 
 
-class Parser:
-    """A Parser Class for Flask-Jeroboam."""
+class InboundHandler:
+    """The InboundHandler handles inbound data of a request.
 
-    def __init__(self, func: Callable, methods: List[str], rule: str):
-        self.typed_params = get_typed_signature(func)
+    More precisely, it parses the incoming data, validates it, and injects it into the
+    view function. It is also responsible for raising an InvalidRequest exception.
+    The InboundHandler will only be called if the view function has type-annotated
+    parameters.
+    """
+
+    def __init__(self, view_func: Callable, methods: List[str], rule: str):
+        self.typed_params = get_typed_signature(view_func)
         self.methods = methods
         self.rule = rule
 

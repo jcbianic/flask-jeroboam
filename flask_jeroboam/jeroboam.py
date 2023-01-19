@@ -12,7 +12,7 @@ from flask.scaffold import Scaffold
 from typing_extensions import TypeVar
 
 from .typing import JeroboamRouteCallable
-from .view import JeroboamViewFunction
+from .view import JeroboamView
 
 
 R = TypeVar("R", bound=Any)
@@ -24,7 +24,7 @@ def route_override(
     """Route Registration Override."""
 
     def decorator(func: JeroboamRouteCallable) -> JeroboamRouteCallable:
-        route = JeroboamViewFunction(rule, func, options)
+        route = JeroboamView(rule, func, options)
 
         self.add_url_rule(
             rule, route.endpoint, route.as_view, **options  # type: ignore
@@ -44,7 +44,7 @@ class Jeroboam(Flask):
     route = route_override  # type: ignore[assignment]
 
 
-class APIBlueprint(Blueprint):
+class JeroboamBlueprint(Blueprint):
     """Regular Blueprint with extra behavior on route definition."""
 
     route = route_override  # type: ignore[assignment]

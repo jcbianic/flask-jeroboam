@@ -3,8 +3,8 @@ import os
 
 import pytest
 
-from flask_jeroboam import APIBlueprint
 from flask_jeroboam import Jeroboam
+from flask_jeroboam import JeroboamBlueprint
 from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.exceptions import RessourceNotFound
 from flask_jeroboam.exceptions import ServerError
@@ -25,9 +25,9 @@ def app() -> Jeroboam:
 
 
 @pytest.fixture
-def blueprint() -> APIBlueprint:
+def blueprint() -> JeroboamBlueprint:
     """A Basic Jeroboam Test App."""
-    return APIBlueprint("TestBluePrint", __name__)
+    return JeroboamBlueprint("TestBluePrint", __name__)
 
 
 @pytest.fixture

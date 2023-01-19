@@ -1,2 +1,2 @@
-from .jeroboam import APIBlueprint
 from .jeroboam import Jeroboam
+from .jeroboam import JeroboamBlueprint

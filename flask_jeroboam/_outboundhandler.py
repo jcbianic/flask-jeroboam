@@ -25,8 +25,16 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
-class Serializer:
-    """A Serializer Class for Flask-Jeroboam."""
+class OutboundHandler:
+    """The OutboundHandler handles outbound data of a request.
+
+    More precisely, it prepare the content of the response, serializes it,
+    determines the status code and form a proper Response object.
+
+    The OutboundHandler will always be called if the view function
+    returns without raising exception. Although if it receive an already
+    well formed Response object, it will just return it.
+    """
 
     def __init__(self, func: Callable, options: Dict[str, Any]):
         self.response_model = self.get_response_model(func, options)
