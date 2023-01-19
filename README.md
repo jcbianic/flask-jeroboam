@@ -9,7 +9,7 @@
 
 <div align="center">
 
-<i>Flask-Jeroboam is a Flask extension modeled after FastAPI. It uses Pydantic to provide easy-to-configure data validation in request parsing and response serialization.</i>
+<i>Flask-Jeroboam is a Flask extension modelled after FastAPI. It uses Pydantic to provide easy-to-configure data validation in request parsing and response serialization.</i>
 
 [![PyPI](https://img.shields.io/pypi/v/flask-jeroboam.svg)][pypi_]
 [![Python Version](https://img.shields.io/pypi/pyversions/flask-jeroboam)][python version]
@@ -48,7 +48,7 @@ Its main features are:
 
 - Request parsing based on typed annotations of endpoint arguments
 - Response serialization facilitation
-- (Planned) OpenAPI auto-Documentation based on the latters
+- (Planned) OpenAPI auto-Documentation based on the first two
 
 ## How to install
 
@@ -62,7 +62,7 @@ $ pip install flask-jeroboam
 
 ### A toy example
 
-_Flask-Jeroboam_ subclasses both Flask and Blueprint classes. This means that the **Jeroboam** and **APIBlueprint** will behave exactly like their Flask counterparts unless you activate their extra behaviors.
+_Flask-Jeroboam_ subclasses both Flask and Blueprint classes. This means that the **Jeroboam** and **APIBlueprint** will behave exactly like their Flask counterparts unless you activate their specific behaviours.
 
 ```python
 from flask-jeroboam import Jeroboam
@@ -78,12 +78,12 @@ This toy example would work exactly like a regular Flask app. You would start yo
 
 Then hitting the endpoint with `curl localhost:5000/ping` would return the text response `pong`.
 
-Let's try a more significant and relevant example and build a simplified endpoint to retrieve a list of wines, we are wine-themed afterall.
+Let's try a more significant and relevant example and build a simplified endpoint to retrieve a list of wines. We are wine-themed, after all.
 
 ### Searching for wines
 
-Let's consider an endpoint meant to provide search capability onto a wine repository. It takes three arguments from the query string, feed them into a CRUD function `get_wines` that return a list of wines as well as the total count of wines matching the query.
-Additionnaly, this particular endpoint only need to return the name of the cuvee and the appellation and discard any other informations. Let's take a look at what it might look like with _Flask-Jeroboam_:
+Let's consider an endpoint that provides search capability onto a wine repository. It parses and validates three arguments from the query string and feeds them into a CRUD function `get_wines` that return a list of wines and the total count of wines matching the query.
+Additionally, this endpoint only needs to return the name of the cuvee and the appellation and discard any other informations. Let's take a look at what it might look like with _Flask-Jeroboam_:
 
 ```python
 from flask_jeroboam import Jeroboam, Parser, Serializer
@@ -137,9 +137,9 @@ See the documentation on more advanced usage: [https://flask-jeroboam.readthedoc
 
 ## Motivation
 
-[FastAPI] has been rapidly gaining ground in Python Web Development since its inception in late 2018 ([1][survey]). It is indeed an amazing framework with killer documentation. Besides best-in-class performance, it brings a very compelling API for request parsing and response serialization that speed up API development and provide an incredibly smooth Developer Experience.
+[FastAPI] has rapidly gained ground in Python Web Development since its inception in late 2018 ([1][survey]). It is indeed a fantastic framework with killer documentation. Besides best-in-class performance, it brings a very compelling API for request parsing and response serialization that speeds up API development and provides an incredibly smooth Developer Experience.
 
-Although trying to reproduce [FastAPI] [Starlette]-based performance in another framework like [Flask] would be rather hard and non-sensical, its API for defining endpoints is fair game. There are some excellent Flask extensions dealing with request parsing, response serialization, and auto-documentation, but nothing _exactly_ like [FastAPI]. That is what I started exploring with **Flask-Jeroboam**.
+Although trying to reproduce [FastAPI] [Starlette]-based performance in another framework like [Flask] would be rather hard and non-sensical, its API for defining endpoints is fair game. Some excellent Flask extensions deal with request parsing, response serialization, and auto-documentation, but nothing _exactly_ like [FastAPI]. That is what I started exploring with **Flask-Jeroboam**.
 
 [survey]: https://lp.jetbrains.com/python-developers-survey-2021/#FrameworksLibraries
 [ref#1]: https://testdriven.io/blog/moving-from-flask-to-fastapi/
@@ -156,15 +156,15 @@ The intended audience of **Flask-Jeroboam** is Flask developers who find FastAPI
 
 ## About the name of the project
 
-A **Jeroboam** is a large bottle, or flask, containing either 3 or 6 liters of wines depending on the region of production. They are mainly used for fine wines destined to aging because they provide better condition for doing so. Their ratio between the volume of wine it contains and the surface of exchange between the wine and the air is more favorable and slows donw the oxidation reaction. Theses containers also take longer to cool down or warm up leading to less thermal violence to the wine during conservation.
+A **Jeroboam** is a large bottle, or flask, containing 3 litres of wine, instead of 0,75 - although outside of the Bordeaux region it can be up to 4,5 litres like in Burgundy or Champagne. Winemakers use this format for fine wines destined for ageing because they provide better conditions. Namely, the ratio between the volume of wine it contains and the surface of exchange between the wine and the air is more favourable and slows down the oxidation reaction. These containers also take longer to cool down or warm up, leading to less thermal violence to the wine during conservation.
 
-In other words they are more durable flasks for fine wines. The intention is to hold this promise for APIs.
+In other words, they are more durable flasks for fine wines. The intention is to hold this promise for APIs.
 
 The wine-themed name is a tribute to the Bordeaux-based wine tech startup where the development of this package started.
 
 ## License
 
-Distributed under the terms of the [MIT license][license], **Flask-Jeroboam** is free and open source software.
+Distributed under the terms of the [MIT license][license], **Flask-Jeroboam** is free and open-source software.
 
 ## Issues
 
@@ -173,7 +173,9 @@ If you encounter any problems, please [file an issue] along with a detailed desc
 ## Credits
 
 The main inspiration for this project comes from [@tiangolo]'s [FastAPI].
+
 [Flask] and [pydantic] are the two direct dependencies and do most of the work.
+
 I used [@cjolowicz]'s [Hypermodern Python Cookiecutter] template to generate this project.
 
 [@cjolowicz]: https://github.com/cjolowicz
