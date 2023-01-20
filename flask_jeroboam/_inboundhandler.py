@@ -4,7 +4,6 @@ import typing as t
 from enum import Enum
 from functools import wraps
 from typing import Callable
-from typing import List
 from typing import Type
 
 from flask import request
@@ -47,9 +46,9 @@ class InboundHandler:
     parameters.
     """
 
-    def __init__(self, view_func: Callable, methods: List[str], rule: str):
+    def __init__(self, view_func: Callable, main_http_verb: str, rule: str):
         self.typed_params = get_typed_signature(view_func)
-        self.methods = methods
+        self.main_http_verb = main_http_verb
         self.rule = rule
 
     def __bool__(self) -> bool:
@@ -68,10 +67,10 @@ class InboundHandler:
 
     def _parse_incoming_request_data(self) -> dict:
         """Getting the Data out of the Request Object."""
-        if MethodEnum.GET in self.methods:
+        if self.main_http_verb == MethodEnum.GET:
             location = dict(request.args.lists())
             location = self._rename_query_params_keys(location, pattern)
-        elif MethodEnum.POST in self.methods:
+        elif self.main_http_verb == MethodEnum.POST:
             location = dict(request.form.lists())
             location = self._rename_query_params_keys(location, pattern)
             if request.data:

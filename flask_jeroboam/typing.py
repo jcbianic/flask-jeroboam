@@ -24,6 +24,7 @@ if TYPE_CHECKING:  # pragma: no cover
 ResponseModel = Type[BaseModel]
 TypedParams = Dict[str, Any]
 
+
 JeroboamResponseValue = Union[
     "Response",
     BaseModel,
@@ -34,6 +35,10 @@ JeroboamResponseValue = Union[
     Mapping[str, Any],
     Iterator[str],
     Iterator[bytes],
+]
+
+JeroboamResponseWithStatusCode = Union[
+    Tuple[JeroboamResponseValue, int], Tuple[JeroboamResponseValue, int, HeadersValue]
 ]
 
 JeroboamResponseReturnValue = Union[

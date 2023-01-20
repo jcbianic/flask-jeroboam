@@ -71,3 +71,10 @@ class ServerError(InternalServerError):
     def handle(self) -> Tuple[str, int]:
         """Handle the exception and return a message to the user."""
         return str(self), 500
+
+
+class ResponseValidationError(ServerError):
+    """When an error occurs on Outbound Validation."""
+
+    def __str__(self) -> str:
+        return f"InternalServerError: {self.msg}"
