@@ -12,7 +12,7 @@ from typing import TypeVar
 from flask import Response
 from flask.globals import current_app
 from pydantic import BaseModel
-from pydantic.main import validate_model
+from pydantic import validate_model
 from typing_extensions import ParamSpec
 
 from .exceptions import ResponseValidationError
@@ -151,7 +151,18 @@ class OutboundHandler:
         #TODO: Do we need to generate a model_field from the response_model?
         #TODO: Do we need to clone the response_field?
         """
-        return options.pop("response_model", None)
+        response_model: Optional[Type] = options.pop("response_model", None)
+
+        if response_model is None:
+            return None
+        if getattr(response_model, "__origin__", None) == list:
+            field: Type = response_model.__args__[0]
+            response_model = type(
+                f"{field.__name__}AsList",
+                (BaseModel,),
+                {"__root__": (List[field], ...)},  # type: ignore[valid-type]
+            )
+        return response_model
 
     def _solve_default_status_code_by_http_verb(
         self, http_verb: str, configured_status_code: Optional[int]
@@ -214,7 +225,7 @@ class OutboundHandler:
         """
         assert self.response_model is not None  # noqa: S101
         outbound_data: dict = self._adapt_datastructure_of(content)  # type: ignore
-        values, fields_set, error = validate_model(self.response_model, outbound_data)
+        values, _, error = validate_model(self.response_model, outbound_data)
         if error:
             raise ResponseValidationError(
                 "A validation", error, traceback.format_exc()
@@ -229,7 +240,6 @@ class OutboundHandler:
         It basically accomodate for different datastructures and convert
         alls to a dict. Maybe a better name would be standaardize_structure ?
 
-        TODO: prise en charge des DataClass
         TODO: Determine if we need by_alias, exclude_unset,
         exclude_defaults, exclude_none options ?
         """
@@ -237,8 +247,10 @@ class OutboundHandler:
             return content
         elif isinstance(content, BaseModel):
             return content.dict()
-        # elif isinstance(content, list):
-        # return [self._adapt_datastructure_of(item) for item in content]
+        elif isinstance(content, list):
+            return {
+                "__root__": [self._adapt_datastructure_of(item) for item in content]
+            }
         elif dataclasses.is_dataclass(content):
             return dataclasses.asdict(content)
 

@@ -126,6 +126,28 @@ def test_endpoint_with_response_model_and_dict_as_return_value(
     assert r.data == b'{"total_count": 10, "items": ["Apple", "Banana"]}'
 
 
+def test_endpoint_with_list_as_return_value(
+    app: Jeroboam,
+    client: FlaskClient,
+):
+    """GIVEN an endpoint with a response_model as a List
+    WHEN hit
+    THEN it serialize the list using the response_model
+    """
+
+    @app.get("/endpoint_returns_a_list", response_model=List[OutBoundModel])
+    def test():
+        return [valid_outbound_data, valid_outbound_data]
+
+    r = client.get("/endpoint_returns_a_list")
+
+    assert r.status_code == 200
+    assert (
+        r.data == b'[{"total_count": 10, "items": ["Apple", "Banana"]}, '
+        b'{"total_count": 10, "items": ["Apple", "Banana"]}]'
+    )
+
+
 def test_endpoint_with_response_model_and_response_model_as_return_value(
     app: Jeroboam,
     client: FlaskClient,
