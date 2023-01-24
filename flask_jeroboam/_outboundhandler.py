@@ -104,41 +104,49 @@ class OutboundHandler:
             Credits: this algorithm and subalgorithms are inspired by FastAPI.
             """
             initial_return_value = current_app.ensure_sync(view_func)(*args, **kwargs)
-            # TODO: Doit-on gérer les BackgroundTasks ??
+            # TODO: Do we need to deal with BackgroundTasks Here ??
             if issubclass(initial_return_value.__class__, Response):
-                # TODO: Choose between SubClass of Response or isinstance of
-                # configured Response?
                 return initial_return_value
-            returned_body, returned_status_code, headers = self._parse_return_value(
-                initial_return_value
-            )
+            (
+                returned_body,
+                returned_status_code,
+                headers,
+            ) = self._unpack_view_function_return_value(initial_return_value)
             solved_status_code = self._solve_status_code(returned_status_code)
-            # Redundant with the check in build_response but we try to save unececesary
-            # serialize_content
             if self._status_code_forbids_body(solved_status_code):
                 return self._build_response(
                     status_code=solved_status_code, headers=headers
                 )
             content = self._serialize_content(returned_body)
-            return self._build_response(solved_status_code, content, headers=headers)
+            return self._build_response(content, solved_status_code, headers=headers)
 
         return outbound_handling
 
-    def _parse_return_value(
+    def _unpack_view_function_return_value(
         self, initial_return_value: JeroboamResponseReturnValue
     ) -> Tuple[JeroboamBodyType, Optional[int], Optional[HeadersValue]]:
-        """Parse the return value of the view function.
+        """Unpack the return value of the view function.
 
-        Unpack initial_return_value in body, status_c28ode and headers.
+        Flask support various shapes of return values in their view function.
+        We accomodate for theses shapes, but force them into a body/status_code
+        /headers tuple.
         """
         if isinstance(initial_return_value, tuple):
             if len(initial_return_value) == 3:
                 return initial_return_value  # type: ignore
             elif len(initial_return_value) == 2:
                 if isinstance(initial_return_value[1], int):
-                    return initial_return_value[0], initial_return_value[1], None
+                    return (
+                        initial_return_value[0],
+                        initial_return_value[1],  # type:ignore
+                        None,
+                    )
                 else:
-                    return initial_return_value[0], None, initial_return_value[1]
+                    return (
+                        initial_return_value[0],
+                        None,
+                        initial_return_value[1],  # type:ignore
+                    )
             else:
                 raise TypeError(
                     "The view function did not return a valid response tuple."
@@ -159,7 +167,6 @@ class OutboundHandler:
         The first one will take prescedence over the latter.
         Thus, to turn off registering a reponse_model, even when your
         view_function has a return annotation, set it to None.
-
         ..implementation details VS FastAPI:
             * Creating a model with root seems to do the trick. No need to generate
               a model_field from the response_model ?
@@ -233,7 +240,7 @@ class OutboundHandler:
         """Serialize the content of the response.
 
         # TODO: Algo de Sérialisation du Content de la Réponse.
-        # Pas de ModelFIeld, on json_encode
+        # Called only when we have a response_model
         # Sinon prepare_content qui renvoie un dict (option pour l'orm_mode)
         # On valide le dict avec le response_model et on collecte les erreurs
         # de validation
@@ -243,6 +250,9 @@ class OutboundHandler:
 
         TODO: Ability to render_template ?
         TODO: Gestions des CoRoutine ?
+        TODO: Plus d'options pour le passage en JSON ?
+        TODO: Determine if we need by_alias, exclude_unset,
+        exclude_defaults, exclude_none options ?
         """
         assert self.response_model is not None  # noqa: S101
         outbound_data: dict = self._adapt_datastructure_of(content)  # type: ignore
@@ -259,10 +269,10 @@ class OutboundHandler:
         """Prepare the content of the response.
 
         It basically accomodate for different datastructures and convert
-        alls to a dict. Maybe a better name would be standaardize_structure ?
+        them to a dict.
 
-        TODO: Determine if we need by_alias, exclude_unset,
-        exclude_defaults, exclude_none options ?
+        TODO: Do we support the ORM Mode ?$
+        TODO: Better Name ?
         """
         if isinstance(content, dict):
             return content
@@ -279,15 +289,13 @@ class OutboundHandler:
 
     def _build_response(
         self,
-        status_code: int,
         content: Optional[str] = None,
+        status_code: Optional[int] = None,
         headers: Optional[HeadersValue] = None,
     ) -> Response:
-        """Make a Response Object from content and status code.
-
-        TODO: Ability to pass Headers.
-        """
-        if self._status_code_forbids_body(status_code):
+        """Make a Response Object from content and status code, and passed_headers."""
+        # Do we replace with a check on content is None ?
+        if content is None:
             return self.response_class(status=status_code, headers=headers)
         return self.response_class(content, status=status_code, headers=headers)
 
