@@ -33,7 +33,6 @@ smv_branch_whitelist = r"^(?main).*$"
 smv_released_pattern = r"v.*"
 smv_remote_whitelist = r"^(origin)$"
 
-
 # HTML -----------------------------------------------------------------
 
 html_theme = "flask"
@@ -62,3 +61,8 @@ html_show_sourcelink = False
 # CopyButton -----------------------------------------------------------------
 
 # copybutton_only_copy_prompt_lines = True
+
+
+# MISCELLANEOUS -------------------------------------------------------------
+
+autosectionlabel_prefix_document = True

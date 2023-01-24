@@ -7,8 +7,11 @@ from typing import Dict
 from typing import Iterator
 from typing import List
 from typing import Mapping
+from typing import Optional
+from typing import Protocol
 from typing import Tuple
 from typing import Type
+from typing import TypeVar
 from typing import Union
 
 from flask.typing import HeadersValue
@@ -21,26 +24,45 @@ if TYPE_CHECKING:  # pragma: no cover
     from werkzeug.wrappers import Response
 
 
+class DataclassProtocol(Protocol):
+    """A Protiocol to type annotate dataclasses."""
+
+    __dataclass_fields__: Dict
+    __dataclass_params__: Dict
+    __post_init__: Optional[Callable]
+
+
 ResponseModel = Type[BaseModel]
 TypedParams = Dict[str, Any]
 
-JeroboamResponseValue = Union[
+
+DataClassType = TypeVar("DataClassType", bound=DataclassProtocol)
+
+
+JeroboamBodyType = Union[
     "Response",
+    DataClassType,
     BaseModel,
     str,
     bytes,
     List[Any],
+    List[BaseModel],
     # Only dict is actually accepted, but Mapping allows for TypedDic
     Mapping[str, Any],
     Iterator[str],
     Iterator[bytes],
+    DataclassProtocol,
+]
+
+JeroboamResponseWithStatusCode = Union[
+    Tuple[JeroboamBodyType, int], Tuple[JeroboamBodyType, int, HeadersValue]
 ]
 
 JeroboamResponseReturnValue = Union[
-    JeroboamResponseValue,
-    Tuple[JeroboamResponseValue, HeadersValue],
-    Tuple[JeroboamResponseValue, int],
-    Tuple[JeroboamResponseValue, int, HeadersValue],
+    JeroboamBodyType,
+    Tuple[JeroboamBodyType, HeadersValue],
+    Tuple[JeroboamBodyType, int],
+    Tuple[JeroboamBodyType, int, HeadersValue],
     "WSGIApplication",
 ]
 

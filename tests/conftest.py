@@ -3,9 +3,10 @@ import os
 
 import pytest
 
-from flask_jeroboam import APIBlueprint
 from flask_jeroboam import Jeroboam
+from flask_jeroboam import JeroboamBlueprint
 from flask_jeroboam.exceptions import InvalidRequest
+from flask_jeroboam.exceptions import ResponseValidationError
 from flask_jeroboam.exceptions import RessourceNotFound
 from flask_jeroboam.exceptions import ServerError
 
@@ -18,16 +19,18 @@ def app() -> Jeroboam:
         TESTING=True,
         SECRET_KEY="RandomSecretKey",
     )
+    # TODO: Add it by default with CONFIG OPT-OUT
     app.register_error_handler(InvalidRequest, InvalidRequest.handle)
     app.register_error_handler(RessourceNotFound, RessourceNotFound.handle)
     app.register_error_handler(ServerError, ServerError.handle)
+    app.register_error_handler(ResponseValidationError, ResponseValidationError.handle)
     return app
 
 
 @pytest.fixture
-def blueprint() -> APIBlueprint:
+def blueprint() -> JeroboamBlueprint:
     """A Basic Jeroboam Test App."""
-    return APIBlueprint("TestBluePrint", __name__)
+    return JeroboamBlueprint("TestBluePrint", __name__)
 
 
 @pytest.fixture
