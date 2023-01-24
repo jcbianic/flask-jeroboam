@@ -8,17 +8,17 @@ from typing import Callable
 
 from flask import Flask
 from flask.blueprints import Blueprint
-from flask.scaffold import T_route
 from flask.scaffold import setupmethod
 from typing_extensions import TypeVar
 
+from .typing import JeroboamRouteCallable
 from .view import JeroboamView
 
 
 R = TypeVar("R", bound=Any)
 
 
-class JeroboamScaffold:
+class JeroboamScaffoldOverRide:
     """A Flask Object with extra functionalities.
 
     The route method is overriden by a custom flask_jeroboam
@@ -26,7 +26,9 @@ class JeroboamScaffold:
     """
 
     @setupmethod
-    def route(self, rule: str, **options: Any) -> Callable[[T_route], T_route]:
+    def route(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
         """View function decorator to register a route.
 
         Decorate a view function to register it with the given URL
@@ -52,7 +54,7 @@ class JeroboamScaffold:
             :class:`~werkzeug.routing.Rule` object.
         """
 
-        def decorator(func: T_route) -> T_route:
+        def decorator(func: JeroboamRouteCallable) -> JeroboamRouteCallable:
             route = JeroboamView(rule, func, options)
             self.add_url_rule(  # type: ignore
                 rule, route.endpoint, route.as_view, **options
@@ -61,8 +63,54 @@ class JeroboamScaffold:
 
         return decorator
 
+    def _method_route(
+        self,
+        method: str,
+        rule: str,
+        options: dict,
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
+        if "methods" in options:
+            raise TypeError("Use the 'route' decorator to use the 'methods' argument.")
 
-class Jeroboam(JeroboamScaffold, Flask):
+        return self.route(rule, methods=[method], **options)
+
+    @setupmethod
+    def get(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
+        """Shortcut for :meth:`route` with ``methods=["GET"]``."""
+        return self._method_route("GET", rule, options)
+
+    @setupmethod
+    def post(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
+        """Shortcut for :meth:`route` with ``methods=["POST"]``."""
+        return self._method_route("POST", rule, options)
+
+    @setupmethod
+    def put(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
+        """Shortcut for :meth:`route` with ``methods=["PUT"]``."""
+        return self._method_route("PUT", rule, options)
+
+    @setupmethod
+    def delete(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
+        """Shortcut for :meth:`route` with ``methods=["DELETE"]``."""
+        return self._method_route("DELETE", rule, options)
+
+    @setupmethod
+    def patch(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
+        """Shortcut for :meth:`route` with ``methods=["PATCH"]``."""
+        return self._method_route("PATCH", rule, options)
+
+
+class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
     """A Flask Object with extra functionalities.
 
     The route method is overriden by a custom flask_jeroboam
@@ -72,7 +120,7 @@ class Jeroboam(JeroboamScaffold, Flask):
     pass
 
 
-class JeroboamBlueprint(JeroboamScaffold, Blueprint):
+class JeroboamBlueprint(JeroboamScaffoldOverRide, Blueprint):  # type:ignore
     """Regular Blueprint with extra behavior on route definition."""
 
     pass

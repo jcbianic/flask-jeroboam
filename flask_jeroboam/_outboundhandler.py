@@ -22,8 +22,8 @@ from flask_jeroboam.utils import get_typed_return_annotation
 
 from .responses import JSONResponse
 from .typing import HeadersValue
+from .typing import JeroboamBodyType
 from .typing import JeroboamResponseReturnValue
-from .typing import JeroboamResponseValue
 from .typing import JeroboamRouteCallable
 from .typing import ResponseModel
 from .typing import Union
@@ -126,7 +126,7 @@ class OutboundHandler:
 
     def _parse_return_value(
         self, initial_return_value: JeroboamResponseReturnValue
-    ) -> Tuple[JeroboamResponseValue, Optional[int], Optional[HeadersValue]]:
+    ) -> Tuple[JeroboamBodyType, Optional[int], Optional[HeadersValue]]:
         """Parse the return value of the view function.
 
         Unpack initial_return_value in body, status_c28ode and headers.
@@ -229,7 +229,7 @@ class OutboundHandler:
         ]
         return candidates[0]
 
-    def _serialize_content(self, content: JeroboamResponseValue) -> Any:
+    def _serialize_content(self, content: JeroboamBodyType) -> Any:
         """Serialize the content of the response.
 
         # TODO: Algo de Sérialisation du Content de la Réponse.
@@ -254,7 +254,7 @@ class OutboundHandler:
         return self.response_model(**values).json()
 
     def _adapt_datastructure_of(
-        self, content: JeroboamResponseValue
+        self, content: JeroboamBodyType
     ) -> Union[Dict, List[Any]]:
         """Prepare the content of the response.
 

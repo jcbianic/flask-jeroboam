@@ -88,6 +88,61 @@ def test_register_route_with_two_main_verb_raise_a_warning(
     assert r.data == valid_response_body
 
 
+def test_register_route_with_method_route_and_methods_option_raise_a_exception(
+    app: Jeroboam,
+    client: FlaskClient,
+):
+    """GIVEN an endpoint configured with the method_route
+    WHEN it is registered with the methods option
+    THEN it raises an Exception
+    """
+    with pytest.raises(TypeError):
+
+        @app.get(
+            "/route_method_and_methods_option",
+            methods=["GET"],
+            response_model=OutBoundModel,
+        )
+        def route_method_and_methods_option():
+            return valid_outbound_data
+
+
+def test_endpoint_with_put(
+    app: Jeroboam,
+    client: FlaskClient,
+):
+    """GIVEN an endpoint registered wit put
+    WHEN hit with a put request
+    THEN it responds with a 201 status code
+    """
+
+    @app.put("/put_http_verb", response_model=OutBoundModel)
+    def put_http_verb():
+        return valid_outbound_data
+
+    r = client.put("/put_http_verb")
+    assert r.status_code == 201
+    assert r.data == valid_response_body
+
+
+def test_endpoint_with_patch(
+    app: Jeroboam,
+    client: FlaskClient,
+):
+    """GIVEN an endpoint registered wit put
+    WHEN hit with a patch request
+    THEN it responds with a 201 status code
+    """
+
+    @app.patch("/patch_http_verb", response_model=OutBoundModel)
+    def patch_http_verb():
+        return valid_outbound_data
+
+    r = client.patch("/patch_http_verb")
+    assert r.status_code == 200
+    assert r.data == valid_response_body
+
+
 def test_endpoint_without_response_model(
     app: Jeroboam,
     client: FlaskClient,
