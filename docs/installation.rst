@@ -21,9 +21,9 @@ Install Flask-Jeroboam
          $ pip install flask-jeroboam
 
 
-**Flask-Jeroboam** is now installed along with its two direct dependencies, `Flask`_ and `Pydantic`__ as well as their own dependencies tree. :ref:`see <Dependencies>`
+**Flask-Jeroboam** is now installed along with its two direct dependencies, `Flask`_ and `Pydantic`__ as well as their own dependencies tree. :ref:`see <dependencies>`
 
-If you already have dependency management in Python figured out, skip our next section :ref:`About Dependency Management`. If not, :ref:`check it out <About Dependency Management>` before moving on to the :doc:`Getting Started Guide </getting_started>` or go to the
+If you already have dependency management in Python figured out, skip our next section :ref:`About Dependency Management <about_dep_management>`. If not, :ref:`check it out <about_dep_management>` before moving on to the :doc:`Getting Started Guide </getting_started>` or go to the
 :doc:`Documentation Overview </index>`.
 
 .. _Flask: https://palletsprojects.com/p/flask/
@@ -31,6 +31,8 @@ If you already have dependency management in Python figured out, skip our next s
 
 About Dependency Management
 ---------------------------
+
+.. _about_dep_management:
 
 Virtual environments
 ********************
@@ -62,6 +64,8 @@ drop support for older versions but keep up with the newest releases.
 
 Dependencies
 ************
+
+.. _dependencies:
 
 Installing **Flask-Jeroboam** will automatically install these packages along with their dependencies:
 
@@ -151,7 +155,7 @@ Before you do anything on your project, you must activate the corresponding envi
 
    $ poetry shell
 
-If configured with the right plugins, your shell prompt will change to show the name of the activated environment, which is always useful.
+If configured with the right plugins, your shell prompt will change to show the name of the activated environment, which will come handy.
 
 .. note::
    Alternatively, you can use shell plugins to *automatically activates virtual environments created by Poetry* like `zsh-poetry <https://github.com/darvid/zsh-poetry>`.
