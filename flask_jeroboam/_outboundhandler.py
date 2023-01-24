@@ -2,6 +2,7 @@ import dataclasses
 import traceback
 from functools import wraps
 from typing import Any
+from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -12,10 +13,13 @@ from typing import TypeVar
 from flask import Response
 from flask.globals import current_app
 from pydantic import BaseModel
+from pydantic import create_model
 from pydantic import validate_model
 from typing_extensions import ParamSpec
 
-from .exceptions import ResponseValidationError
+from flask_jeroboam.exceptions import ResponseValidationError
+from flask_jeroboam.utils import get_typed_return_annotation
+
 from .responses import JSONResponse
 from .typing import HeadersValue
 from .typing import JeroboamResponseReturnValue
@@ -61,12 +65,13 @@ class OutboundHandler:
 
     def __init__(
         self,
+        view_func: Callable,
         configured_status_code: Optional[int],
         main_http_verb: str,
         options: Dict[str, Any],
         response_class: Type = JSONResponse,
     ):
-        self.response_model = self._solve_response_model(options)
+        self.response_model = self._solve_response_model(view_func, options)
         self.configured_status_code = configured_status_code
         self.method_default_status_code = self._solve_default_status_code_by_http_verb(
             main_http_verb, configured_status_code
@@ -142,25 +147,41 @@ class OutboundHandler:
                 )
         return initial_return_value, None, None  # type: ignore
 
-    def _solve_response_model(self, options: Dict[str, Any]) -> Optional[ResponseModel]:
+    def _solve_response_model(
+        self, view_func: Callable, options: Dict[str, Any]
+    ) -> Optional[ResponseModel]:
         """Extract the Response Model from view function.
 
-        The Response Model should always be set in options.
-        And not inferred from the view return Type.
-        #WONTDO: Infer the response model from the view return type.
-        #TODO: Do we need to generate a model_field from the response_model?
-        #TODO: Do we need to clone the response_field?
-        """
-        response_model: Optional[Type] = options.pop("response_model", None)
+        The reponse_model must be a subclass of pydantic.BaseModel
+        or a list of a of pydantic.BaseModel. Otherwise a type Error will be raised.
+        It can be set in the options or a as return type annotation of the view
+        function.
+        The first one will take prescedence over the latter.
+        Thus, to turn off registering a reponse_model, even when your
+        view_function has a return annotation, set it to None.
 
+        ..implementation details VS FastAPI:
+            * Creating a model with root seems to do the trick. No need to generate
+              a model_field from the response_model ?
+            * Cloning the response_field doesn't seem to be necessary either
+              to filter out unwanted data.
+        """
+        response_model: Optional[Type] = options.pop(
+            "response_model", get_typed_return_annotation(view_func)
+        )
         if response_model is None:
             return None
+
         if getattr(response_model, "__origin__", None) == list:
             field: Type = response_model.__args__[0]
-            response_model = type(
+            response_model = create_model(
                 f"{field.__name__}AsList",
-                (BaseModel,),
-                {"__root__": (List[field], ...)},  # type: ignore[valid-type]
+                __root__=(List[field], ...),  # type: ignore[valid-type]
+            )
+        assert response_model is not None  # noqa: S101
+        if not issubclass(response_model, BaseModel):
+            raise TypeError(
+                "The response model must be a subclass of pydantic.BaseModel."
             )
         return response_model
 

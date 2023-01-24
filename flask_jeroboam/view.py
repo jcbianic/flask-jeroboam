@@ -44,6 +44,7 @@ class JeroboamView:
         configured_status_code: Optional[int] = options.pop("status_code", None)
         self.inbound_handler = InboundHandler(original_view_func, main_http_verb, rule)
         self.outbound_handler = OutboundHandler(
+            original_view_func,
             configured_status_code,
             main_http_verb,
             options,

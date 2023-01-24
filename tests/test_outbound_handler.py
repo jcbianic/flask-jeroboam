@@ -92,18 +92,94 @@ def test_endpoint_without_response_model(
     app: Jeroboam,
     client: FlaskClient,
 ):
-    """GIVEN an endpoint without response_model defined
+    """GIVEN an endpoint with no response_model configured or return annotation
     WHEN hit
     THEN it behaves like a regular Flask endpoint
     """
 
-    @app.get("/simple_endpoint")
-    def ping():
-        return "pong"
+    @app.get("/no_response_model")
+    def no_response_model():
+        return "Don't have a response model"
 
-    r = client.get("/simple_endpoint")
+    r = client.get("/no_response_model")
     assert r.status_code == 200
-    assert r.data == b"pong"
+    assert r.data == b"Don't have a response model"
+
+
+def test_endpoint_with_valid_return_annocation(
+    app: Jeroboam,
+    client: FlaskClient,
+):
+    """GIVEN an endpoint without response_model but with a valid return annotation
+    WHEN registered
+    THEN the annotation is stored as response_model
+    """
+
+    @app.get("/valid_return_annotation")
+    def valid_return_annotation() -> OutBoundModel:
+        return OutBoundModel(**valid_outbound_data)
+
+    r = client.get("/valid_return_annotation")
+
+    assert r.status_code == 200
+    assert r.data == valid_response_body
+
+
+def test_invalid_response_model_raise_type_error_at_registration(
+    app: Jeroboam,
+    client: FlaskClient,
+):
+    """GIVEN an endpoint with invladidly typed response_model
+    WHEN registered
+    THEN it raises a TypeError
+    """
+    with pytest.raises(TypeError):
+
+        @app.get("/invalid_return_annotation")
+        def invalid_return_annotation() -> dict:
+            return valid_outbound_data
+
+    with pytest.raises(TypeError):
+
+        @app.get("/invalid_configuration", response_model=dict)
+        def invalid_configuration():
+            return valid_outbound_data
+
+
+def test_configured_response_model_take_prescedence_over_return_annotation(
+    app: Jeroboam,
+    client: FlaskClient,
+):
+    """GIVEN an endpoint without a configured response_model and a return annotation
+    WHEN registered
+    THEN configrued response_model take prescedence over return annotation
+    """
+
+    @app.get("/configured_reponse_model_take_prescedence", response_model=OutBoundModel)
+    def test() -> dict:
+        return {"total_count": 10, "items": ["Apple", "Banana"]}
+
+    r = client.get("/configured_reponse_model_take_prescedence")
+
+    assert r.status_code == 200
+    assert r.data == valid_response_body
+
+
+def test_endpoint_can_turn_off_return_annocation(
+    app: Jeroboam,
+    client: FlaskClient,
+):
+    """GIVEN an endpoint with a valid return annotation
+    WHEN response_model is configured to be None
+    THEN the response_model registration is turned off
+    """
+
+    @app.get("/with_return_annotation_turned_off", response_model=None)
+    def test() -> OutBoundModel:
+        return OutBoundModel(**{"total_count": 10, "items": ["Apple", "Banana"]})
+
+    with pytest.raises(TypeError):
+        client.get("/with_return_annotation_turned_off")
 
 
 def test_endpoint_with_response_model_and_dict_as_return_value(
@@ -117,13 +193,13 @@ def test_endpoint_with_response_model_and_dict_as_return_value(
     """
 
     @app.get("/endpoint_returns_a_dict", response_model=OutBoundModel)
-    def test():
-        return {"total_count": 10, "items": ["Apple", "Banana"]}
+    def endpoint_returns_a_dict() -> dict:
+        return valid_outbound_data
 
     r = client.get("/endpoint_returns_a_dict")
 
     assert r.status_code == 200
-    assert r.data == b'{"total_count": 10, "items": ["Apple", "Banana"]}'
+    assert r.data == valid_response_body
 
 
 def test_endpoint_with_list_as_return_value(
