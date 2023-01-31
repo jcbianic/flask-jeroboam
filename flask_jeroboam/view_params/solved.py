@@ -79,18 +79,16 @@ class SolvedParameter(ModelField):
                 errors.append(
                     ErrorWrapper(MissingError(), loc=(self.location.value, self.alias))
                 )
-                return values, errors
             else:
                 values = {self.name: deepcopy(self.default)}
-                return values, errors
-
+            return values, errors
         values_, errors_ = self.validate(
             inbound_values, values, loc=(self.location.value, self.alias)
         )
         if isinstance(errors_, ErrorWrapper):
             errors.append(errors_)
         else:
-            values.update({self.name: values_})
+            values[self.name] = values_
         return values, errors
 
     def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
@@ -109,11 +107,7 @@ class SolvedParameter(ModelField):
             source = request.files
         else:
             source = request.json or {}
-        if self.embed:
-            values = source.get(self.alias or self.name)
-        else:
-            values = source
-        return values
+        return source.get(self.alias or self.name) if self.embed else source
 
     def _get_values_from_request(self) -> Union[dict, Optional[str], List[Any]]:
         """Get the values from the request.
@@ -139,10 +133,11 @@ class SolvedParameter(ModelField):
         if hasattr(self.type_, "__fields__"):
             assert isinstance(values, dict)  # noqa: S101
             for field_name, field in self.type_.__fields__.items():
-                if is_scalar_sequence_field(field):
-                    values[field_name] = source.getlist(field.alias or field_name)
-                else:
-                    values[field_name] = source.get(field.alias or field_name)
+                values[field_name] = (
+                    source.getlist(field.alias or field_name)
+                    if is_scalar_sequence_field(field)
+                    else source.get(field.alias or field_name)
+                )
                 if values[field_name] is None and getattr(
                     current_app, "query_string_key_transformer", False
                 ):
@@ -150,9 +145,8 @@ class SolvedParameter(ModelField):
                         current_app, source.to_dict()
                     )
                     values[field_name] = values_.get(field.alias or field_name)
+        elif is_scalar_sequence_field(self):
+            values = source.getlist(self.alias or self.name)
         else:
-            if is_scalar_sequence_field(self):
-                values = source.getlist(self.alias or self.name)
-            else:
-                values = source.get(self.alias or self.name)
+            values = source.get(self.alias or self.name)
         return values

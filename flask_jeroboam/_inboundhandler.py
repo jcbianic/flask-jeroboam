@@ -86,7 +86,7 @@ class InboundHandler:
         main_http_verb: str,
     ) -> ParamLocation:
         """Return the default FieldInfo for the InboundHandler."""
-        if main_http_verb in ("POST", "PUT"):
+        if main_http_verb in {"POST", "PUT"}:
             return ParamLocation.body
         elif main_http_verb == "GET":
             return ParamLocation.query
@@ -176,10 +176,7 @@ class InboundHandler:
         # Solving Required
         required: bool = default_value is Undefined
 
-        # Solving Type
-        annotation: Any = Any
-        if not param.annotation == param.empty:
-            annotation = param.annotation
+        annotation = param.annotation if param.annotation != param.empty else Any
         annotation = get_annotation_from_field_info(annotation, view_param, param_name)
 
         return SolvedParameter(

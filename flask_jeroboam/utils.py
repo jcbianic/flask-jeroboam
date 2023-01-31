@@ -78,19 +78,17 @@ def get_typed_return_annotation(call: Callable[..., Any]) -> Any:  # pragma: no 
 def is_scalar_field(field: ModelField) -> bool:
     """Check if a field is a scalar field."""
     field_info = field.field_info
-    if not (
-        field.shape == SHAPE_SINGLETON
-        and not lenient_issubclass(field.type_, BaseModel)
-        and not lenient_issubclass(field.type_, sequence_types + (dict,))
-        and not dataclasses.is_dataclass(field.type_)
-        and not isinstance(field_info, ViewParameter)
-        and not getattr(field_info, "location", None) in body_locations
-    ):
-        return False
-    if field.sub_fields:  # pragma: no cover
-        if not all(is_scalar_field(f) for f in field.sub_fields):
-            return False
-    return True
+    return (
+        False
+        if field.shape != SHAPE_SINGLETON
+        or lenient_issubclass(field.type_, BaseModel)
+        or lenient_issubclass(field.type_, sequence_types + (dict,))
+        or dataclasses.is_dataclass(field.type_)
+        or isinstance(field_info, ViewParameter)
+        or getattr(field_info, "location", None) in body_locations
+        else not field.sub_fields  # pragma: no cover
+        or all(is_scalar_field(f) for f in field.sub_fields)
+    )
 
 
 def is_scalar_sequence_field(field: ModelField) -> bool:
@@ -103,9 +101,7 @@ def is_scalar_sequence_field(field: ModelField) -> bool:
                 if not is_scalar_field(sub_field):
                     return False
         return True
-    if lenient_issubclass(field.type_, sequence_types):  # pragma: no cover
-        return True
-    return False
+    return bool(lenient_issubclass(field.type_, sequence_types))
 
 
 def _rename_query_params_keys(self, inbound_dict: dict, pattern: str) -> dict:
