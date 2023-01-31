@@ -2,7 +2,6 @@
 We test for various return values (Response, Dict, ResponseModel),
 configuration (response_model or not) and error handling.
 """
-import json
 import warnings
 from dataclasses import dataclass
 from typing import List
@@ -14,6 +13,7 @@ from flask.testing import FlaskClient
 from pydantic import BaseModel
 
 from flask_jeroboam.jeroboam import Jeroboam
+from flask_jeroboam.view_params.functions import Body
 
 
 class OutBoundModel(BaseModel):
@@ -501,15 +501,16 @@ def test_reponse_model_filters_outbound_data_even_when_subclassing(
         password: str
 
     @app.post("/filters_data", response_model=SecureOutBoundUser)
-    def filters_data(sensitive_data: InBoundUser):
+    def filters_data(sensitive_data: InBoundUser = Body()):
         return sensitive_data
 
     r = client.post(
-        "/filters_data", data=json.dumps({"username": "test", "password": "test"})
+        "/filters_data",
+        json={"sensitive_data": {"username": "test", "password": "test"}},
     )
 
     assert r.status_code == 201
-    assert r.data == json.dumps({"username": "test"}).encode()
+    assert r.json == {"username": "test"}
 
 
 def test_wrong_tuple_length_raise_error(

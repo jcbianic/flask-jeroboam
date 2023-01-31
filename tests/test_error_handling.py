@@ -3,7 +3,6 @@ We test for both Exception Initialisation and Error Handling.
 """
 from flask.testing import FlaskClient
 
-from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.exceptions import RessourceNotFound
 from flask_jeroboam.exceptions import ServerError
 from flask_jeroboam.jeroboam import Jeroboam
@@ -19,13 +18,21 @@ def test_invalid_request(
     """
 
     @app.get("/invalid_request")
-    def ping():
-        raise InvalidRequest(msg="The Request was not valid")
+    def ping(missing_param: int):
+        return {}
 
     r = client.get("invalid_request")
 
     assert r.status_code == 400
-    assert r.data.startswith(b"BadRequest:")
+    assert r.json == {
+        "detail": [
+            {
+                "loc": ["query", "missing_param"],
+                "msg": "field required",
+                "type": "value_error.missing",
+            }
+        ]
+    }
 
 
 def test_ressource_not_found_named_ressource(
@@ -56,11 +63,11 @@ def test_ressource_not_found_generic_message(
     THEN I get a 404 with RessourceNotFound Generic Message
     """
 
-    @app.get("/generic_ressource/<int:id>")
-    def ping(id: int):
+    @app.get("/generic_ressource")
+    def generic_ressource():
         raise RessourceNotFound(msg="My Message")
 
-    r = client.get("/generic_ressource/0")
+    r = client.get("/generic_ressource")
 
     assert r.status_code == 404
     assert r.data.startswith(b"RessourceNotFound: My Message")

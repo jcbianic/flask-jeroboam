@@ -72,7 +72,7 @@ class SolvedParameter(ModelField):
         """Validate the request."""
         values = {}
         errors = []
-
+        assert self.location is not None  # noqa: S101
         inbound_values = self._get_values()
         if inbound_values is None:
             if self.required:
@@ -100,7 +100,7 @@ class SolvedParameter(ModelField):
         else:
             return self._get_values_from_request()
 
-    def _get_values_from_body(self):
+    def _get_values_from_body(self) -> Any:
         """Get the values from the request body."""
         source: Any = {}
         if self.location == ParamLocation.form:
@@ -108,7 +108,7 @@ class SolvedParameter(ModelField):
         elif self.location == ParamLocation.file:
             source = request.files
         else:
-            source = request.json
+            source = request.json or {}
         if self.embed:
             values = source.get(self.alias or self.name)
         else:

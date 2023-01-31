@@ -3,7 +3,6 @@ We test for various payload location (QueryString, Data, Json, Files),
 verbs (GET, POST, DELETE) and configuration (Lists or Plain)...
 """
 from io import BytesIO
-from typing import Dict
 from typing import List
 from typing import Optional
 
@@ -14,6 +13,9 @@ from werkzeug.datastructures import FileStorage
 
 from flask_jeroboam.jeroboam import Jeroboam
 from flask_jeroboam.models import Parser
+from flask_jeroboam.view_params.functions import Body
+from flask_jeroboam.view_params.functions import File
+from flask_jeroboam.view_params.functions import Form
 
 
 class InBoundModel(BaseModel):
@@ -71,7 +73,7 @@ def test_valid_payload_in_json_is_injected(
     """
 
     @app.post("/payload_in_json")
-    def read_test(payload: InBoundModel):
+    def read_test(payload: InBoundModel = Body(embed=False)):
         return payload.json()
 
     r = client.post("/payload_in_json", json={"page": 1, "type": "item"})
@@ -90,7 +92,7 @@ def test_valid_payload_in_data_is_injected(
     """
 
     @app.post("/payload_in_json")
-    def read_test(payload: InBoundModel):
+    def read_test(payload: InBoundModel = Form()):
         return payload.json()
 
     r = client.post("/payload_in_json", data={"page": 1, "type": "item"})
@@ -105,16 +107,9 @@ def test_valid_payload_in_files_is_injected(app: Jeroboam, client: FlaskClient):
     THEN the parsed input is injected into the view function.
     """
 
-    class InBoundModelWithFile(BaseModel):
-        type: str
-        file: FileStorage
-
-        class Config:
-            arbitrary_types_allowed: bool = True
-
     @app.post("/payload_in_file")
-    def ping(payload: InBoundModelWithFile):
-        return {"type": payload.type, "file_content": str(payload.file.read())}
+    def ping(file: FileStorage = File(...)):
+        return {"file_content": str(file.read())}
 
     data = {"file": (BytesIO(b"Hello World !!"), "hello.txt"), "type": "file"}
 
@@ -127,7 +122,7 @@ def test_valid_payload_in_files_is_injected(app: Jeroboam, client: FlaskClient):
     )
 
     assert r.status_code == 200
-    assert r.data == b'{"file_content":"b\'Hello World !!\'","type":"file"}\n'
+    assert r.json == {"file_content": "b'Hello World !!'"}
 
 
 def test_invalid_query_string_raise_400(
@@ -146,7 +141,20 @@ def test_invalid_query_string_raise_400(
     r = client.get("/strict_endpoint?page=not_a_valid_param")
 
     assert r.status_code == 400
-    assert r.data.startswith(b"BadRequest")
+    assert r.json == {
+        "detail": [
+            {
+                "loc": ["query", "payload", "page"],
+                "msg": "value is not a valid integer",
+                "type": "type_error.integer",
+            },
+            {
+                "loc": ["query", "payload", "type"],
+                "msg": "none is not an allowed value",
+                "type": "type_error.none.not_allowed",
+            },
+        ]
+    }
 
 
 def test_invalid_simple_param_raise_400(
@@ -165,7 +173,15 @@ def test_invalid_simple_param_raise_400(
     r = client.get("query_string_as_int?simple_param=imparsable")
 
     assert r.status_code == 400
-    assert r.data.startswith(b"BadRequest:")
+    assert r.json == {
+        "detail": [
+            {
+                "loc": ["query", "simple_param"],
+                "msg": "value is not a valid integer",
+                "type": "type_error.integer",
+            }
+        ]
+    }
 
 
 def test_query_string_for_list_arguments(
@@ -179,15 +195,12 @@ def test_query_string_for_list_arguments(
 
     class QueryStringWithList(Parser):
         id: List[int] = Field(alias="id[]")
-        order: List[Dict[str, str]] = Field(alias="order[]")
 
     @app.get("/query_string_with_list")
     def ping(query_string: QueryStringWithList):
         return ",".join([str(id) for id in query_string.id])
 
-    r = client.get(
-        "/query_string_with_list?order[name]=asc&order[group]=desc&id[]=1&id[]=2"
-    )
+    r = client.get("/query_string_with_list?id[]=1&id[]=2")
     assert r.data == b"1,2"
 
 
