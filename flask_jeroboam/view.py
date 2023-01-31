@@ -62,8 +62,8 @@ class JeroboamView:
         name = view_func.__name__
         doc = view_func.__doc__
 
-        if self.inbound_handler:
-            view_func = self.inbound_handler(view_func)
+        if self.inbound_handler.is_valid:
+            view_func = self.inbound_handler.add_inbound_handling_to(view_func)
         if self.outbound_handler.is_valid_handler():
             view_func = self.outbound_handler.add_outbound_handling_to(view_func)
 

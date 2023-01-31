@@ -102,6 +102,7 @@ class SolvedParameter(ModelField):
 
     def _get_values_from_body(self):
         """Get the values from the request body."""
+        source: Any = {}
         if self.location == ParamLocation.form:
             source = request.form
         elif self.location == ParamLocation.file:

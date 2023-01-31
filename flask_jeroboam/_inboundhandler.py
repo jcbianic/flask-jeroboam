@@ -1,19 +1,29 @@
-import json
+import inspect
 import re
 import typing as t
 from enum import Enum
 from functools import wraps
+from typing import Any
 from typing import Callable
-from typing import Type
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
+from typing import Union
 
-from flask import request
-from flask.globals import current_app
-from pydantic import BaseModel
+from pydantic.error_wrappers import ErrorWrapper
+from pydantic.fields import Undefined
+from pydantic.schema import get_annotation_from_field_info
 from typing_extensions import ParamSpec
 
 from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.typing import JeroboamResponseReturnValue
 from flask_jeroboam.typing import JeroboamRouteCallable
+from flask_jeroboam.view_params import ParamLocation
+from flask_jeroboam.view_params import SolvedParameter
+from flask_jeroboam.view_params import ViewParameter
+from flask_jeroboam.view_params.parameters import get_parameter_class
 
 from .utils import get_typed_signature
 
@@ -44,89 +54,177 @@ class InboundHandler:
     view function. It is also responsible for raising an InvalidRequest exception.
     The InboundHandler will only be called if the view function has type-annotated
     parameters.
+
+
+
+    #TODO: Get Better at laying Out Levels of the Algorythm. Most Likely in the View
+    # class.
+    # And Moving away from the decorator scheme which feels obstrusive sometimes.
     """
 
     def __init__(self, view_func: Callable, main_http_verb: str, rule: str):
-        self.typed_params = get_typed_signature(view_func)
         self.main_http_verb = main_http_verb
+        self.default_param_location = self._solve_default_params_location(
+            main_http_verb
+        )
         self.rule = rule
+        self.path_param_names = set(re.findall("<(?:.*:)?(.*?)>", rule))
+        self.query_params: List[SolvedParameter] = []
+        self.path_params: List[SolvedParameter] = []
+        self.header_params: List[SolvedParameter] = []
+        self.cookie_params: List[SolvedParameter] = []
+        self.body_params: List[SolvedParameter] = []
+        self.form_params: List[SolvedParameter] = []
+        self.file_params: List[SolvedParameter] = []
+        self.other_params: List[SolvedParameter] = []
+        self.locations_to_visit: Set[ParamLocation] = set()
+        self._solve_params(view_func)
+        self._check_compliance()
 
-    def __bool__(self) -> bool:
-        return bool(self.typed_params.parameters)
+    @staticmethod
+    def _solve_default_params_location(
+        main_http_verb: str,
+    ) -> ParamLocation:
+        """Return the default FieldInfo for the InboundHandler."""
+        if main_http_verb in ("POST", "PUT"):
+            return ParamLocation.body
+        elif main_http_verb == "GET":
+            return ParamLocation.query
+        else:
+            return ParamLocation.path
 
-    def __call__(self, func: JeroboamRouteCallable) -> JeroboamRouteCallable:
+    @property
+    def is_valid(self) -> bool:
+        """Check if the InboundHandler has any Configured Parameters."""
+        return len(self.locations_to_visit) > 0
+
+    def add_inbound_handling_to(
+        self, view_func: JeroboamRouteCallable
+    ) -> JeroboamRouteCallable:
         """It injects inbound parsed and validated data into the view function."""
 
-        @wraps(func)
+        @wraps(view_func)
         def wrapper(*args, **kwargs) -> JeroboamResponseReturnValue:
-            location = self._parse_incoming_request_data()
-            kwargs = self._validate_inbound_data(location, kwargs)
-            return current_app.ensure_sync(func)(*args, **kwargs)
+            inbound_values, errors = self._parse_and_validate_inbound_data(**kwargs)
+            if errors:
+                raise InvalidRequest([errors])
+            return view_func(*args, **inbound_values)
 
         return wrapper
 
-    def _parse_incoming_request_data(self) -> dict:
-        """Getting the Data out of the Request Object."""
-        if self.main_http_verb == MethodEnum.GET:
-            location = dict(request.args.lists())
-            location = self._rename_query_params_keys(location, pattern)
-        elif self.main_http_verb == MethodEnum.POST:
-            location = dict(request.form.lists())
-            location = self._rename_query_params_keys(location, pattern)
-            if request.data:
-                # TODO: on.3.8.drop location |= dict(json.loads(request.data))
-                location.update(dict(json.loads(request.data)))
-            # TODO: on.3.8.drop location |= dict(request.files)  # type: ignore
-            location.update(dict(request.files))  # type: ignore
-        else:  # pragma: no cover
-            # TODO: Statement cannot be reached at this point.
-            location = {}
-        return location
+    def _check_compliance(self):
+        """Will warn the user if their view function does something a bit off."""
+        if len(self.form_params + self.file_params) > 0 and self.main_http_verb not in {
+            "POST",
+            "PUT",
+            "PATCH",
+        }:
+            import warnings
 
-    def _validate_inbound_data(self, location, kwargs) -> dict:
-        """Getting the Data out of the Request Object."""
-        for arg_name, typed_param in self.typed_params.parameters.items():
-            if getattr(typed_param.annotation, "__origin__", None) == t.Union:
-                kwargs[arg_name] = self._validate_input(
-                    typed_param.annotation.__args__[0], **location
-                )
-            elif issubclass(typed_param.annotation, BaseModel):
-                kwargs[arg_name] = self._validate_input(
-                    typed_param.annotation, **location
-                )
-            elif arg_name not in self.rule:
-                kwargs[arg_name] = self._simple_validate_input(
-                    typed_param.annotation, location, arg_name
-                )
-        return kwargs
+            warnings.warn(
+                f"You have defined Form or File Parameters on a "
+                f"{self.main_http_verb} request. "
+                "This is not supported by Flask:"
+                "https://flask.palletsprojects.com/en/2.2.x/api/#incoming-request-data",
+                UserWarning,
+            )
 
-    def _validate_input(self, model: Type[BaseModel], **kwargs: ParamSpec) -> BaseModel:
-        try:
-            return model(**kwargs)
-        except ValueError as e:
-            raise InvalidRequest(msg=str(e)) from e
+    def _solve_params(self, view_func: Callable):
+        """Registering the Parameters of the View Function."""
+        signature = get_typed_signature(view_func)
+        for parameter_name, parameter in signature.parameters.items():
+            solved_param = self._solve_view_function_parameter(
+                param_name=parameter_name, param=parameter
+            )
+            # Check if Param is in Path (not needed for now)
+            self._register_view_parameter(solved_param)
 
-    def _simple_validate_input(self, type_: T, payload: dict, key: str) -> T:
-        try:
-            return type_(payload.get(key, None))
-        except ValueError as e:
-            raise InvalidRequest(msg=str(e)) from e
+    def _solve_view_function_parameter(
+        self,
+        param_name: str,
+        param: inspect.Parameter,
+        force_location: Optional[ParamLocation] = None,
+        ignore_default: bool = False,
+    ) -> SolvedParameter:
+        """Analyse the param and its annotation to solve its configiration.
 
-    def _rename_query_params_keys(self, inbound_dict: dict, pattern: str) -> dict:
-        """Rename keys in a dictionary."""
-        renamings = []
-        for key, value in inbound_dict.items():
-            match = re.match(pattern, key)
-            if len(value) == 1 and match is None:
-                inbound_dict[key] = value[0]
-            elif match is not None:
-                new_key = f"{match[1]}[]"
-                new_value = {match[2]: value[0]}
-                renamings.append((key, new_key, new_value))
-        for key, new_key, new_value in renamings:
-            if new_key not in inbound_dict:
-                inbound_dict[new_key] = [new_value]
-            else:
-                inbound_dict[new_key].append(new_value)
-            del inbound_dict[key]
-        return inbound_dict
+        At the end of this process, we want to know the following things:
+        - What is its location?
+        - What is its type/annotation?
+        - Is it a scalar or a sequence?
+        - Is it required and/or has a default value?
+        """
+        # Solving Location
+        if param_name in self.path_param_names:
+            solved_location = ParamLocation.path
+        else:
+            solved_location = getattr(
+                param.default, "location", force_location or self.default_param_location
+            )
+        # Get the ViewParam
+        if isinstance(param.default, ViewParameter):
+            view_param = param.default
+        else:
+            param_class = get_parameter_class(solved_location)
+            view_param = param_class(default=param.default)
+
+        # Solving Default Value
+        default_value: Any = getattr(param.default, "default", param.default)
+        if default_value == param.empty or ignore_default:
+            default_value = Undefined
+
+        # Solving Required
+        required: bool = default_value is Undefined
+
+        # Solving Type
+        annotation: Any = Any
+        if not param.annotation == param.empty:
+            annotation = param.annotation
+        annotation = get_annotation_from_field_info(annotation, view_param, param_name)
+
+        return SolvedParameter(
+            name=param_name,
+            type_=annotation,
+            required=required,
+            view_param=view_param,
+        )
+
+    def _register_view_parameter(self, solved_parameter: SolvedParameter) -> None:
+        """Registering the Solved View parameters for the View Function.
+
+        The registration will put the params in the right list
+        and add the location to the locations_to_visit set.
+        """
+        assert solved_parameter.location is not None  # noqa: S101
+        self.locations_to_visit.add(solved_parameter.location)
+        {
+            ParamLocation.query: self.query_params,
+            ParamLocation.path: self.path_params,
+            ParamLocation.header: self.header_params,
+            ParamLocation.body: self.body_params,
+            ParamLocation.form: self.form_params,
+            ParamLocation.cookie: self.cookie_params,
+            ParamLocation.file: self.file_params,
+        }.get(solved_parameter.location, self.other_params).append(solved_parameter)
+
+    def _parse_and_validate_inbound_data(
+        self, **kwargs
+    ) -> Tuple[Dict, Union[List, ErrorWrapper]]:
+        """Parse and Validate the request Inbound data."""
+        errors = []
+        values = {}
+        for location in self.locations_to_visit:
+            params = {
+                ParamLocation.query: self.query_params,
+                ParamLocation.path: self.path_params,
+                ParamLocation.header: self.header_params,
+                ParamLocation.body: self.body_params,
+                ParamLocation.form: self.form_params,
+                ParamLocation.cookie: self.cookie_params,
+                ParamLocation.file: self.file_params,
+            }.get(location, [])
+            for param in params:
+                values_, errors_ = param.validate_request()
+                errors.extend(errors_)
+                values.update(values_)
+        return values, errors
