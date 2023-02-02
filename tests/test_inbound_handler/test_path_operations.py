@@ -247,13 +247,13 @@ not_found = {"message": "Not Found"}
         ("/path/param-le-ge-int/2.7", 400, response_not_valid_int),
     ],
 )
-def test_get_path(path_client, url, expected_status, expected_response):
+def test_get_path(client, url, expected_status, expected_response):
     """Test Path Operation with GET method.
 
 
     TODO: Allow Configuration of the returned Status Code.
     """
-    response = path_client.get(url)
+    response = client.get(url)
     assert response.status_code == expected_status
     assert response.json == expected_response
 
@@ -316,13 +316,13 @@ def test_get_path(path_client, url, expected_status, expected_response):
         ("/path/with_converter/param-le-ge-int/4", 400, response_less_than_equal_3),
     ],
 )
-def test_get_path_with_converter(path_client, url, expected_status, expected_response):
+def test_get_path_with_converter(client, url, expected_status, expected_response):
     """Test Path Operation with GET method.
 
 
     TODO: Allow Configuration of the returned Status Code.
     """
-    response = path_client.get(url)
+    response = client.get(url)
     assert response.json == expected_response
     assert response.status_code == expected_status
 
@@ -342,7 +342,7 @@ def test_get_path_with_converter(path_client, url, expected_status, expected_res
     ],
 )
 def test_path_converter_error_override_jeroboam_validation(
-    path_client, url, expected_status, expected_response
+    client, url, expected_status, expected_response
 ):
     """Test Url Converter Overides PathParams Validation.
 
@@ -350,6 +350,6 @@ def test_path_converter_error_override_jeroboam_validation(
     WHEN the url is called with a value that does not match the converter
     THEN the converter error is returned (404), not the Jeroboam one (400)
     """
-    response = path_client.get(url)
+    response = client.get(url)
     assert response.json == expected_response
     assert response.status_code == expected_status

@@ -2,7 +2,7 @@ from typing import List
 
 import pytest
 
-from flask_jeroboam.models import Parser
+from flask_jeroboam.models import InboundModel
 from flask_jeroboam.view_params.functions import Body
 
 
@@ -25,13 +25,19 @@ def _valid(value) -> dict:
 @pytest.mark.parametrize(
     "url,body_value,expected_status,expected_response",
     [
-        ("/body/str", {"payload": "foobar"}, 200, _valid("foobar")),
-        ("/body/int", {"payload": 123}, 200, _valid(123)),
+        ("/body/str", {"payload": "foobar"}, 201, _valid("foobar")),
+        ("/body/int", {"payload": 123}, 201, _valid(123)),
         ("/body/int", {"payload": "not_a_valid_int"}, 400, response_not_valid_int),
+        (
+            "/body/base_model",
+            {"page": 1, "type": "item"},
+            201,
+            {"page": 1, "type": "item"},
+        ),
     ],
 )
 def test_post_body_operations(
-    body_client, url, body_value, expected_status, expected_response
+    client, url, body_value, expected_status, expected_response
 ):
     """Testing Various GET operations with query parameters.
 
@@ -39,7 +45,7 @@ def test_post_body_operations(
     WHEN a request is made to the endpoint
     THEN the request is parsed and validated accordingly
     """
-    response = body_client.post(url, json=body_value)
+    response = client.post(url, json=body_value)
     assert response.json == expected_response
     assert response.status_code == expected_status
 
@@ -47,7 +53,7 @@ def test_post_body_operations(
 def test_post_body_list_of_base_model(app, client):
     """Test Body Parameter with POST method."""
 
-    class InBound(Parser):
+    class InBound(InboundModel):
         """Inbound model."""
 
         item: str

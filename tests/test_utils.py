@@ -1,17 +1,15 @@
 """Testing Utils."""
 from functools import partial
-from typing import List
 
 import pytest
 from flask.testing import FlaskClient
-from pydantic import Field
 
 from flask_jeroboam import Body
 from flask_jeroboam.jeroboam import Jeroboam
-from flask_jeroboam.models import Parser
-from flask_jeroboam.models import Serializer
 from flask_jeroboam.utils import _rename_query_params_keys
 from flask_jeroboam.view_params.solved import SolvedParameter
+from tests.app_test.models.inbound import ModelWithListIn
+from tests.app_test.models.outbound import ModelWithListOut
 
 
 def test_pascal_case_in_and_out_snake_case(app: Jeroboam, client: FlaskClient):
@@ -19,33 +17,23 @@ def test_pascal_case_in_and_out_snake_case(app: Jeroboam, client: FlaskClient):
     WHEN payload is send in pascalCase
     THEN it lives in python in snake_case and send back in pascalCase
     """
-
-    class OutboundModel(Serializer):
-        page: int
-        per_page: int
-        ids: List[int]
-        order: List[dict]
-
-    class InboundModel(Parser):
-        page: int
-        per_page: int
-        ids: List[int] = Field(alias="id[]")
-        order: List[dict] = Field(alias="order[]")
-
+    # We need to define the endpoint here to set the query_string_key_transformer first.
     app.query_string_key_transformer = partial(
         _rename_query_params_keys, pattern=r"(.*)\[(.+)\]$"
     )
 
-    @app.get("/web_boundaries", response_model=OutboundModel)
-    def read_items(payload: InboundModel):
+    @app.get(
+        "/query/special_pattern/after_configuration", response_model=ModelWithListOut
+    )
+    def read_items(payload: ModelWithListIn):
         return payload
 
-    r = client.get(
-        "web_boundaries?page=1&perPage=10&id[]=1&id[]=2&order[name]=asc&order[age]=desc"
+    response = client.get(
+        "/query/special_pattern/after_configuration?page=1&perPage=10&id[]=1&id[]=2&order[name]=asc&order[age]=desc"
     )
 
-    assert r.status_code == 200
-    assert r.json == {
+    assert response.status_code == 200
+    assert response.json == {
         "page": 1,
         "perPage": 10,
         "ids": [1, 2],
@@ -53,36 +41,17 @@ def test_pascal_case_in_and_out_snake_case(app: Jeroboam, client: FlaskClient):
     }
 
 
-def test_pascal_case_in_and_out_snake_case_without_transformer(
-    app: Jeroboam, client: FlaskClient
-):
+def test_pascal_case_in_and_out_snake_case_without_transformer(client: FlaskClient):
     """GIVEN an endpoint with param typed with a Parser and response_model a Serializer
     WHEN payload is send in pascalCase
     THEN it lives in python in snake_case and send back in pascalCase
     """
-
-    class OutboundModel(Serializer):
-        page: int
-        per_page: int
-        ids: List[int]
-        order: List[dict]
-
-    class InboundModel(Parser):
-        page: int
-        per_page: int
-        ids: List[int] = Field(alias="id[]")
-        order: List[dict] = Field(alias="order[]")
-
-    @app.get("/web_boundaries", response_model=OutboundModel)
-    def read_items(payload: InboundModel):
-        return payload
-
-    r = client.get(
-        "web_boundaries?page=1&perPage=10&id[]=1&id[]=2&order[name]=asc&order[age]=desc"
+    response = client.get(
+        "/query/special_pattern?page=1&perPage=10&id[]=1&id[]=2&order[name]=asc&order[age]=desc"
     )
 
-    assert r.status_code == 400
-    assert r.json == {
+    assert response.status_code == 400
+    assert response.json == {
         "detail": [
             {
                 "loc": ["query", "payload", "order[]"],

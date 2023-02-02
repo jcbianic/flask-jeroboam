@@ -24,14 +24,12 @@ def _valid(x):
         ("/headers/int", {"test-header": "not_a_valid_int"}, 400, not_a_valid_int),
     ],
 )
-def test_get_headers(
-    header_client, url, header_value, expected_status, expected_response
-):
+def test_get_headers(client, url, header_value, expected_status, expected_response):
     """Test Cookie Parameter with GET method.
 
 
     TODO: Allow Configuration of the returned Status Code.
     """
-    response = header_client.get(url, headers=header_value)
+    response = client.get(url, headers=header_value)
     assert response.status_code == expected_status
     assert response.json == expected_response

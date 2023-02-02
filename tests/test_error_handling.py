@@ -1,30 +1,17 @@
-"""Testing Error Handling.
-We test for both Exception Initialisation and Error Handling.
-"""
+"""Testing Error Handling."""
 from flask.testing import FlaskClient
-
-from flask_jeroboam.exceptions import RessourceNotFound
-from flask_jeroboam.exceptions import ServerError
-from flask_jeroboam.jeroboam import Jeroboam
 
 
 def test_invalid_request(
-    app: Jeroboam,
     client: FlaskClient,
 ):
-    """GIVEN an endpoint
-    WHEN it raises a InvalidRequest
-    THEN I get a 404 with InvalidRequest Message
+    """GIVEN a view function
+    WHEN it raises a ResponseValidationError
+    THEN I get a 400 response with message details
     """
-
-    @app.get("/invalid_request")
-    def ping(missing_param: int):
-        return {}
-
-    r = client.get("invalid_request")
-
-    assert r.status_code == 400
-    assert r.json == {
+    response = client.get("/invalid_request")
+    assert response.status_code == 400
+    assert response.json == {
         "detail": [
             {
                 "loc": ["query", "missing_param"],
@@ -35,58 +22,37 @@ def test_invalid_request(
     }
 
 
-def test_ressource_not_found_named_ressource(
-    app: Jeroboam,
+def test_ressource_not_found(
     client: FlaskClient,
 ):
-    """GIVEN an endpoint
-    WHEN it raises a ResssourceNotFound
-    THEN I get a 404 with RessourceNotFound Message
+    """GIVEN a decorated view function
+    WHEN it raises a Generic ResssourceNotFound
+    THEN I get a 404 response with RessourceNotFound Generic Message
     """
-
-    @app.get("/ressource_not_found")
-    def ping():
-        raise RessourceNotFound(ressource_name="TestRessource", context=f"with id {id}")
-
-    r = client.get("/ressource_not_found")
-
-    assert r.status_code == 404
-    assert r.data.startswith(b"RessourceNotFound: TestRessource not found :")
+    response = client.get("/ressource_not_found")
+    assert response.status_code == 404
+    assert response.data.startswith(b"RessourceNotFound: TestRessource not found :")
 
 
-def test_ressource_not_found_generic_message(
-    app: Jeroboam,
+def test_generic_ressource_not_found_message(
     client: FlaskClient,
 ):
-    """GIVEN an endpoint
+    """GIVEN a decorated view function
     WHEN it raises a ResssourceNotFound
-    THEN I get a 404 with RessourceNotFound Generic Message
+    THEN I get a 404 response with RessourceNotFound Generic Message
     """
-
-    @app.get("/generic_ressource")
-    def generic_ressource():
-        raise RessourceNotFound(msg="My Message")
-
-    r = client.get("/generic_ressource")
-
-    assert r.status_code == 404
-    assert r.data.startswith(b"RessourceNotFound: My Message")
+    response = client.get("/generic_ressource")
+    assert response.status_code == 404
+    assert response.data.startswith(b"RessourceNotFound: My Message")
 
 
 def test_internal_server_error(
-    app: Jeroboam,
     client: FlaskClient,
 ):
-    """GIVEN an endpoint
-    WHEN it raises a InternalServerError
-    THEN I get a 500 with RessourceNotFound Generic Message
+    """GIVEN a decorated view function
+    WHEN it raises a ServerError
+    THEN I get a 500 response with ServerError Message
     """
-
-    @app.get("/server_error")
-    def ping():
-        raise ServerError(msg="My Message", error=Exception(), trace="FakeTrace")
-
-    r = client.get("/server_error")
-
-    assert r.status_code == 500
-    assert r.data.startswith(b"InternalServerError: My Message")
+    response = client.get("/server_error")
+    assert response.status_code == 500
+    assert response.data.startswith(b"InternalServerError: My Message")
