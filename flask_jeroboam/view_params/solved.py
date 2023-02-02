@@ -44,7 +44,7 @@ class SolvedParameter(ModelField):
         self.name = name
         self.location: Optional[ParamLocation] = getattr(view_param, "location", None)
         if self.location == ParamLocation.file:
-            BaseConfig.arbitrary_types_allowed = True
+            model_config.arbitrary_types_allowed = True
         self.required = required
         self.embed = getattr(view_param, "embed", None)
         self.in_body = getattr(view_param, "in_body", None)

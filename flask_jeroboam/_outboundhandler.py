@@ -78,10 +78,6 @@ class OutboundHandler:
         )
         self.response_class = response_class
 
-    def is_valid_handler(self) -> bool:
-        """Should the handler add behavior to the view_function?"""
-        return bool(self.response_model)
-
     def add_outbound_handling_to(
         self, view_func: JeroboamRouteCallable
     ) -> JeroboamRouteCallable:
@@ -104,7 +100,6 @@ class OutboundHandler:
             Credits: this algorithm and subalgorithms are inspired by FastAPI.
             """
             initial_return_value = current_app.ensure_sync(view_func)(*args, **kwargs)
-            # TODO: Do we need to deal with BackgroundTasks Here ??
             if issubclass(initial_return_value.__class__, Response):
                 return initial_return_value
             (
@@ -117,8 +112,13 @@ class OutboundHandler:
                 return self._build_response(
                     status_code=solved_status_code, headers=headers
                 )
-            content = self._serialize_content(returned_body)
-            return self._build_response(content, solved_status_code, headers=headers)
+            if self.response_model:
+                content = self._serialize_content(returned_body)
+                return self._build_response(
+                    content, solved_status_code, headers=headers
+                )
+            else:
+                return returned_body, solved_status_code, headers
 
         return outbound_handling
 
@@ -139,7 +139,7 @@ class OutboundHandler:
                     return (
                         initial_return_value[0],
                         initial_return_value[1],  # type:ignore
-                        None,
+                        {},
                     )
                 else:
                     return (

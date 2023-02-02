@@ -47,7 +47,7 @@ def json_dumps_to_camel_case(*args, **kwargs):
     return json.dumps(*args, **kwargs)
 
 
-class Parser(BaseModel):
+class InboundModel(BaseModel):
     """Basic configuration for parsing Requests."""
 
     class Config:
@@ -57,7 +57,7 @@ class Parser(BaseModel):
         allow_population_by_field_name = True
 
 
-class Serializer(BaseModel):
+class OutboundModel(BaseModel):
     """Basic Configiration for serializing Responses."""
 
     class Config:
