@@ -153,25 +153,17 @@ class InboundHandler:
         - What is its type/annotation?
         - Is it a scalar or a sequence?
         - Is it required and/or has a default value?
+        # Split it into functions for each step.
         """
-        # Solving Location
-        if param_name in self.path_param_names:
-            solved_location = ParamLocation.path
-        else:
-            solved_location = getattr(
-                param.default, "location", force_location or self.default_param_location
-            )
+        solved_location = self._solve_location(param_name, param, force_location)
         # Get the ViewParam
         if isinstance(param.default, ViewParameter):
             view_param = param.default
         else:
             param_class = get_parameter_class(solved_location)
-            view_param = param_class(default=param.default)
+            view_param = param_class(param.default)
 
-        # Solving Default Value
-        default_value: Any = getattr(param.default, "default", param.default)
-        if default_value == param.empty or ignore_default:
-            default_value = Undefined
+        default_value = self._solve_default_value(param, ignore_default)
 
         # Solving Required
         required: bool = default_value is Undefined
@@ -185,6 +177,29 @@ class InboundHandler:
             required=required,
             view_param=view_param,
         )
+
+    def _solve_location(
+        self,
+        param_name: str,
+        param: inspect.Parameter,
+        force_location: Optional[ParamLocation] = None,
+    ) -> ParamLocation:
+        if param_name in self.path_param_names:
+            return ParamLocation.path
+        else:
+            return getattr(
+                param.default, "location", force_location or self.default_param_location
+            )
+
+    def _solve_default_value(
+        self,
+        param: inspect.Parameter,
+        ignore_default: bool,
+    ) -> Any:
+        default_value: Any = getattr(param.default, "default", param.default)
+        if default_value == param.empty or ignore_default:
+            default_value = Undefined
+        return default_value
 
     def _register_view_parameter(self, solved_parameter: SolvedParameter) -> None:
         """Registering the Solved View parameters for the View Function.

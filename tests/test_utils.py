@@ -55,8 +55,8 @@ def test_pascal_case_in_and_out_snake_case_without_transformer(client: FlaskClie
         "detail": [
             {
                 "loc": ["query", "payload", "order[]"],
-                "msg": "none is not an allowed value",
-                "type": "type_error.none.not_allowed",
+                "msg": "Order must have at least 1 value",
+                "type": "value_error",
             }
         ]
     }

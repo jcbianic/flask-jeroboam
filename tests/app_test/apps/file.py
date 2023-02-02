@@ -12,5 +12,5 @@ router = JeroboamBlueprint("file_params_router", __name__)
 
 
 @router.post("/file")
-def ping(file: FileStorage = File(...)):
+def ping(file: FileStorage = File(embed=True)):
     return {"file_content": str(file.read())}

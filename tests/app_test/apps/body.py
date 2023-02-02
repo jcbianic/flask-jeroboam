@@ -11,13 +11,13 @@ router = JeroboamBlueprint("body_params_router", __name__)
 
 
 @router.post("/body/int")
-def post_body_as_int(payload: int = Body()):
+def post_body_as_int(payload: int = Body(embed=True)):
     """Body Param as plain int."""
     return {"payload": payload}
 
 
 @router.post("/body/str")
-def post_body_as_str(payload: str = Body()):
+def post_body_as_str(payload: str = Body(embed=True)):
     """Body Param as plain str."""
     return {"payload": payload}
 

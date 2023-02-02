@@ -68,8 +68,8 @@ def test_get_query_operations(client, url, expected_status, expected_response):
     THEN the request is parsed and validated accordingly
     """
     response = client.get(url)
-    assert response.status_code == expected_status
     assert response.json == expected_response
+    assert response.status_code == expected_status
 
 
 def test_valid_base_model_as_query_parameter(

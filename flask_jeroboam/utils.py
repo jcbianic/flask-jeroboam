@@ -77,49 +77,38 @@ def get_typed_return_annotation(call: Callable[..., Any]) -> Any:  # pragma: no 
 
 def is_scalar_field(field: ModelField) -> bool:
     """Check if a field is a scalar field."""
-    field_info = field.field_info
     return (
         False
         if field.shape != SHAPE_SINGLETON
         or lenient_issubclass(field.type_, BaseModel)
         or lenient_issubclass(field.type_, sequence_types + (dict,))
         or dataclasses.is_dataclass(field.type_)
-        or isinstance(field_info, ViewParameter)
-        or getattr(field_info, "location", None) in body_locations
+        or isinstance(field.field_info, ViewParameter)
+        or getattr(field.field_info, "location", None) in body_locations
         else not field.sub_fields  # pragma: no cover
         or all(is_scalar_field(f) for f in field.sub_fields)
     )
 
 
-def is_scalar_sequence_field(field: ModelField) -> bool:
+def is_sequence_field(field: ModelField) -> bool:
     """Check if a field is a sequence field."""
     if (field.shape in sequence_shapes) and not lenient_issubclass(
         field.type_, BaseModel
     ):
-        if field.sub_fields is not None:  # pragma: no cover
-            for sub_field in field.sub_fields:
-                if not is_scalar_field(sub_field):
-                    return False
         return True
     return bool(lenient_issubclass(field.type_, sequence_types))
 
 
 def _rename_query_params_keys(self, inbound_dict: dict, pattern: str) -> dict:
-    """Rename keys in a dictionary.
-
-    Probablement Obsolete.
-    """
-    renamings = []
-    for key, value in inbound_dict.items():
-        match = re.match(pattern, key)
+    """Rename keys in a dictionary."""
+    frozen_inbound_dict = inbound_dict.copy()
+    for old_key, value in frozen_inbound_dict.items():
+        match = re.match(pattern, old_key)
         if match is not None:
             new_key = f"{match[1]}[]"
             new_value = {match[2]: value}
-            renamings.append((key, new_key, new_value))
-    for key, new_key, new_value in renamings:
-        if new_key not in inbound_dict:
-            inbound_dict[new_key] = [new_value]
-        else:
-            inbound_dict[new_key].append(new_value)
-        del inbound_dict[key]
+            new_array = inbound_dict.get(new_key, [])
+            new_array.append(new_value)
+            inbound_dict[new_key] = new_array
+            del inbound_dict[old_key]
     return inbound_dict

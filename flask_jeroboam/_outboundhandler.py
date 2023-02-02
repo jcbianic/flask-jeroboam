@@ -112,13 +112,10 @@ class OutboundHandler:
                 return self._build_response(
                     status_code=solved_status_code, headers=headers
                 )
-            if self.response_model:
-                content = self._serialize_content(returned_body)
-                return self._build_response(
-                    content, solved_status_code, headers=headers
-                )
-            else:
+            if self.response_model is None:
                 return returned_body, solved_status_code, headers
+            content = self._serialize_content(returned_body)
+            return self._build_response(content, solved_status_code, headers=headers)
 
         return outbound_handling
 

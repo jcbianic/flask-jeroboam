@@ -37,8 +37,9 @@ class ViewParameter(FieldInfo):
         self.example = kwargs.pop("example", Undefined)
         self.examples = kwargs.pop("examples", None)
         self.embed = kwargs.pop("embed", False)
+        self.include_in_schema = kwargs.get("include_in_schema", True)
         super().__init__(
-            default=default,
+            default,
             **kwargs,
         )
 
@@ -66,7 +67,7 @@ class NonBodyParameter(ViewParameter):
         self.deprecated = kwargs.pop("deprecated", None)
         self.include_in_schema = kwargs.pop("include_in_schema", True)
         super().__init__(
-            default=default,
+            default,
             **kwargs,
         )
 
@@ -84,12 +85,12 @@ class PathParameter(NonBodyParameter):
 
     def __init__(
         self,
-        default: Any = Undefined,
+        *args: Any,
         **kwargs: Any,
     ):
         self.required = True
         super().__init__(
-            default=...,
+            ...,
             **kwargs,
         )
 
@@ -106,7 +107,7 @@ class HeaderParameter(NonBodyParameter):
     ):
         self.convert_underscores = kwargs.pop("convert_underscores", True)
         super().__init__(
-            default=default,
+            default,
             **kwargs,
         )
 
@@ -135,7 +136,7 @@ class BodyParameter(ViewParameter):
         self.embed = kwargs.get("embed", False)
         self.media_type = kwargs.pop("media_type", "application/json")
         super().__init__(
-            default=default,
+            default,
             **kwargs,
         )
 
@@ -150,10 +151,10 @@ class FormParameter(BodyParameter):
         default: Any = Undefined,
         **kwargs: Any,
     ):
-        self.media_type = kwargs.pop("media_type", "application/x-www-form-urlencoded")
         embed = kwargs.pop("embed", True)
+        self.media_type = kwargs.pop("media_type", "application/x-www-form-urlencoded")
         super().__init__(
-            default=default,
+            default,
             embed=embed,
             **kwargs,
         )
@@ -169,10 +170,10 @@ class FileParameter(FormParameter):
         default: Any = Undefined,
         **kwargs: Any,
     ):
-        self.media_type = kwargs.pop("media_type", "multipart/form-data")
         embed = kwargs.pop("embed", False)
+        self.media_type = kwargs.pop("media_type", "multipart/form-data")
         super().__init__(
-            default=default,
+            default,
             embed=embed,
             **kwargs,
         )

@@ -134,5 +134,5 @@ def configured_status_code_204_has_no_body():
 
 
 @router.post("/sensitive_data", response_model=UserOut)
-def reponse_model_filters_data(sensitive_data: UserIn = Body()):
+def reponse_model_filters_data(sensitive_data: UserIn = Body(embed=True)):
     return sensitive_data

@@ -1,0 +1,158 @@
+"""Stub file for the adjacent functions module.
+
+Note that the default setting behavior is implemented
+in each __init__ methods.
+
+Documentation on stubfiles can be found here:
+https://mypy.readthedocs.io/en/stable/stubs.html
+"""
+
+from typing import Any
+from typing import Dict
+from typing import Optional
+
+from pydantic.fields import Undefined
+
+def Path(
+    default: Any = Undefined,
+    *,
+    alias: Optional[str] = None,
+    title: Optional[str] = None,
+    description: Optional[str] = None,
+    gt: Optional[float] = None,
+    ge: Optional[float] = None,
+    lt: Optional[float] = None,
+    le: Optional[float] = None,
+    min_length: Optional[int] = None,
+    max_length: Optional[int] = None,
+    regex: Optional[str] = None,
+    example: Any = Undefined,
+    examples: Optional[Dict[str, Any]] = None,
+    deprecated: Optional[bool] = None,
+    include_in_schema: bool = True,
+    **extra: Any,
+) -> Any: ...
+def Query(
+    default: Any = Undefined,
+    *,
+    alias: Optional[str] = None,
+    title: Optional[str] = None,
+    description: Optional[str] = None,
+    gt: Optional[float] = None,
+    ge: Optional[float] = None,
+    lt: Optional[float] = None,
+    le: Optional[float] = None,
+    min_length: Optional[int] = None,
+    max_length: Optional[int] = None,
+    regex: Optional[str] = None,
+    example: Any = Undefined,
+    examples: Optional[Dict[str, Any]] = None,
+    deprecated: Optional[bool] = None,
+    include_in_schema: bool = True,
+    **extra: Any,
+) -> Any: ...
+def Header(
+    default: Any = Undefined,
+    *,
+    alias: Optional[str] = None,
+    title: Optional[str] = None,
+    description: Optional[str] = None,
+    gt: Optional[float] = None,
+    ge: Optional[float] = None,
+    lt: Optional[float] = None,
+    le: Optional[float] = None,
+    min_length: Optional[int] = None,
+    max_length: Optional[int] = None,
+    regex: Optional[str] = None,
+    example: Any = Undefined,
+    examples: Optional[Dict[str, Any]] = None,
+    deprecated: Optional[bool] = None,
+    include_in_schema: bool = True,
+    convert_underscores: bool = True,
+    **extra: Any,
+) -> Any: ...
+def Cookie(
+    default: Any = Undefined,
+    *,
+    alias: Optional[str] = None,
+    title: Optional[str] = None,
+    description: Optional[str] = None,
+    gt: Optional[float] = None,
+    ge: Optional[float] = None,
+    lt: Optional[float] = None,
+    le: Optional[float] = None,
+    min_length: Optional[int] = None,
+    max_length: Optional[int] = None,
+    regex: Optional[str] = None,
+    example: Any = Undefined,
+    examples: Optional[Dict[str, Any]] = None,
+    deprecated: Optional[bool] = None,
+    include_in_schema: bool = True,
+    **extra: Any,
+) -> Any: ...
+def Body(
+    default: Any = Undefined,
+    *,
+    alias: Optional[str] = None,
+    title: Optional[str] = None,
+    description: Optional[str] = None,
+    gt: Optional[float] = None,
+    ge: Optional[float] = None,
+    lt: Optional[float] = None,
+    le: Optional[float] = None,
+    min_length: Optional[int] = None,
+    max_length: Optional[int] = None,
+    regex: Optional[str] = None,
+    example: Any = Undefined,
+    examples: Optional[Dict[str, Any]] = None,
+    deprecated: Optional[bool] = None,
+    include_in_schema: bool = True,
+    required: bool = False,
+    embed: bool = True,  # for body
+    media_type: str = "application/json",
+    **extra: Any,
+) -> Any: ...
+def Form(
+    default: Any = Undefined,
+    *,
+    alias: Optional[str] = None,
+    title: Optional[str] = None,
+    description: Optional[str] = None,
+    gt: Optional[float] = None,
+    ge: Optional[float] = None,
+    lt: Optional[float] = None,
+    le: Optional[float] = None,
+    min_length: Optional[int] = None,
+    max_length: Optional[int] = None,
+    regex: Optional[str] = None,
+    example: Any = Undefined,
+    examples: Optional[Dict[str, Any]] = None,
+    deprecated: Optional[bool] = None,
+    include_in_schema: bool = True,
+    required: bool = False,
+    embed: bool = True,
+    media_type: str = "application/x-www-form-urlencoded",
+    **extra: Any,
+) -> Any: ...
+def File(  # noqa: N802
+    default: Any = Undefined,
+    *,
+    alias: Optional[str] = None,
+    title: Optional[str] = None,
+    description: Optional[str] = None,
+    gt: Optional[float] = None,
+    ge: Optional[float] = None,
+    lt: Optional[float] = None,
+    le: Optional[float] = None,
+    min_length: Optional[int] = None,
+    max_length: Optional[int] = None,
+    regex: Optional[str] = None,
+    example: Any = Undefined,
+    examples: Optional[Dict[str, Any]] = None,
+    deprecated: Optional[bool] = None,
+    include_in_schema: bool = True,
+    required: bool = False,
+    embed: bool = False,
+    media_type: str = "multipart/form-data",
+    **extra: Any,
+) -> Any: ...

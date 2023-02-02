@@ -3,6 +3,7 @@ from typing import List
 from typing import Optional
 
 from pydantic import Field
+from pydantic import validator
 
 from flask_jeroboam import InboundModel
 
@@ -34,3 +35,10 @@ class ModelWithListIn(InboundModel):
     per_page: int
     ids: List[int] = Field(alias="id[]")
     order: List[dict] = Field(alias="order[]")
+
+    @validator("order")
+    def order_validator(cls, value):  # noqa: B902,N805
+        """Validate order."""
+        if len(value) == 0:
+            raise ValueError("Order must have at least 1 value")
+        return value

@@ -2,10 +2,10 @@ from .jeroboam import Jeroboam
 from .jeroboam import JeroboamBlueprint
 from .models import InboundModel
 from .models import OutboundModel
-from .view_params.functions import Body
-from .view_params.functions import Cookie
-from .view_params.functions import File
-from .view_params.functions import Form
-from .view_params.functions import Header
-from .view_params.functions import Path
-from .view_params.functions import Query
+from .view_params import Body
+from .view_params import Cookie
+from .view_params import File
+from .view_params import Form
+from .view_params import Header
+from .view_params import Path
+from .view_params import Query

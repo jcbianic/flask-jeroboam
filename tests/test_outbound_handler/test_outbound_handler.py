@@ -247,5 +247,5 @@ def test_reponse_model_filters_outbound_data_even_when_subclassing(
         json={"sensitive_data": {"username": "test", "password": "test"}},
     )
 
-    assert response.status_code == 201
     assert response.json == {"username": "test"}
+    assert response.status_code == 201

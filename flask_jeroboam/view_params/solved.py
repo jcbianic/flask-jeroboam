@@ -17,7 +17,7 @@ from pydantic.fields import FieldInfo
 from pydantic.fields import ModelField
 from werkzeug.datastructures import MultiDict
 
-from flask_jeroboam.utils import is_scalar_sequence_field
+from flask_jeroboam.utils import is_sequence_field
 
 from .parameters import ParamLocation
 from .parameters import ViewParameter
@@ -74,14 +74,14 @@ class SolvedParameter(ModelField):
         errors = []
         assert self.location is not None  # noqa: S101
         inbound_values = self._get_values()
-        if inbound_values is None:
-            if self.required:
-                errors.append(
-                    ErrorWrapper(MissingError(), loc=(self.location.value, self.alias))
-                )
-            else:
-                values = {self.name: deepcopy(self.default)}
+        if inbound_values is None and self.required:
+            errors.append(
+                ErrorWrapper(MissingError(), loc=(self.location.value, self.alias))
+            )
             return values, errors
+            # Should I return errors here ?
+        elif inbound_values is None and not self.required:
+            inbound_values = deepcopy(self.default)
         values_, errors_ = self.validate(
             inbound_values, values, loc=(self.location.value, self.alias)
         )
@@ -95,8 +95,22 @@ class SolvedParameter(ModelField):
         """Get the values from the request."""
         if self.in_body:
             return self._get_values_from_body()
+        elif self.location == ParamLocation.query:
+            source = request.args
+        elif self.location == ParamLocation.path:
+            source = MultiDict(request.view_args)
+        elif self.location == ParamLocation.header:
+            source = MultiDict(request.headers)
+        elif self.location == ParamLocation.cookie:
+            source = request.cookies
         else:
-            return self._get_values_from_request()
+            raise ValueError("Unknown location")
+        has_key_transformer = (
+            getattr(current_app, "query_string_key_transformer", False) is not None
+        )
+        return self._get_values_from_request(
+            self, source, self.name, self.alias, has_key_transformer
+        )
 
     def _get_values_from_body(self) -> Any:
         """Get the values from the request body."""
@@ -109,7 +123,14 @@ class SolvedParameter(ModelField):
             source = request.json or {}
         return source.get(self.alias or self.name) if self.embed else source
 
-    def _get_values_from_request(self) -> Union[dict, Optional[str], List[Any]]:
+    def _get_values_from_request(
+        self,
+        field: ModelField,
+        source: MultiDict,
+        name: str,
+        alias: str,
+        has_key_transformer: bool = False,
+    ) -> Union[dict, Optional[str], List[Any]]:
         """Get the values from the request.
 
         # TODO: Gestion des alias de fields.
@@ -117,36 +138,41 @@ class SolvedParameter(ModelField):
         # Est-ce qu'on gère le embed dans les QueryParams ?
         """
         values: Union[dict, Optional[str], List[Any]] = {}
-        source: MultiDict = MultiDict()
-        # Decide on the source of the values
-        if self.location == ParamLocation.query:
-            source = request.args
-        elif self.location == ParamLocation.path:
-            source = MultiDict(request.view_args)
-        elif self.location == ParamLocation.header:
-            source = MultiDict(request.headers)
-        elif self.location == ParamLocation.cookie:
-            source = request.cookies
-        else:
-            raise ValueError("Unknown location")
-
-        if hasattr(self.type_, "__fields__"):
+        if hasattr(field.type_, "__fields__"):
             assert isinstance(values, dict)  # noqa: S101
-            for field_name, field in self.type_.__fields__.items():
-                values[field_name] = (
-                    source.getlist(field.alias or field_name)
-                    if is_scalar_sequence_field(field)
-                    else source.get(field.alias or field_name)
+            for field_name, subfield in field.type_.__fields__.items():
+                values[field_name] = self._get_values_from_request(
+                    subfield, source, field_name, subfield.alias, has_key_transformer
                 )
-                if values[field_name] is None and getattr(
-                    current_app, "query_string_key_transformer", False
-                ):
-                    values_ = current_app.query_string_key_transformer(  # type: ignore
-                        current_app, source.to_dict()
-                    )
-                    values[field_name] = values_.get(field.alias or field_name)
-        elif is_scalar_sequence_field(self):
-            values = source.getlist(self.alias or self.name)
+        elif is_sequence_field(field):
+            values = _extract_sequence(source, alias, name)
+            if len(values) == 0 and has_key_transformer:
+                values = _extract_sequence_with_key_transformer(source, alias, name)
         else:
-            values = source.get(self.alias or self.name)
+            values = _extract_scalar(source, alias, name)
         return values
+
+
+def _extract_scalar(source: MultiDict, name: Optional[str], alias: Optional[str]):
+    """Extract a scalar value from a source."""
+    return source.get(alias, source.get(name))
+
+
+def _extract_sequence(
+    source: MultiDict, name: Optional[str], alias: Optional[str]
+) -> List:
+    """Extract a Sequence value from a source."""
+    _values = source.getlist(alias)
+    if len(_values) == 0:
+        _values = source.getlist(name)
+    return _values
+
+
+def _extract_sequence_with_key_transformer(
+    source: MultiDict, name: Optional[str], alias: Optional[str]
+):
+    """Apply the key transformer to the source."""
+    transformed_source = current_app.query_string_key_transformer(  # type: ignore
+        current_app, source.to_dict()
+    )
+    return _extract_scalar(transformed_source, name, alias)

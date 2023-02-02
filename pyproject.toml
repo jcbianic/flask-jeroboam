@@ -71,6 +71,7 @@ typeguard = ">=2.13.3"
 xdoctest = {extras = ["colors"], version = ">=0.15.10"}
 certifi = ">=2022.12.7"
 sourcery-cli = "^1.0.3"
+flake8-pyi = "^23.1.2"
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "<5.3.0"
