@@ -22,6 +22,7 @@ class ParamLocation(Enum):
     body = "body"
     form = "form"
     file = "file"
+    unknown = "unknown"
 
 
 class ViewParameter(FieldInfo):

@@ -10,5 +10,5 @@ def test_valid_payload_in_data_is_injected(
     """
     response = client.post("/form/base_model", data={"page": 1, "type": "item"})
 
-    assert response.status_code == 201
     assert response.json == {"page": 1, "type": "item"}
+    assert response.status_code == 201

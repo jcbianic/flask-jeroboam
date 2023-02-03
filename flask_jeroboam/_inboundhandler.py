@@ -171,7 +171,7 @@ class InboundHandler:
         annotation = param.annotation if param.annotation != param.empty else Any
         annotation = get_annotation_from_field_info(annotation, view_param, param_name)
 
-        return SolvedParameter(
+        return SolvedParameter.specialize(
             name=param_name,
             type_=annotation,
             required=required,

@@ -75,5 +75,5 @@ def test_solved_param_erroring():
     solved_param = SolvedParameter(
         name="FaultySolvedParam", type_=str, view_param=param
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(NotImplementedError):
         solved_param._get_values()
