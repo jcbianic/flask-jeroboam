@@ -1,36 +1,15 @@
-"""Configuration File for pytest."""
-import os
-
+"""Defining Fixtures for the Test Suite."""
 import pytest
 
 from flask_jeroboam import Jeroboam
-from flask_jeroboam import JeroboamBlueprint
-from flask_jeroboam.exceptions import InvalidRequest
-from flask_jeroboam.exceptions import ResponseValidationError
-from flask_jeroboam.exceptions import RessourceNotFound
-from flask_jeroboam.exceptions import ServerError
+
+from .app_test.application_factory import create_test_app
 
 
 @pytest.fixture
 def app() -> Jeroboam:
-    """A Basic Jeroboam Test App."""
-    app = Jeroboam("jeroboam_test", root_path=os.path.dirname(__file__))
-    app.config.update(
-        TESTING=True,
-        SECRET_KEY="RandomSecretKey",
-    )
-    # TODO: Add it by default with CONFIG OPT-OUT
-    app.register_error_handler(InvalidRequest, InvalidRequest.handle)
-    app.register_error_handler(RessourceNotFound, RessourceNotFound.handle)
-    app.register_error_handler(ServerError, ServerError.handle)
-    app.register_error_handler(ResponseValidationError, ResponseValidationError.handle)
-    return app
-
-
-@pytest.fixture
-def blueprint() -> JeroboamBlueprint:
-    """A Basic Jeroboam Test App."""
-    return JeroboamBlueprint("TestBluePrint", __name__)
+    """The Jeroboam Test App."""
+    return create_test_app()
 
 
 @pytest.fixture

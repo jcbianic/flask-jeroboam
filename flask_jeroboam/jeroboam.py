@@ -2,15 +2,20 @@
 
 Here we overide the route method of the Flask object to use our custom implementation.
 This allow us to introduce new functionality to the route registration process.
+
+TODO: A probably better way to override it is to override the url_rule_class
+with a custom JeroboamRule Object
 """
 from typing import Any
 from typing import Callable
+from typing import Optional
 
 from flask import Flask
 from flask.blueprints import Blueprint
 from flask.scaffold import setupmethod
 from typing_extensions import TypeVar
 
+from .responses import JSONResponse
 from .typing import JeroboamRouteCallable
 from .view import JeroboamView
 
@@ -116,6 +121,10 @@ class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
     The route method is overriden by a custom flask_jeroboam
     route decorator.
     """
+
+    response_class = JSONResponse
+
+    query_string_key_transformer: Optional[Callable] = None
 
     pass
 

@@ -53,7 +53,7 @@ Python Version
 
 Your first dependency, and the main one at that, is your Python installation. When you overlook this, you end up using your system default, often outdated, Python installation.
 
-The best practice is to use the latest stable version of Python, which is 3.11 as I write this. :ref:`see how <Install the latest Python version>`. The Python core team is doing an amazing job and it would be a shame to miss out on all the improvement they bring to the game release after release.
+The best practice is to use the latest stable version of Python, which is 3.11 as I write this. :ref:`see how <install-install-python>`. The Python core team is doing an amazing job and it would be a shame to miss out on all the improvement they bring to the game release after release.
 
 That being said, **Flask-Jeroboam** supports Python down to its 3.8 installment. It means that the CI/CD pipeline
 tests the package from Python 3.8 to the most recent release. In the future, I will progressively
