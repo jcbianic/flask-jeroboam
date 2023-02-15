@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+    <link type="text/css" rel="stylesheet" href="{{swagger_ui_url}}/swagger-ui.css">
+    <link type="text/css" rel="stylesheet" href="{{swagger_ui_url}}/index.css">
+    <link rel="icon" type="image/png" href="{{swagger_ui_url}}/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="{{swagger_ui_url}}/favicon-16x16.png" sizes="16x16">
+
+</head>
+
+<body>
+    <div id="swagger-ui-container"></div>
+    <script src="{{swagger_ui_url}}/swagger-ui-standalone-preset.js"></script>
+    <script src="{{swagger_ui_url}}/swagger-ui-bundle.js"></script>
+    <!-- `SwaggerUIBundle` is now available on the page -->
+    <script>
+        const ui = SwaggerUIBundle({
+            url: "{{ url_for('openapi_docs.get_openapi_json') }}",
+            dom_id: "#swagger-ui-container",
+            presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIBundle.SwaggerUIStandalonePreset
+            ],
+    })
+    </script>
+</body>
+
+</html>
