@@ -15,6 +15,7 @@ from flask.blueprints import Blueprint
 from flask.scaffold import setupmethod
 from typing_extensions import TypeVar
 
+from ._config import JeroboamConfig
 from .responses import JSONResponse
 from .typing import JeroboamRouteCallable
 from .view import JeroboamView
@@ -126,7 +127,10 @@ class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
 
     query_string_key_transformer: Optional[Callable] = None
 
-    pass
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Init."""
+        super().__init__(*args, **kwargs)
+        self.config.update(JeroboamConfig().dict())
 
 
 class JeroboamBlueprint(JeroboamScaffoldOverRide, Blueprint):  # type:ignore
