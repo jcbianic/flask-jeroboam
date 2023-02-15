@@ -3,7 +3,7 @@ import pytest
 
 from flask_jeroboam import Jeroboam
 
-from .app_test.application_factory import create_test_app
+from .app_test.app import create_test_app
 
 
 @pytest.fixture

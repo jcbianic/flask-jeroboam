@@ -1,0 +1,12 @@
+JEROBOAM_TITLE = "Jeroboam Test App"
+JEROBOAM_VERSION = "0.1.0"
+JEROBOAM_DESCRIPTION = "This application is here to test Jeroboam OpenAPI features."
+JEROBOAM_TERMS_OF_SERVICE = "http://example.com/terms/"
+
+[JEROBOAM_CONTACT]
+name = "Jean-Christophe Bianic"
+email = "jc.bianic@gmail.com"
+
+[JEROBOAM_LICENCE_INFO]
+name = "MIT"
+url = "http://opensource.org/licenses/MIT"

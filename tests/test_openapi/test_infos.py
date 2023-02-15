@@ -1,3 +1,6 @@
+"""Test OpenAPI infos."""
+
+
 def test_info(client):
     """Test info endpoint."""
     response = client.get("/api/openapi.json")
@@ -6,7 +9,7 @@ def test_info(client):
         "contact": {
             "email": "jc.bianic@gmail.com",
             "name": "Jean-Christophe Bianic",
-            "url": null,
+            "url": None,
         },
         "description": "This application is here to test Jeroboam OpenAPI features.",
         "license": {"name": "MIT", "url": "http://opensource.org/licenses/MIT"},

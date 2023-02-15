@@ -1,11 +1,14 @@
 """Jeroboam Test App factory."""
 import os
 
+import toml
+
 from flask_jeroboam import Jeroboam
 from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.exceptions import ResponseValidationError
 from flask_jeroboam.exceptions import RessourceNotFound
 from flask_jeroboam.exceptions import ServerError
+from flask_jeroboam.openapi.blueprint import router as openapi_router
 
 from .apps.body import router as body_router
 from .apps.cookies import router as cookies_router
@@ -24,6 +27,8 @@ def create_test_app():
     app.config.update(
         TESTING=True,
     )
+    app.config.from_file("openapi.toml", load=toml.load)
+
     # TODO: Add it by default with CONFIG OPT-OUT
 
     def handle_404(e):
@@ -35,15 +40,14 @@ def create_test_app():
     app.register_error_handler(ResponseValidationError, ResponseValidationError.handle)
     app.register_error_handler(404, handle_404)
 
-    @app.route("/api_route")
+    @app.route("/api_route", tags=["Base"])
     def non_operation():
         return {"message": "Hello World"}
 
-    @app.get("/text")
+    @app.get("/text", tags=["Base"])
     def get_text():
         return "Hello World"
 
-    # register blueprints.
     app.register_blueprint(body_router)
     app.register_blueprint(cookies_router)
     app.register_blueprint(file_router)
@@ -53,5 +57,6 @@ def create_test_app():
     app.register_blueprint(query_router)
     app.register_blueprint(misc_router)
     app.register_blueprint(outbound_router)
+    app.register_blueprint(openapi_router)
 
     return app
