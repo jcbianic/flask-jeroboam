@@ -94,6 +94,16 @@ class InboundHandler:
             return ParamLocation.path
 
     @property
+    def parameters(self) -> List[SolvedParameter]:
+        """Return all Parameters of the InboundHandler."""
+        return (
+            self.query_params
+            + self.path_params
+            + self.header_params
+            + self.cookie_params
+        )
+
+    @property
     def is_valid(self) -> bool:
         """Check if the InboundHandler has any Configured Parameters."""
         return len(self.locations_to_visit) > 0

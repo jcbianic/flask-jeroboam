@@ -2,14 +2,14 @@
 from flask import current_app
 from flask import render_template
 
-from flask_jeroboam.jeroboam import JeroboamBlueprint
+from flask_jeroboam.jeroboam import Blueprint
 from flask_jeroboam.openapi.models.openapi_spec import OpenAPI
 from flask_jeroboam.responses import HTMLResponse
 
 from .models.ui_context import SwaggerContextOut
 
 
-router = JeroboamBlueprint(
+router = Blueprint(
     "openapi_docs",
     __name__,
     template_folder="templates",

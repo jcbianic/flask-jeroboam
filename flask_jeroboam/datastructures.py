@@ -1,4 +1,7 @@
-"""Helper DataStructure."""
+"""DataStructures.
+
+Credits: this module is essentially a for of FastAPI's datastructures.py module.
+"""
 
 from typing import Any
 from typing import Callable
@@ -10,14 +13,18 @@ from werkzeug.datastructures import FileStorage
 
 
 class UploadFile(FileStorage):
-    """A wrapper around werkzeug.datastructures.FileStorage."""
+    """A wrapper around werkzeug.datastructures.FileStorage.
+
+    Credits: Adaptation of FastAPI's UploadFile.
+    """
 
     @classmethod
-    def __get_validators__(cls: Type["FileStorage"]) -> Iterable[Callable[..., Any]]:
+    def __get_validators__(cls: Type["UploadFile"]) -> Iterable[Callable[..., Any]]:
         yield cls.validate
 
     @classmethod
     def validate(cls: Type["FileStorage"], v: Any) -> Any:
+        """Validate the value."""
         if not isinstance(v, FileStorage):
             raise ValueError(f"Expected UploadFile, received: {type(v)}")
         return v
@@ -28,11 +35,14 @@ class UploadFile(FileStorage):
 
 
 class DefaultPlaceholder:
-    """
+    """Internal Helper class to mark an overwritten default value.
+
     You shouldn't use this class directly.
 
     It's used internally to recognize when a default value has been overwritten, even
     if the overridden default value was truthy.
+
+    Credits: FastAPI.
     """
 
     def __init__(self, value: Any):

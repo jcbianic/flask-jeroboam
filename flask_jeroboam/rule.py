@@ -5,7 +5,7 @@ from typing import Optional
 from typing import Type
 
 from flask.wrappers import Response
-from werkzeug.routing import Rule
+from werkzeug.routing import Rule as FlaskRule
 
 from flask_jeroboam.datastructures import DefaultPlaceholder
 
@@ -13,7 +13,7 @@ from flask_jeroboam.datastructures import DefaultPlaceholder
 pattern = re.compile(r"<(\w*):")
 
 
-class JeroRule(Rule):
+class JeroboamRule(FlaskRule):
     """Subclass of werkzeug.routing.Rule."""
 
     def __init__(
@@ -24,7 +24,7 @@ class JeroRule(Rule):
             "include_in_openapi", "static" not in rule
         )
         self.tags = options.pop("tags", [])
-        # TODO: Choper la description dans la docstring
+        # TODO: Choper la description/summary dans la docstring
         self.description = options.pop("description", None)
         self.summary = options.pop("summary", None)
         self.operation_id = options.pop("operation_id", None)
@@ -34,7 +34,7 @@ class JeroRule(Rule):
         self.unique_id = options.pop("unique_id", _generate_unique_id(self))
 
     @property
-    def path_format(self) -> str:
+    def openapi_path(self) -> str:
         """Return a formatted path."""
         rule = pattern.sub("<", self.rule)
         return rule.replace("<", "{").replace(">", "}")
@@ -50,8 +50,8 @@ class JeroRule(Rule):
         return current
 
 
-def _generate_unique_id(rule: "JeroRule") -> str:
-    operation_id = rule.endpoint + rule.path_format
+def _generate_unique_id(rule: "JeroboamRule") -> str:
+    operation_id = rule.endpoint + rule.openapi_path
     operation_id = re.sub(r"\W", "_", operation_id)
     operation_id = operation_id + "_" + list(rule.methods or [])[0].lower()
     return operation_id

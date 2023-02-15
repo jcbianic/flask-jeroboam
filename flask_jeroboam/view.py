@@ -40,13 +40,15 @@ class JeroboamView:
         """
         assert response_class is not None  # noqa: S101
         self.endpoint = options.pop("endpoint", None)
-        main_http_verb = self._solve_main_http_verb(options, original_view_func)
+        self.main_http_verb = self._solve_main_http_verb(options, original_view_func)
         configured_status_code: Optional[int] = options.pop("status_code", None)
-        self.inbound_handler = InboundHandler(original_view_func, main_http_verb, rule)
+        self.inbound_handler = InboundHandler(
+            original_view_func, self.main_http_verb, rule
+        )
         self.outbound_handler = OutboundHandler(
             original_view_func,
             configured_status_code,
-            main_http_verb,
+            self.main_http_verb,
             options,
             response_class,
         )
@@ -68,7 +70,7 @@ class JeroboamView:
 
         view_func.__name__ = name
         view_func.__doc__ = doc
-        view_func.__jeroboam__ = self
+        view_func.__jeroboam_view__ = self
         return view_func
 
     def _solve_main_http_verb(

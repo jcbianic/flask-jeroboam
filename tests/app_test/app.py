@@ -8,7 +8,6 @@ from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.exceptions import ResponseValidationError
 from flask_jeroboam.exceptions import RessourceNotFound
 from flask_jeroboam.exceptions import ServerError
-from flask_jeroboam.openapi.blueprint import router as openapi_router
 
 from .apps.body import router as body_router
 from .apps.cookies import router as cookies_router
@@ -57,6 +56,5 @@ def create_test_app():
     app.register_blueprint(query_router)
     app.register_blueprint(misc_router)
     app.register_blueprint(outbound_router)
-    app.register_blueprint(openapi_router)
 
     return app

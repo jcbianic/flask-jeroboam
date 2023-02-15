@@ -2,12 +2,12 @@
 
 The corresponding test can be found in tests/test_inbound/test_file
 """
+from flask_jeroboam import Blueprint
 from flask_jeroboam import File
-from flask_jeroboam import JeroboamBlueprint
 from flask_jeroboam.datastructures import UploadFile
 
 
-router = JeroboamBlueprint("file_params_router", __name__, tags=["File"])
+router = Blueprint("file_params_router", __name__, tags=["File"])
 
 
 @router.post("/file")

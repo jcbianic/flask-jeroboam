@@ -3,11 +3,11 @@
 The corresponding test can be found in tests/test_inbound/test_path
 """
 
-from flask_jeroboam import JeroboamBlueprint
+from flask_jeroboam import Blueprint
 from flask_jeroboam import Path
 
 
-router = JeroboamBlueprint("path_params_router", __name__, tags=["Path"])
+router = Blueprint("path_params_router", __name__, tags=["Path"])
 
 
 @router.get("/path/<item_id>")

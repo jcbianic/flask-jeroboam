@@ -1,5 +1,6 @@
+from .jeroboam import Blueprint
 from .jeroboam import Jeroboam
-from .jeroboam import JeroboamBlueprint
+from .jeroboam import current_app
 from .models import InboundModel
 from .models import OutboundModel
 from .view_params import Body

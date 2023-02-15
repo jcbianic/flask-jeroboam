@@ -78,6 +78,11 @@ class OutboundHandler:
         )
         self.response_class = response_class
 
+    @property
+    def infered_status_code(self) -> int:
+        """The status code that will be used if no status code is provided."""
+        return self._solve_status_code(None)
+
     def add_outbound_handling_to(
         self, view_func: JeroboamRouteCallable
     ) -> JeroboamRouteCallable:

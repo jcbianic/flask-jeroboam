@@ -8,10 +8,12 @@ with a custom JeroboamRule Object
 """
 import os
 from typing import Any
+from typing import List
 from typing import Optional
 from typing import Union
 
-from flask import Blueprint
+from flask import Blueprint as FlaskBlueprint
+from flask import Flask
 from typing_extensions import TypeVar
 
 from .jeroboam import JeroboamScaffoldOverRide
@@ -19,10 +21,10 @@ from .jeroboam import JeroboamScaffoldOverRide
 R = TypeVar("R", bound=Any)
 _sentinel = object()
 
-class Jeroboam:  # type:ignore
-    def __init__(self) -> None: ...
+class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
+    ...
 
-class JeroboamBlueprint(JeroboamScaffoldOverRide, Blueprint):  # type:ignore
+class Blueprint(JeroboamScaffoldOverRide, FlaskBlueprint):  # type:ignore
     def __init__(
         self,
         name: str,
@@ -35,4 +37,8 @@ class JeroboamBlueprint(JeroboamScaffoldOverRide, Blueprint):  # type:ignore
         url_defaults: Optional[dict] = None,
         root_path: Optional[str] = None,
         cli_group: Optional[str] = _sentinel,  # type: ignore
+        tags: Optional[List[str]] = None,
+        include_in_openapi: bool = True,
     ) -> None: ...
+
+def current_app() -> Jeroboam: ...

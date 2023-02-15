@@ -8,12 +8,16 @@ with a custom JeroboamRule Object
 """
 from typing import Any
 from typing import Callable
+from typing import List
 from typing import Optional
 
 from flask import Flask
-from flask.blueprints import Blueprint
+from flask import current_app  # noqa: F401
+from flask.blueprints import Blueprint as FlaskBlueprint
 from flask.scaffold import setupmethod
 from typing_extensions import TypeVar
+
+from flask_jeroboam.rule import JeroboamRule
 
 from ._config import JeroboamConfig
 from .responses import JSONResponse
@@ -62,6 +66,14 @@ class JeroboamScaffoldOverRide:
 
         def decorator(func: JeroboamRouteCallable) -> JeroboamRouteCallable:
             route = JeroboamView(rule, func, options)
+            options.setdefault("tags", []).extend(getattr(self, "tags", []))
+
+            is_not_static = (
+                getattr(self, "static_url_path", None) or "static" not in rule
+            )
+            options["include_in_openapi"] = options.get(
+                "include_in_openapi", getattr(self, "include_in_openapi", is_not_static)
+            )
             self.add_url_rule(  # type: ignore
                 rule, route.endpoint, route.as_view, **options
             )
@@ -125,25 +137,27 @@ class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
 
     response_class = JSONResponse
 
+    url_rule_class = JeroboamRule
+
     query_string_key_transformer: Optional[Callable] = None
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Init."""
         super().__init__(*args, **kwargs)
-        self.config.update(JeroboamConfig().dict())
+        self.config.update(JeroboamConfig.load().dict())
 
 
-class JeroboamBlueprint(JeroboamScaffoldOverRide, Blueprint):  # type:ignore
+class JeroboamBlueprint(JeroboamScaffoldOverRide, FlaskBlueprint):  # type:ignore
     """Regular Blueprint with extra behavior on route definition."""
 
     def __init__(
         self,
         *args: Any,
-        tags: List[str] = empty_list,
+        tags: Optional[List[str]] = None,
         include_in_openapi: bool = True,
         **kwargs: Any
     ) -> None:
         """Init."""
         self.include_in_openapi = include_in_openapi
-        self.tags = tags
+        self.tags = tags or []
         super().__init__(*args, **kwargs)

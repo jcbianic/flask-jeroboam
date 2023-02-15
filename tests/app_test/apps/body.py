@@ -2,12 +2,12 @@
 
 The corresponding test can be found in tests/test_inbound/test_body
 """
+from flask_jeroboam import Blueprint
 from flask_jeroboam import Body
-from flask_jeroboam import JeroboamBlueprint
 from tests.app_test.models.inbound import SimpleModelIn
 
 
-router = JeroboamBlueprint("body_params_router", __name__, tags=["Body"])
+router = Blueprint("body_params_router", __name__, tags=["Body"])
 
 
 @router.post("/body/int")

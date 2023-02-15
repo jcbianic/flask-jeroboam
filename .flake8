@@ -9,7 +9,7 @@ per-file-ignores =
     tests/app_test/*:D103,B008
     __init__.py:F401
     typing.py:F401
-    *.pyi:E302,E704,D103,N802
+    *.pyi:E302,E704,D103,N802,D101,D102
     functions.py:N802
     noxfile.py:C901
 rst-roles = class,const,func,meth,mod,ref
