@@ -6,7 +6,7 @@ from flask_jeroboam import Header
 from flask_jeroboam import JeroboamBlueprint
 
 
-router = JeroboamBlueprint("headers_params_router", __name__)
+router = JeroboamBlueprint("headers_params_router", __name__, tags=["Header"])
 
 
 @router.get("/headers/int")

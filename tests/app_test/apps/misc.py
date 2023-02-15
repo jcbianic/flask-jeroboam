@@ -5,7 +5,7 @@ from flask_jeroboam.exceptions import RessourceNotFound
 from flask_jeroboam.exceptions import ServerError
 
 
-router = JeroboamBlueprint("misc_router", __name__)
+router = JeroboamBlueprint("misc_router", __name__, tags=["Misc"])
 
 
 @router.get("/invalid_request")

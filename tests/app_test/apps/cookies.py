@@ -6,7 +6,7 @@ from flask_jeroboam import Cookie
 from flask_jeroboam import JeroboamBlueprint
 
 
-router = JeroboamBlueprint("cookies_params_router", __name__)
+router = JeroboamBlueprint("cookies_params_router", __name__, tags=["Cookies"])
 
 
 @router.get("/cookie/int")

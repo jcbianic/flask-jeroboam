@@ -7,7 +7,7 @@ from flask_jeroboam import JeroboamBlueprint
 from tests.app_test.models.inbound import SimpleModelIn
 
 
-router = JeroboamBlueprint("body_params_router", __name__)
+router = JeroboamBlueprint("body_params_router", __name__, tags=["Body"])
 
 
 @router.post("/body/int")

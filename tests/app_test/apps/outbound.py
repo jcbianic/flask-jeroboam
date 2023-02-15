@@ -13,7 +13,7 @@ from tests.app_test.models.outbound import UserIn
 from tests.app_test.models.outbound import UserOut
 
 
-router = JeroboamBlueprint("outbound_router", __name__)
+router = JeroboamBlueprint("outbound_router", __name__, tags=["Outbound"])
 
 valid_outbound_data = {"total_count": 10, "items": ["Apple", "Banana"]}
 

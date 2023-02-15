@@ -7,7 +7,7 @@ from flask_jeroboam import JeroboamBlueprint
 from tests.app_test.models.inbound import SimpleModelIn
 
 
-router = JeroboamBlueprint("form_params_router", __name__)
+router = JeroboamBlueprint("form_params_router", __name__, tags=["Form"])
 
 
 @router.post("/form/base_model")

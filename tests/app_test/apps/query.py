@@ -14,7 +14,7 @@ from tests.app_test.models.inbound import SimpleModelIn
 from tests.app_test.models.outbound import ModelWithListOut
 
 
-router = JeroboamBlueprint("query_params_router", __name__)
+router = JeroboamBlueprint("query_params_router", __name__, tags=["Query"])
 
 
 @router.get("/query/frozenset/")

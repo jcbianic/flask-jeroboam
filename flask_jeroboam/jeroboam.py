@@ -136,4 +136,14 @@ class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
 class JeroboamBlueprint(JeroboamScaffoldOverRide, Blueprint):  # type:ignore
     """Regular Blueprint with extra behavior on route definition."""
 
-    pass
+    def __init__(
+        self,
+        *args: Any,
+        tags: List[str] = empty_list,
+        include_in_openapi: bool = True,
+        **kwargs: Any
+    ) -> None:
+        """Init."""
+        self.include_in_openapi = include_in_openapi
+        self.tags = tags
+        super().__init__(*args, **kwargs)
