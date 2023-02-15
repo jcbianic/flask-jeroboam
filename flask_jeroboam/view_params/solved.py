@@ -49,7 +49,9 @@ class SolvedParameter(ModelField):
         **kwargs,
     ):
         self.name = name
-        self.location: Optional[ParamLocation] = getattr(view_param, "location", None)
+        self.location: ParamLocation = getattr(
+            view_param, "location", ParamLocation.unknown
+        )
         if self.location == ParamLocation.file:
             model_config.arbitrary_types_allowed = True
         self.required = required

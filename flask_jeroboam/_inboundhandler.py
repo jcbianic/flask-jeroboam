@@ -68,7 +68,7 @@ class InboundHandler:
             main_http_verb
         )
         self.rule = rule
-        self.path_param_names = set(re.findall("<(?:.*:)?(.*?)>", rule))
+        self.path_param_names = set(re.findall(r"<(?:\w*:)?(\w*?)>", rule))
         self.query_params: List[SolvedParameter] = []
         self.path_params: List[SolvedParameter] = []
         self.header_params: List[SolvedParameter] = []

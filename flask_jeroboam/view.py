@@ -68,6 +68,7 @@ class JeroboamView:
 
         view_func.__name__ = name
         view_func.__doc__ = doc
+        view_func.__jeroboam__ = self
         return view_func
 
     def _solve_main_http_verb(
