@@ -8,6 +8,7 @@ with a custom JeroboamRule Object
 """
 import os
 from typing import Any
+from typing import Callable
 from typing import List
 from typing import Optional
 from typing import Union
@@ -16,13 +17,43 @@ from flask import Blueprint as FlaskBlueprint
 from flask import Flask
 from typing_extensions import TypeVar
 
-from .jeroboam import JeroboamScaffoldOverRide
+from flask_jeroboam.openapi.models.openapi import OpenAPI
+from flask_jeroboam.rule import JeroboamRule
+from flask_jeroboam.typing import JeroboamRouteCallable
 
 R = TypeVar("R", bound=Any)
 _sentinel = object()
 
+class JeroboamScaffoldOverRide:
+    def route(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]: ...
+    def get(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]: ...
+    def post(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]: ...
+    def put(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]: ...
+    def delete(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]: ...
+    def patch(
+        self, rule: str, **options: Any
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]: ...
+    def _method_route(
+        self,
+        method: str,
+        rule: str,
+        options: dict,
+    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]: ...
+
 class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
-    ...
+    query_string_key_transformer: Callable
+    open_api: OpenAPI
+    def rules(self) -> List[JeroboamRule]: ...
 
 class Blueprint(JeroboamScaffoldOverRide, FlaskBlueprint):  # type:ignore
     def __init__(

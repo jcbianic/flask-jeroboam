@@ -57,7 +57,7 @@ def _valid(value) -> dict:
         ("/query/param-required/int", 400, response_missing),
         ("/query/param-required/int?query=50", 200, _valid(50)),
         ("/query/param-required/int?query=foo", 400, response_not_valid_int),
-        ("/query/frozenset/?query=1&query=1&query=2", 200, _valid("1,2")),
+        ("/query/frozenset?query=1&query=1&query=2", 200, _valid("1,2")),
     ],
 )
 def test_get_query_operations(client, url, expected_status, expected_response):

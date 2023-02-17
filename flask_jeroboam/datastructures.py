@@ -26,30 +26,9 @@ class UploadFile(FileStorage):
     def validate(cls: Type["FileStorage"], v: Any) -> Any:
         """Validate the value."""
         if not isinstance(v, FileStorage):
-            raise ValueError(f"Expected UploadFile, received: {type(v)}")
+            raise ValueError(f"Expected FileStorage, received: {type(v)}")
         return v
 
     @classmethod
     def __modify_schema__(cls, field_schema: Dict[str, Any]) -> None:
         field_schema.update({"type": "string", "format": "binary"})
-
-
-class DefaultPlaceholder:
-    """Internal Helper class to mark an overwritten default value.
-
-    You shouldn't use this class directly.
-
-    It's used internally to recognize when a default value has been overwritten, even
-    if the overridden default value was truthy.
-
-    Credits: FastAPI.
-    """
-
-    def __init__(self, value: Any):
-        self.value = value
-
-    def __bool__(self) -> bool:
-        return bool(self.value)
-
-    def __eq__(self, o: object) -> bool:
-        return isinstance(o, DefaultPlaceholder) and o.value == self.value

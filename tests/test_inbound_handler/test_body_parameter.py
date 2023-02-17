@@ -1,7 +1,9 @@
 from typing import List
 
 import pytest
+from flask.testing import FlaskClient
 
+from flask_jeroboam import Jeroboam
 from flask_jeroboam.models import InboundModel
 from flask_jeroboam.view_params.functions import Body
 
@@ -37,7 +39,11 @@ def _valid(value) -> dict:
     ],
 )
 def test_post_body_operations(
-    client, url, body_value, expected_status, expected_response
+    client: FlaskClient,
+    url: str,
+    body_value: dict,
+    expected_status: int,
+    expected_response: dict,
 ):
     """Testing Various GET operations with query parameters.
 
@@ -50,7 +56,7 @@ def test_post_body_operations(
     assert response.status_code == expected_status
 
 
-def test_post_body_list_of_base_model(app, client):
+def test_post_body_list_of_base_model(app: Jeroboam, client: FlaskClient):
     """Test Body Parameter with POST method."""
 
     class InBound(InboundModel):

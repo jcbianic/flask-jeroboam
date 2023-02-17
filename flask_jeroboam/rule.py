@@ -2,12 +2,8 @@
 import re
 from typing import Any
 from typing import Optional
-from typing import Type
 
-from flask.wrappers import Response
 from werkzeug.routing import Rule as FlaskRule
-
-from flask_jeroboam.datastructures import DefaultPlaceholder
 
 
 pattern = re.compile(r"<(\w*):")
@@ -20,18 +16,22 @@ class JeroboamRule(FlaskRule):
         self, rule: str, endpoint: Optional[str] = None, **options: Any
     ) -> None:
         """Initialize a JeroRule."""
-        self.include_in_openapi = options.pop(
-            "include_in_openapi", "static" not in rule
+        self.include_in_openapi = endpoint != "static" and options.pop(
+            "include_in_openapi", True
         )
         self.tags = options.pop("tags", [])
-        # TODO: Choper la description/summary dans la docstring
+        # TODO: Choper la description/summary dans la docstring de la view_function
+        # TODO: Maybe a smarter way to extract options...
         self.description = options.pop("description", None)
         self.summary = options.pop("summary", None)
         self.operation_id = options.pop("operation_id", None)
         self.deprecated = options.pop("deprecated", False)
-        self.openapi_extra = options.pop("deprecated", False)
+        self.openapi_extra: dict = options.pop("openapi_extra", {})
+        main_method = options.pop("main_method", "get")
         super().__init__(rule, endpoint=endpoint, **options)
-        self.unique_id = options.pop("unique_id", _generate_unique_id(self))
+        self.unique_id = options.pop(
+            "unique_id", _generate_unique_id(self, main_method)
+        )
 
     @property
     def openapi_path(self) -> str:
@@ -39,19 +39,17 @@ class JeroboamRule(FlaskRule):
         rule = pattern.sub("<", self.rule)
         return rule.replace("<", "{").replace(">", "}")
 
-    @property
-    def current_response_class(self) -> Type[Response]:
-        """Return the current response class."""
-        attached_response_class = getattr(self, "response_class", Response)
-        if isinstance(attached_response_class, DefaultPlaceholder):
-            current: Type[Response] = attached_response_class.value
-        else:
-            current = attached_response_class
-        return current
 
+def _generate_unique_id(rule: "JeroboamRule", main_method: str) -> str:
+    def _split(my_string: str):
+        return re.sub(r"[\W]+", "_", my_string).split("_")
 
-def _generate_unique_id(rule: "JeroboamRule") -> str:
-    operation_id = rule.endpoint + rule.openapi_path
-    operation_id = re.sub(r"\W", "_", operation_id)
-    operation_id = operation_id + "_" + list(rule.methods or [])[0].lower()
-    return operation_id
+    view_function_name = rule.endpoint.split(".")[-1]
+    blueprints = ".".join(rule.endpoint.split(".")[:-1])
+    http_verb = f"{main_method.lower()}"
+    words = (
+        _split(blueprints)
+        + [None if http_verb in view_function_name else http_verb]
+        + _split(view_function_name)
+    )
+    return "_".join([word for word in words if word])

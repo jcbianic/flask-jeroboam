@@ -10,9 +10,13 @@ from typing import List
 from typing import Optional
 from typing import Set
 from typing import Tuple
+from typing import Type
 from typing import Union
 
+from pydantic import BaseModel
+from pydantic import create_model
 from pydantic.error_wrappers import ErrorWrapper
+from pydantic.fields import ModelField
 from pydantic.fields import Undefined
 from pydantic.schema import get_annotation_from_field_info
 from typing_extensions import ParamSpec
@@ -23,6 +27,11 @@ from flask_jeroboam.typing import JeroboamRouteCallable
 from flask_jeroboam.view_params import ParamLocation
 from flask_jeroboam.view_params import SolvedParameter
 from flask_jeroboam.view_params import ViewParameter
+from flask_jeroboam.view_params._utils import create_field
+from flask_jeroboam.view_params.functions import Body
+from flask_jeroboam.view_params.functions import File
+from flask_jeroboam.view_params.functions import Form
+from flask_jeroboam.view_params.parameters import BodyParameter
 from flask_jeroboam.view_params.parameters import get_parameter_class
 
 from .utils import get_typed_signature
@@ -80,6 +89,7 @@ class InboundHandler:
         self.locations_to_visit: Set[ParamLocation] = set()
         self._solve_params(view_func)
         self._check_compliance()
+        self._body_field: Optional[ModelField] = None
 
     @staticmethod
     def _solve_default_params_location(
@@ -104,9 +114,66 @@ class InboundHandler:
         )
 
     @property
+    def body_arguments(self) -> List[SolvedParameter]:
+        """Return all Parameters of the InboundHandler."""
+        return self.body_params + self.form_params + self.file_params
+
+    @property
     def is_valid(self) -> bool:
         """Check if the InboundHandler has any Configured Parameters."""
         return len(self.locations_to_visit) > 0
+
+    @property
+    def has_request_body(self) -> bool:
+        """Check if the InboundHandler has any Configured Parameters."""
+        return len(self.body_arguments) > 0
+
+    def body_field(self, name: str) -> Optional[ModelField]:
+        """The Body Arguments are combined into a single Body Field."""
+        if self._body_field is None and self.body_arguments:
+            self._body_field = self._build_body_field(name)
+        return self._body_field
+
+    def _build_body_field(self, name: str) -> Optional[ModelField]:
+        first_param = self.body_arguments[0]
+        field_info = first_param.field_info
+        embed = getattr(field_info, "embed", None)
+        body_param_names_set = {param.name for param in self.body_arguments}
+        if len(body_param_names_set) == 1 and not embed:
+            return first_param
+        # If one field requires to embed, all have to be embedded
+        # in case a sub-dependency is evaluated with a single unique body field
+        # That is combined (embedded) with other body fields
+        for param in self.body_arguments:
+            param.embed = True
+        model_name = f"Body_{name}"
+        BodyModel: Type[BaseModel] = create_model(model_name)  # noqa: N806
+        for argument in self.body_arguments:
+            BodyModel.__fields__[argument.name] = argument
+        required = any(True for argument in self.body_arguments if argument.required)
+        body_field_info_kwargs: Dict[str, Any] = {"default": None}
+        if len(self.file_params) > 0:
+            body_field_info: Callable = File
+        elif len(self.form_params) > 0:
+            body_field_info = Form
+        else:
+            body_field_info = Body
+
+            body_param_media_types = [
+                f.field_info.media_type
+                for f in self.body_arguments
+                if isinstance(f.field_info, BodyParameter)
+            ]
+            if len(set(body_param_media_types)) == 1:
+                body_field_info_kwargs["media_type"] = body_param_media_types[0]
+        return create_field(
+            name=BodyModel.__name__,
+            type_=BodyModel,
+            required=required,
+            alias="body",
+            field_info=body_field_info(**body_field_info_kwargs),
+            class_validators={},
+        )
 
     def add_inbound_handling_to(
         self, view_func: JeroboamRouteCallable
@@ -137,6 +204,7 @@ class InboundHandler:
                 "This is not supported by Flask:"
                 "https://flask.palletsprojects.com/en/2.2.x/api/#incoming-request-data",
                 UserWarning,
+                stacklevel=2,
             )
 
     def _solve_params(self, view_func: Callable):

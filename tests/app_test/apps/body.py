@@ -26,3 +26,11 @@ def post_body_as_str(payload: str = Body(embed=True)):
 def post_base_model_in_form(payload: SimpleModelIn = Body(embed=False)):
     """POST Form Parameter as pydantic BaseModel."""
     return payload.json()
+
+
+@router.post("/body/multi_primitive")
+def post_multi_primitive_body_arguments(
+    age: int = Body(media_type="application/json"),
+    name: str = Body(media_type="application/ujson"),
+):
+    return {"age": age, "name": name}

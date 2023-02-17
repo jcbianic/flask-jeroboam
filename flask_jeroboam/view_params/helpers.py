@@ -7,7 +7,7 @@ from typing import Union
 from flask import current_app
 from werkzeug.datastructures import MultiDict
 
-from flask_jeroboam.utils import is_sequence_field
+from flask_jeroboam._utils import is_sequence_field
 
 
 def _extract_scalar(
@@ -68,16 +68,16 @@ def _extract_subfields(
     **_kwargs,
 ) -> Dict:
     """Extract a Sequence from subfields."""
-    values = {}
     has_key_transformer = (
         getattr(current_app, "query_string_key_transformer", False) is not None
     )
-    for field_name, subfield in fields.items():
-        values[field_name] = _undirected_extraction(
+    return {
+        field_name: _undirected_extraction(
             field=subfield,
             source=source,
             name=field_name,
             alias=subfield.alias,
             has_key_transformer=has_key_transformer,
         )
-    return values
+        for field_name, subfield in fields.items()
+    }

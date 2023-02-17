@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseSettings
 from pydantic import Field
 
-from flask_jeroboam.openapi.models.openapi_spec import Server
+from flask_jeroboam.openapi.models.openapi import Server
 
 
 class JeroboamConfig(BaseSettings):

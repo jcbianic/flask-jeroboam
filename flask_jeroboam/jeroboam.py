@@ -17,6 +17,8 @@ from flask.blueprints import Blueprint as FlaskBlueprint
 from flask.scaffold import setupmethod
 from typing_extensions import TypeVar
 
+from flask_jeroboam.openapi.models.openapi import OpenAPI
+from flask_jeroboam.openapi.utils import build_openapi
 from flask_jeroboam.rule import JeroboamRule
 
 from ._config import JeroboamConfig
@@ -64,68 +66,19 @@ class JeroboamScaffoldOverRide:
             :class:`~werkzeug.routing.Rule` object.
         """
 
-        def decorator(func: JeroboamRouteCallable) -> JeroboamRouteCallable:
-            route = JeroboamView(rule, func, options)
+        def decorator(view_func: JeroboamRouteCallable) -> JeroboamRouteCallable:
             options.setdefault("tags", []).extend(getattr(self, "tags", []))
-
-            is_not_static = (
-                getattr(self, "static_url_path", None) or "static" not in rule
-            )
-            options["include_in_openapi"] = options.get(
-                "include_in_openapi", getattr(self, "include_in_openapi", is_not_static)
-            )
+            blueprint_option = getattr(self, "include_in_openapi", None)
+            view = JeroboamView(rule, view_func, options) if view_func else None
+            options["main_method"] = getattr(view, "main_http_verb", None)
+            if blueprint_option is not None:
+                options["include_in_openapi"] = blueprint_option
             self.add_url_rule(  # type: ignore
-                rule, route.endpoint, route.as_view, **options
+                rule, view.endpoint, view.as_view, **options  # type: ignore
             )
-            return func
+            return view_func
 
         return decorator
-
-    def _method_route(
-        self,
-        method: str,
-        rule: str,
-        options: dict,
-    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
-        if "methods" in options:
-            raise TypeError("Use the 'route' decorator to use the 'methods' argument.")
-
-        return self.route(rule, methods=[method], **options)
-
-    @setupmethod
-    def get(
-        self, rule: str, **options: Any
-    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
-        """Shortcut for :meth:`route` with ``methods=["GET"]``."""
-        return self._method_route("GET", rule, options)
-
-    @setupmethod
-    def post(
-        self, rule: str, **options: Any
-    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
-        """Shortcut for :meth:`route` with ``methods=["POST"]``."""
-        return self._method_route("POST", rule, options)
-
-    @setupmethod
-    def put(
-        self, rule: str, **options: Any
-    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
-        """Shortcut for :meth:`route` with ``methods=["PUT"]``."""
-        return self._method_route("PUT", rule, options)
-
-    @setupmethod
-    def delete(
-        self, rule: str, **options: Any
-    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
-        """Shortcut for :meth:`route` with ``methods=["DELETE"]``."""
-        return self._method_route("DELETE", rule, options)
-
-    @setupmethod
-    def patch(
-        self, rule: str, **options: Any
-    ) -> Callable[[JeroboamRouteCallable], JeroboamRouteCallable]:
-        """Shortcut for :meth:`route` with ``methods=["PATCH"]``."""
-        return self._method_route("PATCH", rule, options)
 
 
 class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
@@ -145,9 +98,21 @@ class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
         """Init."""
         super().__init__(*args, **kwargs)
         self.config.update(JeroboamConfig.load().dict())
+        self._openapi: Optional[OpenAPI] = None
+
+    @property
+    def openapi(self) -> OpenAPI:
+        """Get the OpenApi object."""
+        if self._openapi is None:
+            self._openapi = build_openapi(
+                app=self,  # type: ignore
+                rules=list(self.url_map.iter_rules()),  # type: ignore
+                tags=[],
+            )
+        return self._openapi
 
 
-class JeroboamBlueprint(JeroboamScaffoldOverRide, FlaskBlueprint):  # type:ignore
+class Blueprint(JeroboamScaffoldOverRide, FlaskBlueprint):  # type:ignore
     """Regular Blueprint with extra behavior on route definition."""
 
     def __init__(
@@ -155,7 +120,7 @@ class JeroboamBlueprint(JeroboamScaffoldOverRide, FlaskBlueprint):  # type:ignor
         *args: Any,
         tags: Optional[List[str]] = None,
         include_in_openapi: bool = True,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         """Init."""
         self.include_in_openapi = include_in_openapi

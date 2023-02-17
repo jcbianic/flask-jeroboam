@@ -3,8 +3,12 @@ from functools import partial
 
 import pytest
 from flask.testing import FlaskClient
+from pydantic import BaseModel
+from pydantic import ValidationError
 
 from flask_jeroboam import Body
+from flask_jeroboam._utils import _rename_query_params_keys
+from flask_jeroboam.datastructures import UploadFile
 from flask_jeroboam.jeroboam import Jeroboam
 from flask_jeroboam.utils import _rename_query_params_keys
 from flask_jeroboam.view_params.solved import SolvedParameter
@@ -77,3 +81,28 @@ def test_solved_param_erroring():
     )
     with pytest.raises(NotImplementedError):
         solved_param._get_values()
+
+
+def test_file_upload():
+    """Test UploadFile DataStructure raise an error if not a FileStorage."""
+
+    class TestModel(BaseModel):
+        file: UploadFile
+
+    with pytest.raises(ValidationError):
+        TestModel(file="BytesIO(b'Hello World !!')")  # type: ignore
+
+
+def test_warn_on_two_identical_operation_id(one_shot_app: Jeroboam):
+    """Test that a warning is raised when two identical operation_id are found."""
+
+    @one_shot_app.get("/test")
+    def test():
+        pass
+
+    @one_shot_app.get("/test")
+    def get_test():
+        pass
+
+    with pytest.warns(UserWarning):
+        one_shot_app.openapi  # type: ignore

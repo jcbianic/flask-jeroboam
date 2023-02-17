@@ -17,7 +17,7 @@ from tests.app_test.models.outbound import ModelWithListOut
 router = Blueprint("query_params_router", __name__, tags=["Query"])
 
 
-@router.get("/query/frozenset/")
+@router.get("/query/frozenset")
 def get_query_type_frozenset(query: FrozenSet[int] = Query(...)):
     return {"query": ",".join(map(str, sorted(query)))}
 

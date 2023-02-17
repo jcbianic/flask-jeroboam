@@ -21,7 +21,7 @@ from pydantic.fields import ModelField
 from werkzeug.datastructures import FileStorage
 from werkzeug.datastructures import MultiDict
 
-from flask_jeroboam.utils import is_sequence_field
+from flask_jeroboam._utils import is_sequence_field
 
 from .helpers import _extract_scalar
 from .helpers import _extract_sequence
@@ -58,8 +58,11 @@ class SolvedParameter(ModelField):
         self.embed = getattr(view_param, "embed", None)
         self.in_body = getattr(view_param, "in_body", None)
         default = getattr(view_param, "default", field_info.default)
+        if default is Ellipsis:
+            default = None
         class_validators = class_validators or {}
         kwargs["alias"] = kwargs.get("alias", getattr(view_param, "alias", None))
+        self.include_in_schema = getattr(view_param, "include_in_schema", True)
         super().__init__(
             name=name,
             type_=type_,
@@ -118,7 +121,7 @@ class SolvedParameter(ModelField):
                 ErrorWrapper(MissingError(), loc=(self.location.value, self.alias))
             )
             return values, errors
-        elif inbound_values is None and not self.required:
+        elif inbound_values is None:
             inbound_values = deepcopy(self.default)
         values_, errors_ = self.validate(
             inbound_values, values, loc=(self.location.value, self.alias)

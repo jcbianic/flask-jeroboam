@@ -1,10 +1,11 @@
 """The Blueprint for the OpenAPI UI."""
-from flask import current_app
 from flask import render_template
 
+from flask_jeroboam import current_app
 from flask_jeroboam.jeroboam import Blueprint
-from flask_jeroboam.openapi.models.openapi_spec import OpenAPI
+from flask_jeroboam.openapi.models.openapi import OpenAPI
 from flask_jeroboam.responses import HTMLResponse
+from flask_jeroboam.responses import JSONResponse
 
 from .models.ui_context import SwaggerContextOut
 
@@ -30,4 +31,4 @@ def get_swagger_html():
 @router.get("/openapi.json", response_model=OpenAPI, include_in_openapi=False)
 def get_openapi_json():
     """Serving OpenAPI JSON."""
-    return current_app.openapi()
+    return JSONResponse(current_app.openapi.json(exclude_none=True, by_alias=True))

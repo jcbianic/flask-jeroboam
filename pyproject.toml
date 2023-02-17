@@ -7,9 +7,18 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "Topic :: Software Development",
   "Topic :: Software Development :: Libraries :: Application Frameworks",
+  "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Internet",
   "Typing :: Typed",
 ]
 description = "Bringing FastAPI Developer experience to Flask."
@@ -73,6 +82,10 @@ certifi = ">=2022.12.7"
 sourcery-cli = "^1.0.3"
 flake8-pyi = "^23.1.2"
 python-dotenv = "^0.21.1"
+pydantic = {extras = ["email-validator"], version = "^1.10.5"}
+email-validator = "^1.3.1"
+types-toml = "^0.10.8.4"
+toml = "^0.10.2"
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "<5.3.0"

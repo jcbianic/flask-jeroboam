@@ -66,7 +66,6 @@ class NonBodyParameter(ViewParameter):
         **kwargs: Any,
     ):
         self.deprecated = kwargs.pop("deprecated", None)
-        self.include_in_schema = kwargs.pop("include_in_schema", True)
         super().__init__(
             default,
             **kwargs,
@@ -89,11 +88,11 @@ class PathParameter(NonBodyParameter):
         *args: Any,
         **kwargs: Any,
     ):
-        self.required = True
         super().__init__(
             ...,
             **kwargs,
         )
+        self.required = True
 
 
 class HeaderParameter(NonBodyParameter):
@@ -153,7 +152,7 @@ class FormParameter(BodyParameter):
         **kwargs: Any,
     ):
         embed = kwargs.pop("embed", True)
-        self.media_type = kwargs.pop("media_type", "application/x-www-form-urlencoded")
+        kwargs.setdefault("media_type", "application/x-www-form-urlencoded")
         super().__init__(
             default,
             embed=embed,
@@ -172,7 +171,7 @@ class FileParameter(FormParameter):
         **kwargs: Any,
     ):
         embed = kwargs.pop("embed", False)
-        self.media_type = kwargs.pop("media_type", "multipart/form-data")
+        kwargs.setdefault("media_type", "multipart/form-data")
         super().__init__(
             default,
             embed=embed,
