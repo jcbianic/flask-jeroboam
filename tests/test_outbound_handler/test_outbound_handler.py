@@ -35,8 +35,8 @@ def test_register_route_with_additionnal_secondary_verb(
 
 
 def test_register_route_with_two_main_verb_raise_a_warning(
-    app: Jeroboam,
-    client: FlaskClient,
+    one_shot_app: Jeroboam,
+    one_shot_client: FlaskClient,
 ):
     """GIVEN an endpoint configured with two main http verb
     WHEN it is registered
@@ -44,7 +44,7 @@ def test_register_route_with_two_main_verb_raise_a_warning(
     """
     with pytest.warns(UserWarning):
 
-        @app.route(
+        @one_shot_app.route(
             "/endpoint_with_two_main_verb",
             methods=["GET", "POST"],
             response_model=SimpleModelOut,
@@ -52,12 +52,12 @@ def test_register_route_with_two_main_verb_raise_a_warning(
         def with_two_main_verb():
             return valid_outbound_data
 
-    response = client.get("/endpoint_with_two_main_verb")
+    response = one_shot_client.get("/endpoint_with_two_main_verb")
     assert response.json == valid_response_body
 
 
 def test_register_route_with_method_route_and_methods_option_raise_a_exception(
-    app: Jeroboam,
+    one_shot_app: Jeroboam,
 ):
     """GIVEN an endpoint configured with the method_route
     WHEN it is registered with the methods option
@@ -65,7 +65,7 @@ def test_register_route_with_method_route_and_methods_option_raise_a_exception(
     """
     with pytest.raises(TypeError):
 
-        @app.get(
+        @one_shot_app.get(
             "/route_method_and_methods_option",
             methods=["GET"],
             response_model=SimpleModelOut,
@@ -99,7 +99,7 @@ def test_endpoint_with_valid_return_annocation(
 
 
 def test_invalid_response_model_raise_type_error_at_registration(
-    app: Jeroboam,
+    one_shot_app: Jeroboam,
 ):
     """GIVEN an endpoint with invalid response_model
     WHEN registered
@@ -107,25 +107,25 @@ def test_invalid_response_model_raise_type_error_at_registration(
     """
     with pytest.raises(TypeError):
 
-        @app.get("/invalid_return_annotation_and_no_response_model")
+        @one_shot_app.get("/invalid_return_annotation_and_no_response_model")
         def invalid_return_annotation() -> dict:
             return valid_outbound_data
 
     with pytest.raises(TypeError):
 
-        @app.get("/invalid_response_model", response_model=dict)
+        @one_shot_app.get("/invalid_response_model", response_model=dict)
         def invalid_configuration():
             return valid_outbound_data
 
 
 def test_configured_response_model_take_prescedence_over_return_annotation(
-    client: FlaskClient,
+    one_shot_client: FlaskClient,
 ):
     """GIVEN an endpoint without a configured response_model and a return annotation
     WHEN registered
     THEN the configrued response_model take prescedence over the return annotation
     """
-    response = client.get("/response_model/configuration_over_inference")
+    response = one_shot_client.get("/response_model/configuration_over_inference")
     assert response.status_code == 200
     assert response.json == valid_response_body
 
@@ -168,19 +168,19 @@ def test_view_function_with_response_model_return_type(
 
 
 def test_wrong_dict_being_sent(
-    app: Jeroboam,
-    client: FlaskClient,
+    one_shot_app: Jeroboam,
+    one_shot_client: FlaskClient,
 ):
     """GIVEN an endpoint with a response_model defined and a dict return value
     WHEN hit and the return value is not valid
     THEN it raises a InternalServerError, 500
     """
 
-    @app.get("/invalid_return_value", response_model=SimpleModelOut)
+    @one_shot_app.get("/invalid_return_value", response_model=SimpleModelOut)
     def ping():
         return {"total_count": "not_valid", "items": ["Apple", "Banana"]}
 
-    response = client.get("/invalid_return_value")
+    response = one_shot_client.get("/invalid_return_value")
 
     assert response.status_code == 500
     assert response.data.startswith(b"InternalServerError")

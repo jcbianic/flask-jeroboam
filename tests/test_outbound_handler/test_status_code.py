@@ -58,8 +58,8 @@ def test_status_code_204_has_no_body(
 
 @patch("flask_jeroboam._outboundhandler.METHODS_DEFAULT_STATUS_CODE", {"POST": 201})
 def test_exotic_http_verb_raise_a_warning_when_no_status_code_is_set(
-    app: Jeroboam,
-    client: FlaskClient,
+    one_shot_app: Jeroboam,
+    one_shot_client: FlaskClient,
 ):
     """GIVEN an endpoint with an exotic HTTP verb and no status_code defined
     WHEN registered
@@ -67,22 +67,22 @@ def test_exotic_http_verb_raise_a_warning_when_no_status_code_is_set(
     """
     with pytest.warns(UserWarning):
 
-        @app.get(
+        @one_shot_app.get(
             "/exotic_http_verb_raise_a_warning",
             response_model=SimpleModelOut,
         )
         def exotic_http_verb():
             return valid_outbound_data
 
-    response = client.get("/exotic_http_verb_raise_a_warning")
+    response = one_shot_client.get("/exotic_http_verb_raise_a_warning")
 
     assert response.status_code == 200
 
 
 @patch("flask_jeroboam._outboundhandler.METHODS_DEFAULT_STATUS_CODE", {"POST": 201})
 def test_exotic_http_verb_dont_raise_a_warning_when_status_code_is_set(
-    app: Jeroboam,
-    client: FlaskClient,
+    one_shot_app: Jeroboam,
+    one_shot_client: FlaskClient,
 ):
     """GIVEN an endpoint with an exotic HTTP verb and no status_code defined
     WHEN registered
@@ -91,7 +91,7 @@ def test_exotic_http_verb_dont_raise_a_warning_when_status_code_is_set(
     with warnings.catch_warnings():
         warnings.simplefilter("error")
 
-        @app.get(
+        @one_shot_app.get(
             "/exotic_http_verb_dont_raise_a_warning",
             response_model=SimpleModelOut,
             status_code=200,
@@ -99,6 +99,6 @@ def test_exotic_http_verb_dont_raise_a_warning_when_status_code_is_set(
         def exotic_http_verb():
             return valid_outbound_data
 
-    response = client.get("/exotic_http_verb_dont_raise_a_warning")
+    response = one_shot_client.get("/exotic_http_verb_dont_raise_a_warning")
 
     assert response.status_code == 200

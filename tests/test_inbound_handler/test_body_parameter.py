@@ -56,7 +56,9 @@ def test_post_body_operations(
     assert response.status_code == expected_status
 
 
-def test_post_body_list_of_base_model(app: Jeroboam, client: FlaskClient):
+def test_post_body_list_of_base_model(
+    one_shot_app: Jeroboam, one_shot_client: FlaskClient
+):
     """Test Body Parameter with POST method."""
 
     class InBound(InboundModel):
@@ -65,11 +67,11 @@ def test_post_body_list_of_base_model(app: Jeroboam, client: FlaskClient):
         item: str
         count: int
 
-    @app.post("/body/list_non_scalar", response_model=List[InBound])
+    @one_shot_app.post("/body/list_non_scalar", response_model=List[InBound])
     def post_body_list_non_scalar(payload: List[InBound] = Body(embed=False)):
         return payload
 
-    response = client.post(
+    response = one_shot_client.post(
         "/body/list_non_scalar",
         json=[{"item": "foobar", "count": 1}, {"item": "bar", "count": 3}],
     )

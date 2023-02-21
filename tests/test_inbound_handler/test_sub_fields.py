@@ -1,7 +1,10 @@
 from typing import Optional
 
+from flask.testing import FlaskClient
 from pydantic import BaseModel
 from pydantic import validator
+
+from flask_jeroboam.jeroboam import Jeroboam
 
 
 class ModelB(BaseModel):
@@ -25,7 +28,7 @@ class ModelA(BaseModel):
         return name
 
 
-def test_get_query_operations(app, client):
+def test_get_query_operations(one_shot_app: Jeroboam, one_shot_client: FlaskClient):
     """Testing Various GET operations with query parameters.
 
     GIVEN a GET endpoint configiured with query parameters
@@ -33,11 +36,11 @@ def test_get_query_operations(app, client):
     THEN the request is parsed and validated accordingly
     """
 
-    @app.post("/sub_model", response_model=ModelA)
+    @one_shot_app.post("/sub_model", response_model=ModelA)
     def post_sub_model(model: ModelA):
         return model
 
-    response = client.post(
+    response = one_shot_client.post(
         "/sub_model", json={"name": "fooA", "model_b": {"username": "bar"}}
     )
     assert response.status_code == 201
