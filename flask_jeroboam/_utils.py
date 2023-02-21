@@ -10,7 +10,10 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import ForwardRef
+from typing import Optional
+from typing import Type
 
+from pydantic import BaseConfig
 from pydantic import BaseModel
 from pydantic.fields import SHAPE_FROZENSET
 from pydantic.fields import SHAPE_LIST
@@ -19,6 +22,7 @@ from pydantic.fields import SHAPE_SET
 from pydantic.fields import SHAPE_SINGLETON
 from pydantic.fields import SHAPE_TUPLE
 from pydantic.fields import SHAPE_TUPLE_ELLIPSIS
+from pydantic.fields import FieldInfo
 from pydantic.fields import ModelField
 from pydantic.typing import evaluate_forwardref
 from pydantic.utils import lenient_issubclass
@@ -112,3 +116,34 @@ def _rename_query_params_keys(self, inbound_dict: dict, pattern: str) -> dict:
             inbound_dict[new_key] = new_array
             del inbound_dict[old_key]
     return inbound_dict
+
+
+def create_field(
+    *,
+    name: str,
+    type_: Type[BaseModel],
+    required: bool,
+    alias: Optional[str] = None,
+    field_info: Optional[FieldInfo] = None,
+    class_validators: dict,
+    model_config: Optional[Type[BaseConfig]] = None,
+) -> Optional[ModelField]:
+    """Create a pydantic ModelField from a model class.
+
+    Removed the partial-trcatch trick from FastAPI's original implementation.
+    I didn't find a way to reproduce.
+    """
+    class_validators = class_validators or {}
+    field_info = field_info or FieldInfo()
+    model_config = model_config or getattr(type_, "__config__", BaseConfig)
+
+    return ModelField(
+        name=name,
+        type_=type_,
+        class_validators=class_validators,
+        default=None,
+        model_config=model_config,  # type: ignore
+        alias=alias or name,
+        required=required,
+        field_info=field_info,
+    )

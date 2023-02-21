@@ -1,6 +1,5 @@
 import dataclasses
 import traceback
-from functools import partial
 from functools import wraps
 from typing import Any
 from typing import Callable
@@ -18,13 +17,12 @@ from pydantic import BaseModel
 from pydantic import create_model
 from pydantic import validate_model
 from pydantic.fields import FieldInfo
-from pydantic.fields import ModelField
 from typing_extensions import ParamSpec
 
-from flask_jeroboam.exceptions import JeroboamError
+from flask_jeroboam._utils import get_typed_return_annotation
 from flask_jeroboam.exceptions import ResponseValidationError
-from flask_jeroboam.utils import get_typed_return_annotation
 
+from ._utils import create_field
 from .responses import JSONResponse
 from .typing import HeadersValue
 from .typing import JeroboamBodyType
@@ -99,33 +97,14 @@ class OutboundHandler:
         class_validators = getattr(self.response_model, "__validators__", {})
         field_info = getattr(self.response_model, "field_info", FieldInfo())
         model_config = getattr(self.response_model, "__config__", BaseConfig)
-
-        response_field = partial(
-            ModelField,
+        return create_field(
             name=self.response_model.__name__,
             type_=self.response_model,
             class_validators=class_validators,
-            default=None,
+            required=True,
             model_config=model_config,
-            alias=None,
+            field_info=field_info,
         )
-
-        try:
-            return response_field(field_info=field_info)
-        except RuntimeError:
-            raise JeroboamError(
-                "Invalid args for response field! Hint: "
-                f"check that {self.response_model} is a valid"
-                " Pydantic field type."
-                "If you are using a return type annotation that "
-                "is not a valid Pydantic "
-                "field (e.g. Union[Response, dict, None]) you can"
-                " disable generating the "
-                "response model from the type annotation with the"
-                "path operation decorator "
-                "parameter response_model=None. Read more: "
-                "https://fastapi.tiangolo.com/tutorial/response-model/"
-            ) from None
 
     def add_outbound_handling_to(
         self, view_func: JeroboamRouteCallable

@@ -16,6 +16,7 @@ from typing import Union
 from pydantic import BaseModel
 from pydantic import create_model
 from pydantic.error_wrappers import ErrorWrapper
+from pydantic.fields import FieldInfo
 from pydantic.fields import ModelField
 from pydantic.fields import Undefined
 from pydantic.schema import get_annotation_from_field_info
@@ -27,14 +28,14 @@ from flask_jeroboam.typing import JeroboamRouteCallable
 from flask_jeroboam.view_params import ParamLocation
 from flask_jeroboam.view_params import SolvedParameter
 from flask_jeroboam.view_params import ViewParameter
-from flask_jeroboam.view_params._utils import create_field
 from flask_jeroboam.view_params.functions import Body
 from flask_jeroboam.view_params.functions import File
 from flask_jeroboam.view_params.functions import Form
 from flask_jeroboam.view_params.parameters import BodyParameter
 from flask_jeroboam.view_params.parameters import get_parameter_class
 
-from .utils import get_typed_signature
+from ._utils import create_field
+from ._utils import get_typed_signature
 
 
 F = t.TypeVar("F", bound=t.Callable[..., t.Any])
@@ -115,7 +116,7 @@ class InboundHandler:
 
     @property
     def body_arguments(self) -> List[SolvedParameter]:
-        """Return all Parameters of the InboundHandler."""
+        """Return all Body Arguments of the InboundHandler."""
         return self.body_params + self.form_params + self.file_params
 
     @property
@@ -134,23 +135,7 @@ class InboundHandler:
             self._body_field = self._build_body_field(name)
         return self._body_field
 
-    def _build_body_field(self, name: str) -> Optional[ModelField]:
-        first_param = self.body_arguments[0]
-        field_info = first_param.field_info
-        embed = getattr(field_info, "embed", None)
-        body_param_names_set = {param.name for param in self.body_arguments}
-        if len(body_param_names_set) == 1 and not embed:
-            return first_param
-        # If one field requires to embed, all have to be embedded
-        # in case a sub-dependency is evaluated with a single unique body field
-        # That is combined (embedded) with other body fields
-        for param in self.body_arguments:
-            param.embed = True
-        model_name = f"Body_{name}"
-        BodyModel: Type[BaseModel] = create_model(model_name)  # noqa: N806
-        for argument in self.body_arguments:
-            BodyModel.__fields__[argument.name] = argument
-        required = any(True for argument in self.body_arguments if argument.required)
+    def _solve_body_field_info(self) -> FieldInfo:
         body_field_info_kwargs: Dict[str, Any] = {"default": None}
         if len(self.file_params) > 0:
             body_field_info: Callable = File
@@ -158,7 +143,6 @@ class InboundHandler:
             body_field_info = Form
         else:
             body_field_info = Body
-
             body_param_media_types = [
                 f.field_info.media_type
                 for f in self.body_arguments
@@ -166,12 +150,28 @@ class InboundHandler:
             ]
             if len(set(body_param_media_types)) == 1:
                 body_field_info_kwargs["media_type"] = body_param_media_types[0]
+        return body_field_info(**body_field_info_kwargs)
+
+    def _build_body_field(self, name: str) -> Optional[ModelField]:
+        first_param = self.body_arguments[0]
+        field_info = first_param.field_info
+        embed = getattr(field_info, "embed", None)
+        body_param_names_set = {param.name for param in self.body_arguments}
+        if len(body_param_names_set) == 1 and not embed:
+            return first_param
+        model_name = f"Body_{name}"
+        BodyModel: Type[BaseModel] = create_model(model_name)  # noqa: N806
+        for argument in self.body_arguments:
+            argument.embed = any(argument.embed for argument in self.body_arguments)
+            BodyModel.__fields__[argument.name] = argument
+        required = any(argument.required for argument in self.body_arguments)
+        field_info = self._solve_body_field_info()
         return create_field(
             name=BodyModel.__name__,
             type_=BodyModel,
             required=required,
             alias="body",
-            field_info=body_field_info(**body_field_info_kwargs),
+            field_info=field_info,
             class_validators={},
         )
 
@@ -242,10 +242,10 @@ class InboundHandler:
             view_param = param_class(param.default)
 
         default_value = self._solve_default_value(param, ignore_default)
-
         # Solving Required
-        required: bool = default_value is Undefined
-
+        required: bool = default_value is Undefined or getattr(
+            view_param, "required", False
+        )
         annotation = param.annotation if param.annotation != param.empty else Any
         annotation = get_annotation_from_field_info(annotation, view_param, param_name)
 
@@ -275,7 +275,7 @@ class InboundHandler:
         ignore_default: bool,
     ) -> Any:
         default_value: Any = getattr(param.default, "default", param.default)
-        if default_value == param.empty or ignore_default:
+        if default_value in {param.empty, Ellipsis} or ignore_default:
             default_value = Undefined
         return default_value
 
