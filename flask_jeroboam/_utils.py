@@ -10,6 +10,7 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import ForwardRef
+from typing import List
 from typing import Optional
 from typing import Type
 
@@ -147,3 +148,48 @@ def create_field(
         required=required,
         field_info=field_info,
     )
+
+
+def _throw_away_falthy_values(
+    sparse_dict: Dict[str, Any], keep: Optional[set] = None
+) -> Dict[str, Any]:
+    keep = keep or set()
+    return {key: value for key, value in sparse_dict.items() if value or key in keep}
+
+
+def _memoized_update_if_value(key: str, new_value: Any, orginal: Dict[str, Any]):
+    if new_value:
+        orginal.setdefault(key, {}).update(new_value)
+
+
+def _append_truthy(array: list, value: Any) -> None:
+    """Append a value to an array if it's truthy.
+
+    Mutates the orginal array.
+    """
+    if value:
+        array.append(value)
+
+
+def _set_nested_defaults(
+    original_dict: dict, keys: List[str], last_key: str, new_value: Any
+) -> None:
+    """Create a nested dictionary from a list of keys.
+
+    _set_nested_defaults(
+        original_dict=operation,
+        keys=["responses", status_code, "content", route_response_media_type],
+        last_key="schema",
+        new_value={"$ref": "#/components/schemas/ResponseModel"},
+    )
+    is equivalent to:
+    (operation.setdefault("responses", {})
+     .setdefault(status_code, {})
+     .setdefault("content", {})
+     .setdefault(route_response_media_type, {})
+    )["schema"] = {"$ref": "#/components/schemas/ResponseModel"}
+    """
+    for key in keys:
+        original_dict.setdefault(key, {})
+        original_dict = original_dict[key]
+    original_dict[last_key] = new_value

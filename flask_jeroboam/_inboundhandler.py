@@ -1,7 +1,6 @@
 import inspect
 import re
 import typing as t
-from enum import Enum
 from functools import wraps
 from typing import Any
 from typing import Callable
@@ -42,16 +41,6 @@ F = t.TypeVar("F", bound=t.Callable[..., t.Any])
 R = t.TypeVar("R", bound=t.Any)
 P = ParamSpec("P")
 T = t.TypeVar("T", bound=t.Any)
-
-
-class MethodEnum(str, Enum):
-    """List of HTTP Methods."""
-
-    GET = "GET"
-    POST = "POST"
-    PUT = "PUT"
-    DELETE = "DELETE"
-    PATCH = "PATCH"
 
 
 pattern = r"(.*)\[(.+)\]$"
@@ -199,9 +188,8 @@ class InboundHandler:
             import warnings
 
             warnings.warn(
-                f"You have defined Form or File Parameters on a "
-                f"{self.main_http_verb} request. "
-                "This is not supported by Flask:"
+                f"You have defined Form or File Parameters on a {self.main_http_verb}"
+                "request. This is not supported by Flask:"
                 "https://flask.palletsprojects.com/en/2.2.x/api/#incoming-request-data",
                 UserWarning,
                 stacklevel=2,
@@ -303,18 +291,8 @@ class InboundHandler:
         """Parse and Validate the request Inbound data."""
         errors = []
         values = {}
-        for location in self.locations_to_visit:
-            params = {
-                ParamLocation.query: self.query_params,
-                ParamLocation.path: self.path_params,
-                ParamLocation.header: self.header_params,
-                ParamLocation.body: self.body_params,
-                ParamLocation.form: self.form_params,
-                ParamLocation.cookie: self.cookie_params,
-                ParamLocation.file: self.file_params,
-            }.get(location, [])
-            for param in params:
-                values_, errors_ = param.validate_request()
-                errors.extend(errors_)
-                values.update(values_)
+        for param in self.parameters + self.body_arguments:
+            values_, errors_ = param.validate_request()
+            errors.extend(errors_)
+            values.update(values_)
         return values, errors

@@ -40,13 +40,6 @@ repos:
         types: [python]
         require_serial: true
         args: [--darglint-ignore-regex, .*]
-      - id: pycln
-        name: pycln
-        description: "A formatter for finding and removing unused import statements."
-        entry: pycln
-        language: python
-        language_version: python3
-        types: [python]
       - id: isort
         name: isort
         entry: isort

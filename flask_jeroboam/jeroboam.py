@@ -17,14 +17,13 @@ from flask.blueprints import Blueprint as FlaskBlueprint
 from flask.scaffold import setupmethod
 from typing_extensions import TypeVar
 
+from flask_jeroboam._config import JeroboamConfig
+from flask_jeroboam.openapi.builder import build_openapi
 from flask_jeroboam.openapi.models.openapi import OpenAPI
-from flask_jeroboam.openapi.utils import build_openapi
+from flask_jeroboam.responses import JSONResponse
 from flask_jeroboam.rule import JeroboamRule
-
-from ._config import JeroboamConfig
-from .responses import JSONResponse
-from .typing import JeroboamRouteCallable
-from .view import JeroboamView
+from flask_jeroboam.typing import JeroboamRouteCallable
+from flask_jeroboam.view import JeroboamView
 
 
 R = TypeVar("R", bound=Any)

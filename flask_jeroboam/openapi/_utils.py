@@ -4,7 +4,6 @@ Credits: This is a Fork of FastAPI's openapi/utils.py
 """
 import warnings
 from enum import Enum
-from typing import TYPE_CHECKING
 from typing import Any
 from typing import Dict
 from typing import List
@@ -20,63 +19,20 @@ from pydantic import BaseModel
 from pydantic.fields import ModelField
 from pydantic.schema import field_schema
 from pydantic.schema import get_flat_models_from_fields
-from pydantic.schema import get_model_name_map
 from pydantic.schema import model_process_schema
 
-from flask_jeroboam.openapi.models.openapi import Components
-from flask_jeroboam.openapi.models.openapi import Info
-from flask_jeroboam.openapi.models.openapi import Tag
+from flask_jeroboam._constants import NO_BODY_STATUS_CODES
+from flask_jeroboam._constants import REF_PREFIX
+from flask_jeroboam._constants import VALIDATION_ERROR_DEFINITION
+from flask_jeroboam._constants import VALIDATION_ERROR_RESPONSE_DEFINITION
+from flask_jeroboam._utils import _append_truthy
+from flask_jeroboam._utils import _set_nested_defaults
+from flask_jeroboam._utils import _throw_away_falthy_values
 from flask_jeroboam.rule import JeroboamRule
 from flask_jeroboam.view import JeroboamView
 from flask_jeroboam.view_params.parameters import BodyParameter
 from flask_jeroboam.view_params.parameters import NonBodyParameter
 from flask_jeroboam.view_params.solved import SolvedParameter
-
-from .models.openapi import OpenAPI
-
-
-if TYPE_CHECKING:  # pragma: no cover
-    from flask_jeroboam.jeroboam import Jeroboam
-
-REF_PREFIX = "#/components/schemas/"
-METHODS_WITH_BODY = {"POST", "PUT", "PATCH", "DELETE"}
-NO_BODY_STATUS_CODES = {"204", "205", "304"}
-
-validation_error_definition = {
-    "title": "ValidationError",
-    "type": "object",
-    "properties": {
-        "loc": {
-            "title": "Location",
-            "type": "array",
-            "items": {"anyOf": [{"type": "string"}, {"type": "integer"}]},
-        },
-        "msg": {"title": "Message", "type": "string"},
-        "type": {"title": "Error Type", "type": "string"},
-    },
-    "required": ["loc", "msg", "type"],
-}
-
-validation_error_response_definition = {
-    "title": "HTTPValidationError",
-    "type": "object",
-    "properties": {
-        "detail": {
-            "title": "Detail",
-            "type": "array",
-            "items": {"$ref": f"{REF_PREFIX}ValidationError"},
-        }
-    },
-}
-
-status_code_ranges: Dict[str, str] = {
-    "1XX": "Information",
-    "2XX": "Success",
-    "3XX": "Redirection",
-    "4XX": "Client Error",
-    "5XX": "Server Error",
-    "DEFAULT": "Default Response",
-}
 
 
 def _get_openapi_operation_parameters(
@@ -90,7 +46,7 @@ def _get_openapi_operation_parameters(
         field_info = cast(NonBodyParameter, field_info)
         if getattr(param, "include_in_schema", True) is False:
             continue
-        parameter = _compact_dict(
+        parameter = _throw_away_falthy_values(
             {
                 "name": param.alias,
                 "in": field_info.location.value,
@@ -109,22 +65,6 @@ def _get_openapi_operation_parameters(
     return parameters
 
 
-def _compact_dict(
-    sparse_dict: Dict[str, Any], keep: Optional[set] = None
-) -> Dict[str, Any]:
-    keep = keep or set()
-    return {key: value for key, value in sparse_dict.items() if value or key in keep}
-
-
-def _smart_update(key: str, new_value: Any, orginal: Dict[str, Any]):
-    if new_value:
-        orginal.setdefault(key, {}).update(new_value)
-
-
-def _generate_operation_summary(*, rule: JeroboamRule, method: str) -> str:
-    return rule.summary or rule.endpoint.replace("_", " ").title().split(".")[-1]
-
-
 def _get_openapi_operation_metadata(
     *, rule: JeroboamRule, method: str, operation_ids: Set[str]
 ) -> Dict[str, Any]:
@@ -135,11 +75,11 @@ def _get_openapi_operation_metadata(
         )
         warnings.warn(message, UserWarning, stacklevel=2)
     operation_ids.add(operation_id)
-    operation: Dict[str, Any] = _compact_dict(
+    operation: Dict[str, Any] = _throw_away_falthy_values(
         {
             "tags": rule.tags,
             "description": rule.description,
-            "summary": _generate_operation_summary(rule=rule, method=method),
+            "summary": rule.summary,
             "deprecated": rule.deprecated,
             "operationId": operation_id,
         }
@@ -166,6 +106,21 @@ def _get_openapi_operation_request_body(
     return request_body_oai
 
 
+def _get_response_schema(
+    response_field: Optional[ModelField], model_name_map
+) -> Dict[str, Any]:
+    response_schema = {"type": "string"}
+    if response_field:
+        response_schema, _, _ = field_schema(
+            response_field,
+            model_name_map=model_name_map,
+            ref_prefix=REF_PREFIX,
+        )
+    else:
+        response_schema = {}
+    return response_schema
+
+
 def _add_responses(
     operation,
     model_name_map,
@@ -175,32 +130,30 @@ def _add_responses(
     status_code = str(jeroboam_view.outbound_handler.latent_status_code)
     current_response_class = jeroboam_view.outbound_handler.response_class
     route_response_media_type: Optional[str] = current_response_class.default_mimetype
-    description = jeroboam_view.outbound_handler.response_description
-    response_field = jeroboam_view.outbound_handler.response_field
 
-    operation.setdefault("responses", {}).setdefault(status_code, {})[
-        "description"
-    ] = description
+    _set_nested_defaults(
+        original_dict=operation,
+        keys=["responses", status_code],
+        last_key="description",
+        new_value=jeroboam_view.outbound_handler.response_description,
+    )
 
     if route_response_media_type and status_code not in NO_BODY_STATUS_CODES:
-        response_schema = {"type": "string"}
-        if response_field:
-            response_schema, _, _ = field_schema(
-                response_field,
+        _set_nested_defaults(
+            original_dict=operation,
+            keys=["responses", status_code, "content", route_response_media_type],
+            last_key="schema",
+            new_value=_get_response_schema(
+                jeroboam_view.outbound_handler.response_field,
                 model_name_map=model_name_map,
-                ref_prefix=REF_PREFIX,
-            )
-        else:
-            response_schema = {}
-        operation.setdefault("responses", {}).setdefault(status_code, {}).setdefault(
-            "content", {}
-        ).setdefault(route_response_media_type, {})["schema"] = response_schema
+            ),
+        )
 
-    http400 = str(400)  # TODO: possibilité de configurer le status code
+    # TODO: possibilité de configurer le status code
     if jeroboam_view.inbound_handler.is_valid and all(
-        status not in operation["responses"] for status in {http400, "4XX", "default"}
+        status not in operation["responses"] for status in {"400", "4XX", "default"}
     ):
-        operation["responses"][http400] = {
+        operation["responses"]["400"] = {
             "description": "Validation Error",
             "content": {
                 "application/json": {
@@ -210,8 +163,8 @@ def _add_responses(
         }
         definitions.update(
             {
-                "ValidationError": validation_error_definition,
-                "HTTPValidationError": validation_error_response_definition,
+                "ValidationError": VALIDATION_ERROR_DEFINITION,
+                "HTTPValidationError": VALIDATION_ERROR_RESPONSE_DEFINITION,
             }
         )
     return operation, definitions
@@ -285,81 +238,10 @@ def _get_flat_models_from_jeroboam_views(
 ):
     params: List[Union[ModelField, SolvedParameter]] = []
     for jeroboam_view, rule in zip(jeroboam_views, rules):
-        if jeroboam_view is None or jeroboam_view.include_in_openapi is False:
+        if getattr(jeroboam_view, "include_in_openapi", False) is False:
             continue
+        assert jeroboam_view is not None  # noqa: S101
         params.extend(jeroboam_view.inbound_handler.parameters or [])
-        if jeroboam_view.outbound_handler.response_field:
-            params.append(jeroboam_view.outbound_handler.response_field)
-        body_field = jeroboam_view.inbound_handler.body_field(rule.unique_id)
-        if body_field is not None:
-            params.append(body_field)
+        _append_truthy(params, jeroboam_view.outbound_handler.response_field)
+        _append_truthy(params, jeroboam_view.inbound_handler.body_field(rule.unique_id))
     return get_flat_models_from_fields(params, known_models=set())
-
-
-def build_openapi(
-    *,
-    app: "Jeroboam",
-    rules: List[JeroboamRule],
-    tags: Optional[List[Dict[str, Any]]] = None,
-) -> OpenAPI:
-    """Generate an OpenAPI schema for the given routes.
-
-    TODO: Gérer les securitySchemes.
-    Credits: Refactoring of FastApi's get_openapi.
-    """
-    # Meta
-    openapi_version = app.config.get("JEROBOAM_OPENAPI_VERSION", "3.0.2")
-    info = Info.parse_obj(
-        {
-            "title": app.config.get("JEROBOAM_TITLE", app.name),
-            "version": app.config.get("JEROBOAM_VERSION", "0.1.0"),
-            "description": app.config.get("JEROBOAM_DESCRIPTION", None),
-            "terms_of_service": app.config.get("JEROBOAM_TERMS_OF_SERVICE", None),
-            "contact": app.config.get("JEROBOAM_CONTACT", None),
-            "license": app.config.get("JEROBOAM_LICENCE_INFO", None),
-        }
-    )
-    servers = app.config.get("JEROBOAM_SERVERS", None)
-
-    # Préparation
-    paths: Dict[str, Dict[str, Any]] = {}
-    components: Dict[str, Dict[str, Any]] = {}
-    operation_ids: Set[str] = set()
-
-    # Les jerobomas views, probablement à déléguer à l'app
-    jeroboam_views: List[Optional[JeroboamView]] = [
-        getattr(app.view_functions[rule.endpoint], "__jeroboam_view__", None)
-        for rule in rules
-    ]
-
-    # On créer des objects intermédiaires
-    flat_models = _get_flat_models_from_jeroboam_views(jeroboam_views, rules)
-    model_name_map = get_model_name_map(flat_models)
-    definitions = _get_model_definitions(
-        flat_models=flat_models, model_name_map=model_name_map
-    )
-
-    # On itères sur les rules and views pour récuperr les Paths Items et Définitions.
-    for rule, jeroboam_view in zip(rules, jeroboam_views):
-        if rule.include_in_openapi is False or jeroboam_view is None:
-            continue
-        path_dict, security_schemes, path_definitions = _build_openapi_path_item(
-            rule=rule,
-            jeroboam_view=jeroboam_view,
-            model_name_map=model_name_map,
-            operation_ids=operation_ids,
-        )
-        _smart_update(rule.openapi_path, path_dict, paths)
-        # TODO: ici il faut être capable de récupérer les securitySchemes
-        _smart_update("security_schemes", security_schemes, components)
-        definitions.update(path_definitions or {})
-
-    # On package le tout.
-    return OpenAPI(
-        openapi=openapi_version,
-        info=info,
-        servers=servers,
-        paths=paths,
-        tags=[Tag(**tag) for tag in tags or []],
-        components=Components(schemas={k: definitions[k] for k in sorted(definitions)}),
-    )

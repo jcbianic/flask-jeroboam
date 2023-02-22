@@ -20,10 +20,10 @@ class JeroboamRule(FlaskRule):
             "include_in_openapi", True
         )
         self.tags = options.pop("tags", [])
-        # TODO: Choper la description/summary dans la docstring de la view_function
+
         # TODO: Maybe a smarter way to extract options...
         self.description = options.pop("description", None)
-        self.summary = options.pop("summary", None)
+        self._summary = options.pop("summary", None)
         self.operation_id = options.pop("operation_id", None)
         self.deprecated = options.pop("deprecated", False)
         self.openapi_extra: dict = options.pop("openapi_extra", {})
@@ -38,6 +38,14 @@ class JeroboamRule(FlaskRule):
         """Return a formatted path."""
         rule = pattern.sub("<", self.rule)
         return rule.replace("<", "{").replace(">", "}")
+
+    @property
+    def summary(self) -> str:
+        """Generate summary for the Rule.
+
+        # TODO: Choper la description/summary dans la docstring de la view_function
+        """
+        return self._summary or self.endpoint.replace("_", " ").title().split(".")[-1]
 
 
 def _generate_unique_id(rule: "JeroboamRule", main_method: str) -> str:
