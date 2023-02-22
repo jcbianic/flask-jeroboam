@@ -11,7 +11,8 @@ Welcome
 Welcome to **Flask-Jeroboam**'s documentation.
 
 **Flask-Jeroboam** is a `Flask`_ extension modeled after `FastAPI`_. Like the former, it uses `Pydantic`_
-to provide easy-to-configure data validation in request parsing and response serialization.
+to provide easy-to-configure data validation in request parsing and response serialization, as well as
+OpenAPI-compliant documentation auto-generation.
 
 Start with :doc:`installation`, then jump right in with our :doc:`Getting Started Guide </getting_started>`. The
 :doc:`Tutorial </tutorial/index>` walks you through a comprehensive example, while the :doc:`API </api>` section gives you details on the components of the extension.
