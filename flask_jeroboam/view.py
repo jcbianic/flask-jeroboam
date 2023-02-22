@@ -1,16 +1,18 @@
 """The Route Class."""
 from typing import Any
 from typing import Dict
+from typing import List
 from typing import Optional
 from typing import Type
 from typing import TypeVar
 
 from typing_extensions import ParamSpec
 
-from ._inboundhandler import InboundHandler
-from ._outboundhandler import OutboundHandler
-from .responses import JSONResponse
-from .typing import JeroboamRouteCallable
+from flask_jeroboam._inboundhandler import InboundHandler
+from flask_jeroboam._outboundhandler import OutboundHandler
+from flask_jeroboam.responses import JSONResponse
+from flask_jeroboam.typing import JeroboamRouteCallable
+from flask_jeroboam.view_arguments.solved import SolvedArgument
 
 
 P = ParamSpec("P")
@@ -40,17 +42,22 @@ class JeroboamView:
         """
         assert response_class is not None  # noqa: S101
         self.endpoint = options.pop("endpoint", None)
-        main_http_verb = self._solve_main_http_verb(options, original_view_func)
+        self.main_http_verb = self._solve_main_http_verb(options, original_view_func)
         configured_status_code: Optional[int] = options.pop("status_code", None)
-        self.inbound_handler = InboundHandler(original_view_func, main_http_verb, rule)
+        self.inbound_handler = InboundHandler(
+            original_view_func, self.main_http_verb, rule
+        )
         self.outbound_handler = OutboundHandler(
             original_view_func,
             configured_status_code,
-            main_http_verb,
+            self.main_http_verb,
             options,
             response_class,
         )
         self.original_view_func = original_view_func
+        self.include_in_openapi = options.pop("include_in_openapi", True)
+        self.has_request_body = self.inbound_handler.has_request_body
+        self.rule = rule
 
     @property
     def as_view(self) -> JeroboamRouteCallable:
@@ -68,7 +75,19 @@ class JeroboamView:
 
         view_func.__name__ = name
         view_func.__doc__ = doc
+        # TODO voir comment passer l'objet lui-même.
+        view_func.__jeroboam_view__ = self  # type: ignore
         return view_func
+
+    @property
+    def main_method(self) -> str:
+        """Return the main HTTP verb of the Endpoint."""
+        return self.main_http_verb.lower()
+
+    @property
+    def parameters(self) -> List[SolvedArgument]:
+        """Return the main HTTP verb of the Endpoint."""
+        return self.inbound_handler.parameters
 
     def _solve_main_http_verb(
         self, options: Dict[str, Any], original_view_func: JeroboamRouteCallable
@@ -101,5 +120,6 @@ class JeroboamView:
                 f"The main verb is not clear and only the first one ({methods[0]}) "
                 "will be picked. If you thing this is a mistake, please open an issue.",
                 UserWarning,
+                stacklevel=2,
             )
         return methods[0]

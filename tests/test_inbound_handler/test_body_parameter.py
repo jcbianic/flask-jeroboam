@@ -1,9 +1,11 @@
 from typing import List
 
 import pytest
+from flask.testing import FlaskClient
 
+from flask_jeroboam import Jeroboam
 from flask_jeroboam.models import InboundModel
-from flask_jeroboam.view_params.functions import Body
+from flask_jeroboam.view_arguments.functions import Body
 
 
 response_not_valid_int = {
@@ -37,7 +39,11 @@ def _valid(value) -> dict:
     ],
 )
 def test_post_body_operations(
-    client, url, body_value, expected_status, expected_response
+    client: FlaskClient,
+    url: str,
+    body_value: dict,
+    expected_status: int,
+    expected_response: dict,
 ):
     """Testing Various GET operations with query parameters.
 
@@ -50,7 +56,9 @@ def test_post_body_operations(
     assert response.status_code == expected_status
 
 
-def test_post_body_list_of_base_model(app, client):
+def test_post_body_list_of_base_model(
+    one_shot_app: Jeroboam, one_shot_client: FlaskClient
+):
     """Test Body Parameter with POST method."""
 
     class InBound(InboundModel):
@@ -59,11 +67,11 @@ def test_post_body_list_of_base_model(app, client):
         item: str
         count: int
 
-    @app.post("/body/list_non_scalar", response_model=List[InBound])
+    @one_shot_app.post("/body/list_non_scalar", response_model=List[InBound])
     def post_body_list_non_scalar(payload: List[InBound] = Body(embed=False)):
         return payload
 
-    response = client.post(
+    response = one_shot_client.post(
         "/body/list_non_scalar",
         json=[{"item": "foobar", "count": 1}, {"item": "bar", "count": 3}],
     )

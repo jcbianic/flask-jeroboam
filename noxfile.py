@@ -162,7 +162,7 @@ def mypy(session: Session) -> None:
 def tests(session: Session) -> None:
     """Run the test suite."""
     session.install(".")
-    session.install("coverage[toml]", "pytest", "pygments")
+    session.install("coverage[toml]", "pytest", "pygments", "toml")
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
     finally:
@@ -187,7 +187,7 @@ def coverage(session: Session) -> None:
 def typeguard(session: Session) -> None:
     """Runtime type checking using Typeguard."""
     session.install(".")
-    session.install("pytest", "typeguard", "pygments")
+    session.install("pytest", "typeguard", "pygments", "toml")
     session.run("pytest", "--typeguard-packages=.", *session.posargs)
 
 
@@ -202,7 +202,7 @@ def xdoctest(session: Session) -> None:
             args.append("--colored=1")
 
     session.install(".")
-    session.install("xdoctest[colors]")
+    session.install("xdoctest[colors]", "toml")
     session.run("python", "-m", "xdoctest", *args)
 
 

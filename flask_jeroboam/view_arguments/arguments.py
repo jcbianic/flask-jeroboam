@@ -12,7 +12,7 @@ from pydantic.fields import FieldInfo
 from pydantic.fields import Undefined
 
 
-class ParamLocation(Enum):
+class ArgumentLocation(Enum):
     """Enum for the possible source location of a view_function parameter."""
 
     query = "query"
@@ -25,10 +25,10 @@ class ParamLocation(Enum):
     unknown = "unknown"
 
 
-class ViewParameter(FieldInfo):
+class ViewArgument(FieldInfo):
     """Base class for all View parameters."""
 
-    location: ParamLocation
+    location: ArgumentLocation
 
     def __init__(
         self,
@@ -51,13 +51,13 @@ class ViewParameter(FieldInfo):
     def in_body(self):
         """Is the parameter located in the body?"""
         return self.location in {
-            ParamLocation.body,
-            ParamLocation.form,
-            ParamLocation.file,
+            ArgumentLocation.body,
+            ArgumentLocation.form,
+            ArgumentLocation.file,
         }
 
 
-class NonBodyParameter(ViewParameter):
+class ParameterArgument(ViewArgument):
     """A Parameter that is not located in the body."""
 
     def __init__(
@@ -66,40 +66,39 @@ class NonBodyParameter(ViewParameter):
         **kwargs: Any,
     ):
         self.deprecated = kwargs.pop("deprecated", None)
-        self.include_in_schema = kwargs.pop("include_in_schema", True)
         super().__init__(
             default,
             **kwargs,
         )
 
 
-class QueryParameter(NonBodyParameter):
+class QueryArgument(ParameterArgument):
     """A Parameter found in the Query String."""
 
-    location = ParamLocation.query
+    location = ArgumentLocation.query
 
 
-class PathParameter(NonBodyParameter):
+class PathArgument(ParameterArgument):
     """A Parameter found in Path."""
 
-    location = ParamLocation.path
+    location = ArgumentLocation.path
 
     def __init__(
         self,
         *args: Any,
         **kwargs: Any,
     ):
-        self.required = True
         super().__init__(
             ...,
             **kwargs,
         )
+        self.required = True
 
 
-class HeaderParameter(NonBodyParameter):
+class HeaderArgument(ParameterArgument):
     """A Header parameter."""
 
-    location = ParamLocation.header
+    location = ArgumentLocation.header
 
     def __init__(
         self,
@@ -113,13 +112,13 @@ class HeaderParameter(NonBodyParameter):
         )
 
 
-class CookieParameter(NonBodyParameter):
+class CookieArgument(ParameterArgument):
     """A Parameter located in Cookies."""
 
-    location = ParamLocation.cookie
+    location = ArgumentLocation.cookie
 
 
-class BodyParameter(ViewParameter):
+class BodyArgument(ViewArgument):
     """A Parameter located in Body.
 
     Body Parameters can be embedded. which means that they must
@@ -127,7 +126,7 @@ class BodyParameter(ViewParameter):
     They also have a Media/Type that varies between body, form and file.
     """
 
-    location = ParamLocation.body
+    location = ArgumentLocation.body
 
     def __init__(
         self,
@@ -142,10 +141,10 @@ class BodyParameter(ViewParameter):
         )
 
 
-class FormParameter(BodyParameter):
+class FormArgument(BodyArgument):
     """A Parameter located in Body."""
 
-    location = ParamLocation.form
+    location = ArgumentLocation.form
 
     def __init__(
         self,
@@ -153,7 +152,7 @@ class FormParameter(BodyParameter):
         **kwargs: Any,
     ):
         embed = kwargs.pop("embed", True)
-        self.media_type = kwargs.pop("media_type", "application/x-www-form-urlencoded")
+        kwargs.setdefault("media_type", "application/x-www-form-urlencoded")
         super().__init__(
             default,
             embed=embed,
@@ -161,10 +160,10 @@ class FormParameter(BodyParameter):
         )
 
 
-class FileParameter(FormParameter):
+class FileArgument(FormArgument):
     """A Parameter located in Body."""
 
-    location = ParamLocation.file
+    location = ArgumentLocation.file
 
     def __init__(
         self,
@@ -172,7 +171,7 @@ class FileParameter(FormParameter):
         **kwargs: Any,
     ):
         embed = kwargs.pop("embed", False)
-        self.media_type = kwargs.pop("media_type", "multipart/form-data")
+        kwargs.setdefault("media_type", "multipart/form-data")
         super().__init__(
             default,
             embed=embed,
@@ -180,14 +179,14 @@ class FileParameter(FormParameter):
         )
 
 
-def get_parameter_class(location: ParamLocation) -> Type[ViewParameter]:
+def get_argument_class(location: ArgumentLocation) -> Type[ViewArgument]:
     """Get the Parameter class for a given location."""
     return {
-        ParamLocation.query: QueryParameter,
-        ParamLocation.header: HeaderParameter,
-        ParamLocation.path: PathParameter,
-        ParamLocation.cookie: CookieParameter,
-        ParamLocation.body: BodyParameter,
-        ParamLocation.form: FormParameter,
-        ParamLocation.file: FileParameter,
+        ArgumentLocation.query: QueryArgument,
+        ArgumentLocation.header: HeaderArgument,
+        ArgumentLocation.path: PathArgument,
+        ArgumentLocation.cookie: CookieArgument,
+        ArgumentLocation.body: BodyArgument,
+        ArgumentLocation.form: FormArgument,
+        ArgumentLocation.file: FileArgument,
     }[location]

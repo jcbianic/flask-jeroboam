@@ -5,7 +5,7 @@ The corresponding test can be found in tests/test_inbound/test_query
 from typing import FrozenSet
 from typing import Optional
 
-from flask_jeroboam import JeroboamBlueprint
+from flask_jeroboam import Blueprint
 from flask_jeroboam import Query
 from tests.app_test.models.inbound import ModelWithListIn
 from tests.app_test.models.inbound import OptionalModelIn
@@ -14,10 +14,10 @@ from tests.app_test.models.inbound import SimpleModelIn
 from tests.app_test.models.outbound import ModelWithListOut
 
 
-router = JeroboamBlueprint("query_params_router", __name__)
+router = Blueprint("query_params_router", __name__, tags=["Query"])
 
 
-@router.get("/query/frozenset/")
+@router.get("/query/frozenset")
 def get_query_type_frozenset(query: FrozenSet[int] = Query(...)):
     return {"query": ",".join(map(str, sorted(query)))}
 

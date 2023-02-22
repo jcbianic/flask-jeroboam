@@ -1,15 +1,27 @@
 """Defining Fixtures for the Test Suite."""
 import pytest
+from flask.testing import FlaskClient
 
 from flask_jeroboam import Jeroboam
+from tests.app_test.app import create_test_app
 
-from .app_test.application_factory import create_test_app
 
-
-@pytest.fixture
+@pytest.fixture(scope="session")
 def app() -> Jeroboam:
     """The Jeroboam Test App."""
     return create_test_app()
+
+
+@pytest.fixture(scope="function")
+def one_shot_app() -> Jeroboam:
+    """The Jeroboam Test App."""
+    return create_test_app()
+
+
+@pytest.fixture(scope="function")
+def one_shot_client(one_shot_app: Jeroboam) -> FlaskClient:
+    """The Jeroboam Test App."""
+    return one_shot_app.test_client()
 
 
 @pytest.fixture
@@ -27,6 +39,6 @@ def request_context(app: Jeroboam):
 
 
 @pytest.fixture
-def client(app: Jeroboam):
+def client(app: Jeroboam) -> FlaskClient:
     """Test Client from the Test App."""
     return app.test_client()

@@ -4,16 +4,16 @@ The corresponding test can be found in tests/test_outbound.py
 """
 from typing import List
 
-from flask_jeroboam import JeroboamBlueprint
+from flask_jeroboam import Blueprint
 from flask_jeroboam.responses import JSONResponse
-from flask_jeroboam.view_params.functions import Body
+from flask_jeroboam.view_arguments.functions import Body
 from tests.app_test.models.outbound import MyDataClass
 from tests.app_test.models.outbound import SimpleModelOut
 from tests.app_test.models.outbound import UserIn
 from tests.app_test.models.outbound import UserOut
 
 
-router = JeroboamBlueprint("outbound_router", __name__)
+router = Blueprint("outbound_router", __name__, tags=["Outbound"])
 
 valid_outbound_data = {"total_count": 10, "items": ["Apple", "Banana"]}
 

@@ -10,7 +10,11 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import ForwardRef
+from typing import List
+from typing import Optional
+from typing import Type
 
+from pydantic import BaseConfig
 from pydantic import BaseModel
 from pydantic.fields import SHAPE_FROZENSET
 from pydantic.fields import SHAPE_LIST
@@ -19,12 +23,13 @@ from pydantic.fields import SHAPE_SET
 from pydantic.fields import SHAPE_SINGLETON
 from pydantic.fields import SHAPE_TUPLE
 from pydantic.fields import SHAPE_TUPLE_ELLIPSIS
+from pydantic.fields import FieldInfo
 from pydantic.fields import ModelField
 from pydantic.typing import evaluate_forwardref
 from pydantic.utils import lenient_issubclass
 
-from flask_jeroboam.view_params import ParamLocation
-from flask_jeroboam.view_params import ViewParameter
+from flask_jeroboam.view_arguments.arguments import ArgumentLocation
+from flask_jeroboam.view_arguments.arguments import ViewArgument
 
 
 sequence_shapes = {
@@ -36,7 +41,7 @@ sequence_shapes = {
     SHAPE_TUPLE_ELLIPSIS,
 }
 sequence_types = (list, set, tuple)
-body_locations = {ParamLocation.body, ParamLocation.form, ParamLocation.file}
+body_locations = {ArgumentLocation.body, ArgumentLocation.form, ArgumentLocation.file}
 
 
 def get_typed_signature(call: Callable[..., Any]) -> inspect.Signature:
@@ -83,7 +88,7 @@ def is_scalar_field(field: ModelField) -> bool:
         or lenient_issubclass(field.type_, BaseModel)
         or lenient_issubclass(field.type_, sequence_types + (dict,))
         or dataclasses.is_dataclass(field.type_)
-        or isinstance(field.field_info, ViewParameter)
+        or isinstance(field.field_info, ViewArgument)
         or getattr(field.field_info, "location", None) in body_locations
         else not field.sub_fields  # pragma: no cover
         or all(is_scalar_field(f) for f in field.sub_fields)
@@ -112,3 +117,79 @@ def _rename_query_params_keys(self, inbound_dict: dict, pattern: str) -> dict:
             inbound_dict[new_key] = new_array
             del inbound_dict[old_key]
     return inbound_dict
+
+
+def create_field(
+    *,
+    name: str,
+    type_: Type[BaseModel],
+    required: bool,
+    alias: Optional[str] = None,
+    field_info: Optional[FieldInfo] = None,
+    class_validators: dict,
+    model_config: Optional[Type[BaseConfig]] = None,
+) -> Optional[ModelField]:
+    """Create a pydantic ModelField from a model class.
+
+    Removed the partial-trcatch trick from FastAPI's original implementation.
+    I didn't find a way to reproduce.
+    """
+    class_validators = class_validators or {}
+    field_info = field_info or FieldInfo()
+    model_config = model_config or getattr(type_, "__config__", BaseConfig)
+
+    return ModelField(
+        name=name,
+        type_=type_,
+        class_validators=class_validators,
+        default=None,
+        model_config=model_config,  # type: ignore
+        alias=alias or name,
+        required=required,
+        field_info=field_info,
+    )
+
+
+def _throw_away_falthy_values(
+    sparse_dict: Dict[str, Any], keep: Optional[set] = None
+) -> Dict[str, Any]:
+    keep = keep or set()
+    return {key: value for key, value in sparse_dict.items() if value or key in keep}
+
+
+def _memoized_update_if_value(key: str, new_value: Any, orginal: Dict[str, Any]):
+    if new_value:
+        orginal.setdefault(key, {}).update(new_value)
+
+
+def _append_truthy(array: list, value: Any) -> None:
+    """Append a value to an array if it's truthy.
+
+    Mutates the orginal array.
+    """
+    if value:
+        array.append(value)
+
+
+def _set_nested_defaults(
+    original_dict: dict, keys: List[str], last_key: str, new_value: Any
+) -> None:
+    """Create a nested dictionary from a list of keys.
+
+    _set_nested_defaults(
+        original_dict=operation,
+        keys=["responses", status_code, "content", route_response_media_type],
+        last_key="schema",
+        new_value={"$ref": "#/components/schemas/ResponseModel"},
+    )
+    is equivalent to:
+    (operation.setdefault("responses", {})
+     .setdefault(status_code, {})
+     .setdefault("content", {})
+     .setdefault(route_response_media_type, {})
+    )["schema"] = {"$ref": "#/components/schemas/ResponseModel"}
+    """
+    for key in keys:
+        original_dict.setdefault(key, {})
+        original_dict = original_dict[key]
+    original_dict[last_key] = new_value

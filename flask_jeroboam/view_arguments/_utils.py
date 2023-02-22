@@ -4,10 +4,10 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from flask import current_app
 from werkzeug.datastructures import MultiDict
 
-from flask_jeroboam.utils import is_sequence_field
+from flask_jeroboam._utils import is_sequence_field
+from flask_jeroboam.jeroboam import current_app
 
 
 def _extract_scalar(
@@ -35,7 +35,7 @@ def _extract_sequence_with_key_transformer(
     *, source: MultiDict, name: Optional[str], alias: Optional[str], **_kwargs
 ):
     """Apply the key transformer to the source."""
-    transformed_source = current_app.query_string_key_transformer(  # type: ignore
+    transformed_source = current_app.query_string_key_transformer(
         current_app, source.to_dict()
     )
     return _extract_scalar(source=transformed_source, name=name, alias=alias)
@@ -68,16 +68,16 @@ def _extract_subfields(
     **_kwargs,
 ) -> Dict:
     """Extract a Sequence from subfields."""
-    values = {}
     has_key_transformer = (
         getattr(current_app, "query_string_key_transformer", False) is not None
     )
-    for field_name, subfield in fields.items():
-        values[field_name] = _undirected_extraction(
+    return {
+        field_name: _undirected_extraction(
             field=subfield,
             source=source,
             name=field_name,
             alias=subfield.alias,
             has_key_transformer=has_key_transformer,
         )
-    return values
+        for field_name, subfield in fields.items()
+    }
