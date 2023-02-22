@@ -8,12 +8,11 @@ from typing import TypeVar
 
 from typing_extensions import ParamSpec
 
+from flask_jeroboam._inboundhandler import InboundHandler
+from flask_jeroboam._outboundhandler import OutboundHandler
+from flask_jeroboam.responses import JSONResponse
+from flask_jeroboam.typing import JeroboamRouteCallable
 from flask_jeroboam.view_params.solved import SolvedParameter
-
-from ._inboundhandler import InboundHandler
-from ._outboundhandler import OutboundHandler
-from .responses import JSONResponse
-from .typing import JeroboamRouteCallable
 
 
 P = ParamSpec("P")

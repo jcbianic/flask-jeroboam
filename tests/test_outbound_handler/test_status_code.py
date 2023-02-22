@@ -9,8 +9,7 @@ import pytest
 from flask.testing import FlaskClient
 
 from flask_jeroboam.jeroboam import Jeroboam
-
-from ..app_test.models.outbound import SimpleModelOut
+from tests.app_test.models.outbound import SimpleModelOut
 
 
 valid_outbound_data = {"items": ["Apple", "Banana"], "total_count": 10}

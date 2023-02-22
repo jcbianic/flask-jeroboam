@@ -21,20 +21,19 @@ from pydantic.fields import Undefined
 from pydantic.schema import get_annotation_from_field_info
 from typing_extensions import ParamSpec
 
+from flask_jeroboam._utils import create_field
+from flask_jeroboam._utils import get_typed_signature
 from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.typing import JeroboamResponseReturnValue
 from flask_jeroboam.typing import JeroboamRouteCallable
-from flask_jeroboam.view_params import ParamLocation
-from flask_jeroboam.view_params import SolvedParameter
-from flask_jeroboam.view_params import ViewParameter
 from flask_jeroboam.view_params.functions import Body
 from flask_jeroboam.view_params.functions import File
 from flask_jeroboam.view_params.functions import Form
 from flask_jeroboam.view_params.parameters import BodyParameter
+from flask_jeroboam.view_params.parameters import ParamLocation
+from flask_jeroboam.view_params.parameters import ViewParameter
 from flask_jeroboam.view_params.parameters import get_parameter_class
-
-from ._utils import create_field
-from ._utils import get_typed_signature
+from flask_jeroboam.view_params.solved import SolvedParameter
 
 
 F = t.TypeVar("F", bound=t.Callable[..., t.Any])

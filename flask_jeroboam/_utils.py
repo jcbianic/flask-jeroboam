@@ -28,8 +28,8 @@ from pydantic.fields import ModelField
 from pydantic.typing import evaluate_forwardref
 from pydantic.utils import lenient_issubclass
 
-from flask_jeroboam.view_params import ParamLocation
-from flask_jeroboam.view_params import ViewParameter
+from flask_jeroboam.view_params.parameters import ParamLocation
+from flask_jeroboam.view_params.parameters import ViewParameter
 
 
 sequence_shapes = {

@@ -22,12 +22,11 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.datastructures import MultiDict
 
 from flask_jeroboam._utils import is_sequence_field
-
-from .helpers import _extract_scalar
-from .helpers import _extract_sequence
-from .helpers import _extract_subfields
-from .parameters import ParamLocation
-from .parameters import ViewParameter
+from flask_jeroboam.view_params.helpers import _extract_scalar
+from flask_jeroboam.view_params.helpers import _extract_sequence
+from flask_jeroboam.view_params.helpers import _extract_subfields
+from flask_jeroboam.view_params.parameters import ParamLocation
+from flask_jeroboam.view_params.parameters import ViewParameter
 
 
 empty_field_info = FieldInfo()

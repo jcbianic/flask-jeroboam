@@ -9,17 +9,16 @@ from flask_jeroboam.exceptions import ResponseValidationError
 from flask_jeroboam.exceptions import RessourceNotFound
 from flask_jeroboam.exceptions import ServerError
 from flask_jeroboam.openapi.blueprint import router as openapi_router
-
-from .apps.body import router as body_router
-from .apps.cookies import router as cookies_router
-from .apps.file import router as file_router
-from .apps.form import router as form_router
-from .apps.header import router as header_router
-from .apps.misc import router as misc_router
-from .apps.openapi import router as openapi_test_router
-from .apps.outbound import router as outbound_router
-from .apps.path import router as path_router
-from .apps.query import router as query_router
+from tests.app_test.apps.body import router as body_router
+from tests.app_test.apps.cookies import router as cookies_router
+from tests.app_test.apps.file import router as file_router
+from tests.app_test.apps.form import router as form_router
+from tests.app_test.apps.header import router as header_router
+from tests.app_test.apps.misc import router as misc_router
+from tests.app_test.apps.openapi import router as openapi_test_router
+from tests.app_test.apps.outbound import router as outbound_router
+from tests.app_test.apps.path import router as path_router
+from tests.app_test.apps.query import router as query_router
 
 
 def create_test_app():

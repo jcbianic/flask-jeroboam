@@ -3,8 +3,7 @@ import pytest
 from flask.testing import FlaskClient
 
 from flask_jeroboam import Jeroboam
-
-from .app_test.app import create_test_app
+from tests.app_test.app import create_test_app
 
 
 @pytest.fixture(scope="session")

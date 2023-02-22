@@ -9,16 +9,15 @@ from typing import Set
 from pydantic.schema import get_model_name_map
 
 from flask_jeroboam._utils import _memoized_update_if_value
+from flask_jeroboam.openapi._utils import _build_openapi_path_item
+from flask_jeroboam.openapi._utils import _get_flat_models_from_jeroboam_views
+from flask_jeroboam.openapi._utils import _get_model_definitions
 from flask_jeroboam.openapi.models.openapi import Components
 from flask_jeroboam.openapi.models.openapi import Info
+from flask_jeroboam.openapi.models.openapi import OpenAPI
 from flask_jeroboam.openapi.models.openapi import Tag
 from flask_jeroboam.rule import JeroboamRule
 from flask_jeroboam.view import JeroboamView
-
-from ._utils import _build_openapi_path_item
-from ._utils import _get_flat_models_from_jeroboam_views
-from ._utils import _get_model_definitions
-from .models.openapi import OpenAPI
 
 
 if TYPE_CHECKING:  # pragma: no cover

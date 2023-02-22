@@ -4,10 +4,9 @@ from flask import render_template
 from flask_jeroboam import current_app
 from flask_jeroboam.jeroboam import Blueprint
 from flask_jeroboam.openapi.models.openapi import OpenAPI
+from flask_jeroboam.openapi.models.ui_context import SwaggerContextOut
 from flask_jeroboam.responses import HTMLResponse
 from flask_jeroboam.responses import JSONResponse
-
-from .models.ui_context import SwaggerContextOut
 
 
 router = Blueprint(
