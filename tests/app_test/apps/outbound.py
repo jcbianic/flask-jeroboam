@@ -6,7 +6,7 @@ from typing import List
 
 from flask_jeroboam import Blueprint
 from flask_jeroboam.responses import JSONResponse
-from flask_jeroboam.view_params.functions import Body
+from flask_jeroboam.view_arguments.functions import Body
 from tests.app_test.models.outbound import MyDataClass
 from tests.app_test.models.outbound import SimpleModelOut
 from tests.app_test.models.outbound import UserIn

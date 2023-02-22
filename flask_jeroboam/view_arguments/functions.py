@@ -13,13 +13,13 @@ Credits: This module is a fork of FlaskAPI params_function module.
 
 from typing import Any
 
-from flask_jeroboam.view_params.parameters import BodyParameter
-from flask_jeroboam.view_params.parameters import CookieParameter
-from flask_jeroboam.view_params.parameters import FileParameter
-from flask_jeroboam.view_params.parameters import FormParameter
-from flask_jeroboam.view_params.parameters import HeaderParameter
-from flask_jeroboam.view_params.parameters import PathParameter
-from flask_jeroboam.view_params.parameters import QueryParameter
+from flask_jeroboam.view_arguments.arguments import BodyArgument
+from flask_jeroboam.view_arguments.arguments import CookieArgument
+from flask_jeroboam.view_arguments.arguments import FileArgument
+from flask_jeroboam.view_arguments.arguments import FormArgument
+from flask_jeroboam.view_arguments.arguments import HeaderArgument
+from flask_jeroboam.view_arguments.arguments import PathArgument
+from flask_jeroboam.view_arguments.arguments import QueryArgument
 
 
 def Path(  # noqa:N802
@@ -27,7 +27,7 @@ def Path(  # noqa:N802
     **kwargs: Any,
 ) -> Any:
     """Declare A Path parameter."""
-    return PathParameter(
+    return PathArgument(
         *args,
         **kwargs,
     )
@@ -38,7 +38,7 @@ def Query(  # noqa:N802
     **kwargs: Any,
 ) -> Any:
     """Declare A Query parameter."""
-    return QueryParameter(
+    return QueryArgument(
         *args,
         **kwargs,
     )
@@ -49,7 +49,7 @@ def Header(  # noqa:N802
     **kwargs: Any,
 ) -> Any:
     """Declare A Header parameter."""
-    return HeaderParameter(
+    return HeaderArgument(
         *args,
         **kwargs,
     )
@@ -60,7 +60,7 @@ def Cookie(  # noqa:N802
     **kwargs: Any,
 ) -> Any:
     """Declare A Cookie parameter."""
-    return CookieParameter(
+    return CookieArgument(
         *args,
         **kwargs,
     )
@@ -71,7 +71,7 @@ def Body(  # noqa:N802
     **kwargs: Any,
 ) -> Any:
     """Declare A Body parameter."""
-    return BodyParameter(
+    return BodyArgument(
         *args,
         **kwargs,
     )
@@ -82,7 +82,7 @@ def Form(  # noqa: N802
     **kwargs: Any,
 ) -> Any:
     """Declare A Form parameter."""
-    return FormParameter(
+    return FormArgument(
         *args,
         **kwargs,
     )
@@ -93,7 +93,7 @@ def File(  # noqa: N802
     **kwargs: Any,
 ) -> Any:
     """Declare A File parameter."""
-    return FileParameter(
+    return FileArgument(
         *args,
         **kwargs,
     )

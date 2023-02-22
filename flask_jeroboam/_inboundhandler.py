@@ -26,14 +26,14 @@ from flask_jeroboam._utils import get_typed_signature
 from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.typing import JeroboamResponseReturnValue
 from flask_jeroboam.typing import JeroboamRouteCallable
-from flask_jeroboam.view_params.functions import Body
-from flask_jeroboam.view_params.functions import File
-from flask_jeroboam.view_params.functions import Form
-from flask_jeroboam.view_params.parameters import BodyParameter
-from flask_jeroboam.view_params.parameters import ParamLocation
-from flask_jeroboam.view_params.parameters import ViewParameter
-from flask_jeroboam.view_params.parameters import get_parameter_class
-from flask_jeroboam.view_params.solved import SolvedParameter
+from flask_jeroboam.view_arguments.arguments import ArgumentLocation
+from flask_jeroboam.view_arguments.arguments import BodyArgument
+from flask_jeroboam.view_arguments.arguments import ViewArgument
+from flask_jeroboam.view_arguments.arguments import get_argument_class
+from flask_jeroboam.view_arguments.functions import Body
+from flask_jeroboam.view_arguments.functions import File
+from flask_jeroboam.view_arguments.functions import Form
+from flask_jeroboam.view_arguments.solved import SolvedArgument
 
 
 F = t.TypeVar("F", bound=t.Callable[..., t.Any])
@@ -67,15 +67,15 @@ class InboundHandler:
         )
         self.rule = rule
         self.path_param_names = set(re.findall(r"<(?:\w*:)?(\w*?)>", rule))
-        self.query_params: List[SolvedParameter] = []
-        self.path_params: List[SolvedParameter] = []
-        self.header_params: List[SolvedParameter] = []
-        self.cookie_params: List[SolvedParameter] = []
-        self.body_params: List[SolvedParameter] = []
-        self.form_params: List[SolvedParameter] = []
-        self.file_params: List[SolvedParameter] = []
-        self.other_params: List[SolvedParameter] = []
-        self.locations_to_visit: Set[ParamLocation] = set()
+        self.query_params: List[SolvedArgument] = []
+        self.path_params: List[SolvedArgument] = []
+        self.header_params: List[SolvedArgument] = []
+        self.cookie_params: List[SolvedArgument] = []
+        self.body_params: List[SolvedArgument] = []
+        self.form_params: List[SolvedArgument] = []
+        self.file_params: List[SolvedArgument] = []
+        self.other_params: List[SolvedArgument] = []
+        self.locations_to_visit: Set[ArgumentLocation] = set()
         self._solve_params(view_func)
         self._check_compliance()
         self._body_field: Optional[ModelField] = None
@@ -83,17 +83,17 @@ class InboundHandler:
     @staticmethod
     def _solve_default_params_location(
         main_http_verb: str,
-    ) -> ParamLocation:
+    ) -> ArgumentLocation:
         """Return the default FieldInfo for the InboundHandler."""
         if main_http_verb in {"POST", "PUT"}:
-            return ParamLocation.body
+            return ArgumentLocation.body
         elif main_http_verb == "GET":
-            return ParamLocation.query
+            return ArgumentLocation.query
         else:
-            return ParamLocation.path
+            return ArgumentLocation.path
 
     @property
-    def parameters(self) -> List[SolvedParameter]:
+    def parameters(self) -> List[SolvedArgument]:
         """Return all Parameters of the InboundHandler."""
         return (
             self.query_params
@@ -103,7 +103,7 @@ class InboundHandler:
         )
 
     @property
-    def body_arguments(self) -> List[SolvedParameter]:
+    def body_arguments(self) -> List[SolvedArgument]:
         """Return all Body Arguments of the InboundHandler."""
         return self.body_params + self.form_params + self.file_params
 
@@ -134,7 +134,7 @@ class InboundHandler:
             body_param_media_types = [
                 f.field_info.media_type
                 for f in self.body_arguments
-                if isinstance(f.field_info, BodyParameter)
+                if isinstance(f.field_info, BodyArgument)
             ]
             if len(set(body_param_media_types)) == 1:
                 body_field_info_kwargs["media_type"] = body_param_media_types[0]
@@ -208,9 +208,9 @@ class InboundHandler:
         self,
         param_name: str,
         param: inspect.Parameter,
-        force_location: Optional[ParamLocation] = None,
+        force_location: Optional[ArgumentLocation] = None,
         ignore_default: bool = False,
-    ) -> SolvedParameter:
+    ) -> SolvedArgument:
         """Analyse the param and its annotation to solve its configiration.
 
         At the end of this process, we want to know the following things:
@@ -222,10 +222,10 @@ class InboundHandler:
         """
         solved_location = self._solve_location(param_name, param, force_location)
         # Get the ViewParam
-        if isinstance(param.default, ViewParameter):
+        if isinstance(param.default, ViewArgument):
             view_param = param.default
         else:
-            param_class = get_parameter_class(solved_location)
+            param_class = get_argument_class(solved_location)
             view_param = param_class(param.default)
 
         default_value = self._solve_default_value(param, ignore_default)
@@ -236,7 +236,7 @@ class InboundHandler:
         annotation = param.annotation if param.annotation != param.empty else Any
         annotation = get_annotation_from_field_info(annotation, view_param, param_name)
 
-        return SolvedParameter.specialize(
+        return SolvedArgument.specialize(
             name=param_name,
             type_=annotation,
             required=required,
@@ -247,10 +247,10 @@ class InboundHandler:
         self,
         param_name: str,
         param: inspect.Parameter,
-        force_location: Optional[ParamLocation] = None,
-    ) -> ParamLocation:
+        force_location: Optional[ArgumentLocation] = None,
+    ) -> ArgumentLocation:
         if param_name in self.path_param_names:
-            return ParamLocation.path
+            return ArgumentLocation.path
         else:
             return getattr(
                 param.default, "location", force_location or self.default_param_location
@@ -266,7 +266,7 @@ class InboundHandler:
             default_value = Undefined
         return default_value
 
-    def _register_view_parameter(self, solved_parameter: SolvedParameter) -> None:
+    def _register_view_parameter(self, solved_parameter: SolvedArgument) -> None:
         """Registering the Solved View parameters for the View Function.
 
         The registration will put the params in the right list
@@ -275,13 +275,13 @@ class InboundHandler:
         assert solved_parameter.location is not None  # noqa: S101
         self.locations_to_visit.add(solved_parameter.location)
         {
-            ParamLocation.query: self.query_params,
-            ParamLocation.path: self.path_params,
-            ParamLocation.header: self.header_params,
-            ParamLocation.body: self.body_params,
-            ParamLocation.form: self.form_params,
-            ParamLocation.cookie: self.cookie_params,
-            ParamLocation.file: self.file_params,
+            ArgumentLocation.query: self.query_params,
+            ArgumentLocation.path: self.path_params,
+            ArgumentLocation.header: self.header_params,
+            ArgumentLocation.body: self.body_params,
+            ArgumentLocation.form: self.form_params,
+            ArgumentLocation.cookie: self.cookie_params,
+            ArgumentLocation.file: self.file_params,
         }.get(solved_parameter.location, self.other_params).append(solved_parameter)
 
     def _parse_and_validate_inbound_data(

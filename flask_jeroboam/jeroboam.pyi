@@ -23,6 +23,7 @@ from flask_jeroboam.typing import JeroboamRouteCallable
 
 R = TypeVar("R", bound=Any)
 _sentinel = object()
+current_app: Jeroboam
 
 class JeroboamScaffoldOverRide:
     def route(
@@ -71,5 +72,3 @@ class Blueprint(JeroboamScaffoldOverRide, FlaskBlueprint):  # type:ignore
         tags: Optional[List[str]] = None,
         include_in_openapi: bool = True,
     ) -> None: ...
-
-def current_app() -> Jeroboam: ...

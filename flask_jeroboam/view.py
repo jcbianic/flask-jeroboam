@@ -12,7 +12,7 @@ from flask_jeroboam._inboundhandler import InboundHandler
 from flask_jeroboam._outboundhandler import OutboundHandler
 from flask_jeroboam.responses import JSONResponse
 from flask_jeroboam.typing import JeroboamRouteCallable
-from flask_jeroboam.view_params.solved import SolvedParameter
+from flask_jeroboam.view_arguments.solved import SolvedArgument
 
 
 P = ParamSpec("P")
@@ -85,7 +85,7 @@ class JeroboamView:
         return self.main_http_verb.lower()
 
     @property
-    def parameters(self) -> List[SolvedParameter]:
+    def parameters(self) -> List[SolvedArgument]:
         """Return the main HTTP verb of the Endpoint."""
         return self.inbound_handler.parameters
 

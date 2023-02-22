@@ -22,17 +22,17 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.datastructures import MultiDict
 
 from flask_jeroboam._utils import is_sequence_field
-from flask_jeroboam.view_params.helpers import _extract_scalar
-from flask_jeroboam.view_params.helpers import _extract_sequence
-from flask_jeroboam.view_params.helpers import _extract_subfields
-from flask_jeroboam.view_params.parameters import ParamLocation
-from flask_jeroboam.view_params.parameters import ViewParameter
+from flask_jeroboam.view_arguments._utils import _extract_scalar
+from flask_jeroboam.view_arguments._utils import _extract_sequence
+from flask_jeroboam.view_arguments._utils import _extract_subfields
+from flask_jeroboam.view_arguments.arguments import ArgumentLocation
+from flask_jeroboam.view_arguments.arguments import ViewArgument
 
 
 empty_field_info = FieldInfo()
 
 
-class SolvedParameter(ModelField):
+class SolvedArgument(ModelField):
     """Generic Solved Parameter."""
 
     def __init__(
@@ -41,17 +41,17 @@ class SolvedParameter(ModelField):
         name: str,
         type_: type,
         required: bool = False,
-        view_param: Optional[ViewParameter] = None,
+        view_param: Optional[ViewArgument] = None,
         class_validators: Optional[Dict] = None,
         model_config: Type[BaseConfig] = BaseConfig,
         field_info: FieldInfo = empty_field_info,
         **kwargs,
     ):
         self.name = name
-        self.location: ParamLocation = getattr(
-            view_param, "location", ParamLocation.unknown
+        self.location: ArgumentLocation = getattr(
+            view_param, "location", ArgumentLocation.unknown
         )
-        if self.location == ParamLocation.file:
+        if self.location == ArgumentLocation.file:
             model_config.arbitrary_types_allowed = True
         self.required = required
         self.embed = getattr(view_param, "embed", None)
@@ -80,22 +80,22 @@ class SolvedParameter(ModelField):
         name: str,
         type_: type,
         required: bool = False,
-        view_param: Optional[ViewParameter] = None,
+        view_param: Optional[ViewArgument] = None,
         class_validators: Optional[Dict] = None,
         model_config: Type[BaseConfig] = BaseConfig,
         field_info: FieldInfo = empty_field_info,
         **kwargs,
     ):
         """Specialize the Current class to each location."""
-        location = getattr(view_param, "location", ParamLocation.unknown)
+        location = getattr(view_param, "location", ArgumentLocation.unknown)
         target_class = {
-            ParamLocation.query: SolvedQueryParameter,
-            ParamLocation.header: SolvedHeaderParameter,
-            ParamLocation.path: SolvedPathParameter,
-            ParamLocation.cookie: SolvedCookieParameter,
-            ParamLocation.body: SolvedBodyParameter,
-            ParamLocation.file: SolvedFileParameter,
-            ParamLocation.form: SolvedFormParameter,
+            ArgumentLocation.query: SolvedQueryArgument,
+            ArgumentLocation.header: SolvedHeaderArgument,
+            ArgumentLocation.path: SolvedPathArgument,
+            ArgumentLocation.cookie: SolvedCookieArgument,
+            ArgumentLocation.body: SolvedBodyArgument,
+            ArgumentLocation.file: SolvedFileArgument,
+            ArgumentLocation.form: SolvedFormArgument,
         }.get(location, cls)
 
         return target_class(
@@ -138,7 +138,7 @@ class SolvedParameter(ModelField):
         raise NotImplementedError
 
 
-class SolvedPathParameter(SolvedParameter):
+class SolvedPathArgument(SolvedArgument):
     """Solved Path parameter."""
 
     def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
@@ -146,7 +146,7 @@ class SolvedPathParameter(SolvedParameter):
         return _extract_scalar(source=source, alias=self.alias, name=self.name)
 
 
-class SolvedHeaderParameter(SolvedParameter):
+class SolvedHeaderArgument(SolvedArgument):
     """Solved Header parameter."""
 
     def __init__(self, *args, **kwargs):
@@ -160,7 +160,7 @@ class SolvedHeaderParameter(SolvedParameter):
         return _extract_scalar(source=source, alias=self.alias, name=self.name)
 
 
-class SolvedCookieParameter(SolvedParameter):
+class SolvedCookieArgument(SolvedArgument):
     """Solved Cookie parameter."""
 
     def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
@@ -168,7 +168,7 @@ class SolvedCookieParameter(SolvedParameter):
         return _extract_scalar(source=source, alias=self.alias, name=self.name)
 
 
-class SolvedQueryParameter(SolvedParameter):
+class SolvedQueryArgument(SolvedArgument):
     """Solved Query parameter."""
 
     def __init__(self, *args, **kwargs):
@@ -190,7 +190,7 @@ class SolvedQueryParameter(SolvedParameter):
         )
 
 
-class SolvedBodyParameter(SolvedParameter):
+class SolvedBodyArgument(SolvedArgument):
     """Solved Scalar Query parameter."""
 
     def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
@@ -198,7 +198,7 @@ class SolvedBodyParameter(SolvedParameter):
         return source.get(self.alias or self.name) if self.embed else source
 
 
-class SolvedFileParameter(SolvedParameter):
+class SolvedFileArgument(SolvedArgument):
     """Solved File Parameter."""
 
     def _get_values(
@@ -208,7 +208,7 @@ class SolvedFileParameter(SolvedParameter):
         return source.get(self.alias or self.name) if self.embed else source
 
 
-class SolvedFormParameter(SolvedParameter):
+class SolvedFormArgument(SolvedArgument):
     """Solved Form parameter."""
 
     def _get_values(self) -> Union[dict, Optional[str], List[Any]]:

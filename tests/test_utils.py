@@ -10,7 +10,7 @@ from flask_jeroboam import Body
 from flask_jeroboam._utils import _rename_query_params_keys
 from flask_jeroboam.datastructures import UploadFile
 from flask_jeroboam.jeroboam import Jeroboam
-from flask_jeroboam.view_params.solved import SolvedParameter
+from flask_jeroboam.view_arguments.solved import SolvedArgument
 from tests.app_test.models.inbound import ModelWithListIn
 from tests.app_test.models.outbound import ModelWithListOut
 
@@ -79,16 +79,14 @@ def test_pascal_case_in_and_out_snake_case_without_transformer(
 def test_view_param_str_repr():
     """Test an internal function of ViewParameter."""
     param = Body("MyDefautValue")
-    assert param.__repr__() == "BodyParameter(MyDefautValue)"
+    assert param.__repr__() == "BodyArgument(MyDefautValue)"
 
 
 def test_solved_param_erroring():
     """Test an internal function of SolvedParameter."""
     param = Body("MyDefautValue")
     param.location = None
-    solved_param = SolvedParameter(
-        name="FaultySolvedParam", type_=str, view_param=param
-    )
+    solved_param = SolvedArgument(name="FaultySolvedParam", type_=str, view_param=param)
     with pytest.raises(NotImplementedError):
         solved_param._get_values()
 

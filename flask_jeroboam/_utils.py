@@ -28,8 +28,8 @@ from pydantic.fields import ModelField
 from pydantic.typing import evaluate_forwardref
 from pydantic.utils import lenient_issubclass
 
-from flask_jeroboam.view_params.parameters import ParamLocation
-from flask_jeroboam.view_params.parameters import ViewParameter
+from flask_jeroboam.view_arguments.arguments import ArgumentLocation
+from flask_jeroboam.view_arguments.arguments import ViewArgument
 
 
 sequence_shapes = {
@@ -41,7 +41,7 @@ sequence_shapes = {
     SHAPE_TUPLE_ELLIPSIS,
 }
 sequence_types = (list, set, tuple)
-body_locations = {ParamLocation.body, ParamLocation.form, ParamLocation.file}
+body_locations = {ArgumentLocation.body, ArgumentLocation.form, ArgumentLocation.file}
 
 
 def get_typed_signature(call: Callable[..., Any]) -> inspect.Signature:
@@ -88,7 +88,7 @@ def is_scalar_field(field: ModelField) -> bool:
         or lenient_issubclass(field.type_, BaseModel)
         or lenient_issubclass(field.type_, sequence_types + (dict,))
         or dataclasses.is_dataclass(field.type_)
-        or isinstance(field.field_info, ViewParameter)
+        or isinstance(field.field_info, ViewArgument)
         or getattr(field.field_info, "location", None) in body_locations
         else not field.sub_fields  # pragma: no cover
         or all(is_scalar_field(f) for f in field.sub_fields)

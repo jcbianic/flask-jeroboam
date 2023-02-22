@@ -5,7 +5,7 @@ from flask.testing import FlaskClient
 
 from flask_jeroboam import Jeroboam
 from flask_jeroboam.models import InboundModel
-from flask_jeroboam.view_params.functions import Body
+from flask_jeroboam.view_arguments.functions import Body
 
 
 response_not_valid_int = {

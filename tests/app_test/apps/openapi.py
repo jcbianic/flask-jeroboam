@@ -3,7 +3,7 @@
 The corresponding test can be found in tests/test_openapi/*
 """
 from flask_jeroboam import Blueprint
-from flask_jeroboam.view_params.functions import Query
+from flask_jeroboam.view_arguments.functions import Query
 
 
 router = Blueprint("openapi_args_router", __name__, tags=["OpenApi"])

@@ -30,9 +30,9 @@ from flask_jeroboam._utils import _set_nested_defaults
 from flask_jeroboam._utils import _throw_away_falthy_values
 from flask_jeroboam.rule import JeroboamRule
 from flask_jeroboam.view import JeroboamView
-from flask_jeroboam.view_params.parameters import BodyParameter
-from flask_jeroboam.view_params.parameters import NonBodyParameter
-from flask_jeroboam.view_params.solved import SolvedParameter
+from flask_jeroboam.view_arguments.arguments import BodyArgument
+from flask_jeroboam.view_arguments.arguments import ParameterArgument
+from flask_jeroboam.view_arguments.solved import SolvedArgument
 
 
 def _get_openapi_operation_parameters(
@@ -43,7 +43,7 @@ def _get_openapi_operation_parameters(
     parameters = []
     for param in all_route_params:
         field_info = param.field_info
-        field_info = cast(NonBodyParameter, field_info)
+        field_info = cast(ParameterArgument, field_info)
         if getattr(param, "include_in_schema", True) is False:
             continue
         parameter = _throw_away_falthy_values(
@@ -96,7 +96,7 @@ def _get_openapi_operation_request_body(
     body_schema, _, _ = field_schema(
         body_field, model_name_map=model_name_map, ref_prefix=REF_PREFIX
     )
-    field_info = cast(BodyParameter, body_field.field_info)
+    field_info = cast(BodyArgument, body_field.field_info)
     request_media_type = field_info.media_type
     request_body_oai: Dict[str, Any] = {}
     if required := body_field.required:
@@ -236,7 +236,7 @@ def _get_model_definitions(
 def _get_flat_models_from_jeroboam_views(
     jeroboam_views: List[Optional[JeroboamView]], rules: List[JeroboamRule]
 ):
-    params: List[Union[ModelField, SolvedParameter]] = []
+    params: List[Union[ModelField, SolvedArgument]] = []
     for jeroboam_view, rule in zip(jeroboam_views, rules):
         if getattr(jeroboam_view, "include_in_openapi", False) is False:
             continue
