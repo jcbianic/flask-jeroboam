@@ -22,6 +22,8 @@ class JeroboamConfig(BaseSettings):
     JEROBOAM_SERVERS: Optional[List[Server]] = Field([])
     JEROBOAM_OPENAPI_URL: Optional[str] = Field(default="/docs")
 
+    JEROBOAM_REGISTER_ERROR_HANDLERS: Optional[bool] = Field(default=True)
+
     @classmethod
     def load(cls) -> "JeroboamConfig":
         """Load config."""

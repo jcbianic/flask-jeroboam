@@ -14,6 +14,7 @@ from flask import Flask
 from typing_extensions import TypeVar
 
 from flask_jeroboam._config import JeroboamConfig
+from flask_jeroboam.exceptions import register_error_handlers
 from flask_jeroboam.openapi.blueprint import register_open_api_blueprint
 from flask_jeroboam.openapi.builder import build_openapi
 from flask_jeroboam.openapi.models.openapi import OpenAPI
@@ -46,6 +47,8 @@ class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
 
     def init_app(self, app: Optional["Jeroboam"] = None) -> None:
         """Setup is performed after app has received all its configuration."""
+        if self.config["JEROBOAM_REGISTER_ERROR_HANDLERS"]:
+            register_error_handlers(self)  # type: ignore
         if self.config["JEROBOAM_REGISTER_OPENAPI"]:
             register_open_api_blueprint(self)  # type: ignore
 
