@@ -38,8 +38,8 @@ This guide will walk you through how to use Flask-Jeroboam.
 
    installation
    getting_started
+   how_to/index
    tutorial/index
-   features/index
 
 API Reference
 -------------

@@ -1,4 +1,2 @@
 Configuration
 =============
-
-(coming soon)
