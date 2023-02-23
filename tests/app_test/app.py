@@ -65,4 +65,6 @@ def create_test_app():
     app.register_blueprint(openapi_router)
     app.register_blueprint(openapi_test_router)
 
+    app.init_app()
+
     return app

@@ -39,7 +39,7 @@ def build_openapi(
     openapi_version = app.config.get("JEROBOAM_OPENAPI_VERSION", "3.0.2")
     info = Info.parse_obj(
         {
-            "title": app.config.get("JEROBOAM_TITLE", app.name),
+            "title": app.config.get("JEROBOAM_TITLE", None) or app.name,
             "version": app.config.get("JEROBOAM_VERSION", "0.1.0"),
             "description": app.config.get("JEROBOAM_DESCRIPTION", None),
             "terms_of_service": app.config.get("JEROBOAM_TERMS_OF_SERVICE", None),
