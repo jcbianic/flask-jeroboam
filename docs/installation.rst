@@ -189,7 +189,7 @@ Let's make sure you set up everything correctly. First, create and open a simple
    if __name__ == "__main__":
       app.run()
 
-Running this file should start a server on `localhost:5000`. You can hit that endpoint with a tool like `curl` with ``curl http://localhost:5000/ping``
+Running this file should start a server on ``localhost:5000``. You can hit that endpoint with a tool like ``curl`` with ``curl http://localhost:5000/ping``
 or directly in your browser by going to ``http://localhost:5000/ping``. If either answer with "pong", you did well and are now ready to jump to our :doc:`Getting Started Guide </getting_started>`.
 
 .. note::

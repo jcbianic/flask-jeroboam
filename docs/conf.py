@@ -60,7 +60,9 @@ html_show_sourcelink = False
 
 # CopyButton -----------------------------------------------------------------
 
-# copybutton_only_copy_prompt_lines = True
+copybutton_prompt_text = r">>> |\.\.\. |\$ "
+copybutton_prompt_is_regexp = True
+copybutton_only_copy_prompt_lines = True
 
 
 # MISCELLANEOUS -------------------------------------------------------------
