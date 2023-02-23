@@ -7,7 +7,7 @@ from typing import Union
 from werkzeug.datastructures import MultiDict
 
 from flask_jeroboam._utils import is_sequence_field
-from flask_jeroboam.jeroboam import current_app
+from flask_jeroboam.wrapper import current_app
 
 
 def _extract_scalar(

@@ -16,18 +16,18 @@ from flask_jeroboam.openapi.models.openapi import Components
 from flask_jeroboam.openapi.models.openapi import Info
 from flask_jeroboam.openapi.models.openapi import OpenAPI
 from flask_jeroboam.openapi.models.openapi import Tag
-from flask_jeroboam.rule import JeroboamRule
-from flask_jeroboam.view import JeroboamView
 
 
 if TYPE_CHECKING:  # pragma: no cover
     from flask_jeroboam.jeroboam import Jeroboam
+    from flask_jeroboam.rule import JeroboamRule
+    from flask_jeroboam.view import JeroboamView
 
 
 def build_openapi(
     *,
     app: "Jeroboam",
-    rules: List[JeroboamRule],
+    rules: List["JeroboamRule"],
     tags: Optional[List[Dict[str, Any]]] = None,
 ) -> OpenAPI:
     """Generate an OpenAPI schema for the given routes.
@@ -55,7 +55,7 @@ def build_openapi(
     operation_ids: Set[str] = set()
 
     # Les jerobomas views, probablement à déléguer à l'app
-    jeroboam_views: List[Optional[JeroboamView]] = [
+    jeroboam_views: List[Optional["JeroboamView"]] = [
         getattr(app.view_functions[rule.endpoint], "__jeroboam_view__", None)
         for rule in rules
     ]

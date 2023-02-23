@@ -2,8 +2,8 @@
 
 The corresponding test can be found in tests/test_inbound/test_body
 """
-from flask_jeroboam import Blueprint
 from flask_jeroboam import Body
+from flask_jeroboam.blueprint import Blueprint
 from tests.app_test.models.inbound import SimpleModelIn
 
 
