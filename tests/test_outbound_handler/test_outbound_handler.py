@@ -244,7 +244,7 @@ def test_reponse_model_filters_outbound_data_even_when_subclassing(
     """
     response = client.post(
         "/sensitive_data",
-        json={"sensitive_data": {"username": "test", "password": "test"}},
+        json={"username": "test", "password": "test"},
     )
 
     assert response.json == {"username": "test"}

@@ -15,8 +15,6 @@ from typing import Union
 from pydantic import BaseModel
 from pydantic import create_model
 from pydantic.error_wrappers import ErrorWrapper
-from pydantic.fields import FieldInfo
-from pydantic.fields import ModelField
 from pydantic.fields import Undefined
 from pydantic.schema import get_annotation_from_field_info
 from typing_extensions import ParamSpec
@@ -78,7 +76,7 @@ class InboundHandler:
         self.locations_to_visit: Set[ArgumentLocation] = set()
         self._solve_params(view_func)
         self._check_compliance()
-        self._body_field: Optional[ModelField] = None
+        self._body_field: Optional[SolvedArgument] = None
 
     @staticmethod
     def _solve_default_params_location(
@@ -117,15 +115,19 @@ class InboundHandler:
         """Check if the InboundHandler has any Configured Parameters."""
         return len(self.body_arguments) > 0
 
-    def body_field(self, name: str) -> Optional[ModelField]:
+    def body_field(self, name: Optional[str] = None) -> Optional[SolvedArgument]:
         """The Body Arguments are combined into a single Body Field."""
-        if self._body_field is None and self.body_arguments:
+        if self._body_field is None and self.body_arguments and name:
             self._body_field = self._build_body_field(name)
         return self._body_field
 
-    def _solve_body_field_info(self) -> FieldInfo:
+    def _solve_body_field_info(self) -> BodyArgument:
+        """Return the Body FieldInfo for the InboundHandler.
+
+        Has unreachable branches. Single Arguments never reach this method.
+        """
         body_field_info_kwargs: Dict[str, Any] = {"default": None}
-        if len(self.file_params) > 0:
+        if len(self.file_params) > 0:  # pragma: no cover
             body_field_info: Callable = File
         elif len(self.form_params) > 0:
             body_field_info = Form
@@ -136,31 +138,50 @@ class InboundHandler:
                 for f in self.body_arguments
                 if isinstance(f.field_info, BodyArgument)
             ]
-            if len(set(body_param_media_types)) == 1:
+            if len(set(body_param_media_types)) == 1:  # pragma: no cover
                 body_field_info_kwargs["media_type"] = body_param_media_types[0]
         return body_field_info(**body_field_info_kwargs)
 
-    def _build_body_field(self, name: str) -> Optional[ModelField]:
+    def _build_body_field(self, name: str) -> Optional[SolvedArgument]:
+        """Build the Body Field from the Body Arguments.
+
+        TODO: refactor this method: inelegant.
+        TODO: warn if multiple locations are used.
+        TODO: embed should be set to True if multiple BaseModel are used.
+        embed should only be used to build the body field.
+        """
         first_param = self.body_arguments[0]
         field_info = first_param.field_info
-        embed = getattr(field_info, "embed", None)
         body_param_names_set = {param.name for param in self.body_arguments}
-        if len(body_param_names_set) == 1 and not embed:
+        if (
+            len(body_param_names_set) == 1
+            and not getattr(field_info, "embed", None) is None
+        ):
+            if not issubclass(first_param.type_, BaseModel):
+                first_param.embed = True
             return first_param
-        model_name = f"Body_{name}"
+        model_name = f"{name}_request_body_as_model"
         BodyModel: Type[BaseModel] = create_model(model_name)  # noqa: N806
+        any_embed = any(argument.embed for argument in self.body_arguments)
+        any_required = any(argument.required for argument in self.body_arguments)
         for argument in self.body_arguments:
-            argument.embed = any(argument.embed for argument in self.body_arguments)
+            argument.embed = any_embed
             BodyModel.__fields__[argument.name] = argument
-        required = any(argument.required for argument in self.body_arguments)
         field_info = self._solve_body_field_info()
-        return create_field(
+        field = create_field(
             name=BodyModel.__name__,
             type_=BodyModel,
-            required=required,
+            required=any_required,
             alias="body",
             field_info=field_info,
             class_validators={},
+        )
+        assert field  # noqa: S101
+        return SolvedArgument.specialize(
+            name=name,
+            type_=field.type_,
+            required=any_required,
+            view_param=field_info,
         )
 
     def add_inbound_handling_to(
@@ -290,8 +311,12 @@ class InboundHandler:
         """Parse and Validate the request Inbound data."""
         errors = []
         values = {}
-        for param in self.parameters + self.body_arguments:
+        for param in self.parameters:
             values_, errors_ = param.validate_request()
             errors.extend(errors_)
             values.update(values_)
+        if body_field := self.body_field(self.rule):
+            body_value, body_errors = body_field.validate_request()
+            errors.extend(body_errors)
+            values.update(body_value)
         return values, errors

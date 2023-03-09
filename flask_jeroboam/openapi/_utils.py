@@ -97,7 +97,8 @@ def _get_openapi_operation_request_body(
     model_name_map: Dict[Union[Type[BaseModel], Type[Enum]], str],
 ) -> Optional[Dict[str, Any]]:
     assert body_field  # noqa: S101
-    body_schema, _, _ = field_schema(
+    # TODO: something is broken here.
+    body_schema, body_definition, _ = field_schema(
         body_field, model_name_map=model_name_map, ref_prefix=REF_PREFIX
     )
     field_info = cast(BodyArgument, body_field.field_info)
@@ -105,7 +106,12 @@ def _get_openapi_operation_request_body(
     request_body_oai: Dict[str, Any] = {}
     if required := body_field.required:
         request_body_oai["required"] = required
-    request_media_content: Dict[str, Any] = {"schema": body_schema}
+    if body_schema.get("$ref", "").endswith("request_body_as_model"):
+        request_media_content: Dict[str, Any] = {
+            "schema": body_definition[body_schema.get("$ref", "").split("/")[-1]]
+        }
+    else:
+        request_media_content = {"schema": body_schema}
     request_body_oai["content"] = {request_media_type: request_media_content}
     return request_body_oai
 

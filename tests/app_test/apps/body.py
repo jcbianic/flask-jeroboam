@@ -11,19 +11,19 @@ router = Blueprint("body_params_router", __name__, tags=["Body"])
 
 
 @router.post("/body/int")
-def post_body_as_int(payload: int = Body(embed=True)):
+def post_body_as_int(payload: int = Body()):
     """Body Param as plain int."""
     return {"payload": payload}
 
 
 @router.post("/body/str")
-def post_body_as_str(payload: str = Body(embed=True)):
+def post_body_as_str(payload: str = Body()):
     """Body Param as plain str."""
     return {"payload": payload}
 
 
 @router.post("/body/base_model")
-def post_base_model_in_form(payload: SimpleModelIn = Body(embed=False)):
+def post_base_model_in_form(payload: SimpleModelIn = Body()):
     """POST Form Parameter as pydantic BaseModel."""
     return payload.json()
 

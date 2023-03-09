@@ -68,7 +68,7 @@ def test_post_body_list_of_base_model(
         count: int
 
     @one_shot_app.post("/body/list_non_scalar", response_model=List[InBound])
-    def post_body_list_non_scalar(payload: List[InBound] = Body(embed=False)):
+    def post_body_list_non_scalar(payload: List[InBound] = Body()):
         return payload
 
     response = one_shot_client.post(

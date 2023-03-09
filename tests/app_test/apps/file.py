@@ -11,5 +11,5 @@ router = Blueprint("file_params_router", __name__, tags=["File"])
 
 
 @router.post("/file")
-def ping(file: UploadFile = File(embed=True)):
+def ping(file: UploadFile = File()):
     return {"file_content": str(file.read())}

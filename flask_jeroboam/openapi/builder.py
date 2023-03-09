@@ -82,6 +82,11 @@ def build_openapi(
         _memoized_update_if_value("security_schemes", security_schemes, components)
         definitions.update(path_definitions or {})
 
+    definitions = {
+        k: definitions[k]
+        for k in sorted(definitions)
+        if not k.endswith("request_body_as_model")
+    }
     # On package le tout.
     return OpenAPI(
         openapi=openapi_version,
@@ -89,5 +94,5 @@ def build_openapi(
         servers=servers,
         paths=paths,
         tags=[Tag(**tag) for tag in tags or []],
-        components=Components(schemas={k: definitions[k] for k in sorted(definitions)}),
+        components=Components(schemas=definitions),
     )
