@@ -7,14 +7,14 @@ beta releases
 The beta releases mark a turning point and the intention to outgrow **Flask-Jeroboam**'s initial internal use. The 0.1.0 version is primarily based on forking FastAPI and departs from the first naive implementation of alpha releases.
 
 
-Version 0.1.0.beta1
+Version 0.1.0.beta2
 -------------------
 
-Released March, 10th 2023
+Released March, 9th 2023
 
 * Writing Documentation
 * Fixing bugs
-* Fixing the embed mechnism for request bodies
+* Breaking Change: Fixing the embed mechnism for request bodies
 
 Version 0.1.0.beta
 -------------------
