@@ -14,10 +14,7 @@ def test_valid_payload_in_files_is_injected(client: FlaskClient):
     WHEN hit with a valid files payload
     THEN the parsed input is injected into the view function.
     """
-    data = {
-        "file": (BytesIO(b"Hello World !!"), "hello.txt"),
-        "type": "file",
-    }
+    data = {"file": (BytesIO(b"Hello World !!"), "hello.txt"), "type": "file"}
 
     response = client.post(
         "/file",

@@ -51,3 +51,18 @@ status_code_ranges: Dict[str, str] = {
     "5XX": "Server Error",
     "DEFAULT": "Default Response",
 }
+
+
+METHODS_DEFAULT_STATUS_CODE = {
+    "GET": 200,
+    "HEAD": 200,
+    "POST": 201,
+    "PUT": 201,
+    "DELETE": 204,
+    "CONNECT": 200,
+    "OPTIONS": 200,
+    "TRACE": 200,
+    "PATCH": 200,
+}
+
+NO_BODY_STATUS_CODES = {"204", "205", "304"}

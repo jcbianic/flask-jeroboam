@@ -107,6 +107,11 @@ def handle_404(e):
     return {"message": "Not Found"}, 404
 
 
+def handle_500(e):
+    """Simple Hanlder for 500 errors."""
+    return {"message": "Internal Error"}, 500
+
+
 def register_error_handlers(app: "Jeroboam"):
     """Register error handlers for the app."""
     app.register_error_handler(InvalidRequest, InvalidRequest.handle)
@@ -114,3 +119,4 @@ def register_error_handlers(app: "Jeroboam"):
     app.register_error_handler(ServerError, ServerError.handle)
     app.register_error_handler(ResponseValidationError, ResponseValidationError.handle)
     app.register_error_handler(404, handle_404)
+    app.register_error_handler(500, handle_500)
