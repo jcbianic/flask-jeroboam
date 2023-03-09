@@ -39,4 +39,4 @@ def read_wine_list(pagination: GenericPagination, search: Optional[str]):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=5000)

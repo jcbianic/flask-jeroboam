@@ -1,5 +1,5 @@
 """Testing Examples from the Getting Started Page"""
-from docs_src.getting_started.gs_00 import app
+from docs_src.getting_started_00 import app
 
 
 def test_getting_started_00(app=app):

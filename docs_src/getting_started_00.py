@@ -11,13 +11,11 @@ app.init_app()
 
 @app.get("/health")
 def get_health():
-    """Get the health Status."""
     return {"status": "Ok"}
 
 
 @app.get("/query_string_arguments")
 def get_query_string_arguments(page: int = 1, per_page: int = 10):
-    """Returns Received Query String Parameters."""
     return {"page": page, "per_page": per_page}
 
 
@@ -29,7 +27,6 @@ class Item(BaseModel):
 
 @app.get("/item", response_model=Item)
 def get_an_item():
-    """Returns Received Query String Parameters."""
     return {"name": "Bottle", "price": 5}
 
 

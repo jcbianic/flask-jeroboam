@@ -1,6 +1,6 @@
 <div align="center">
     <img
-        src="https://github.com/jcbianic/flask-jeroboam/blob/main/docs/_static/jeroboam_logo_with_text.png"
+        src="https://github.com/jcbianic/flask-jeroboam/blob/main/docs/_static/img/jeroboam_logo_with_text.png"
         width="400px"
         alt="jeroboam-logo">
     </img>

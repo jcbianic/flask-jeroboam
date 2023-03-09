@@ -1,4 +1,0 @@
-Response Serialization
-======================
-
-(coming soon)

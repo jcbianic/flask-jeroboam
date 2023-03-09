@@ -1,8 +1,11 @@
 # Contributor Guide
 
-Thank you for your interest in improving this project.
-This project is open-source under the [MIT license] and
-welcomes contributions in the form of bug reports, feature requests, and pull requests.
+I appreciate your interest in improving this project. This project is open-source under the [MIT license] and
+welcomes contributions in the form of bug reports, feature requests, and pull requests. Currently, our focus is on **improving documentation** and **hunting for bugs**.
+
+We intend to use the [Issue Tracker] to coordinate the community and provide templates for bug reports, feature requests, documentation updates, and implementation improvements. So be sure to use the appropriate template with further instructions on writing any.
+
+## Ressources
 
 Here is a list of important resources for contributors:
 
@@ -15,25 +18,6 @@ Here is a list of important resources for contributors:
 [source code]: https://github.com/jcbianic/flask-jeroboam
 [documentation]: https://flask-jeroboam.readthedocs.io/
 [issue tracker]: https://github.com/jcbianic/flask-jeroboam/issues
-
-## How to report a bug
-
-Report bugs on the [Issue Tracker].
-
-When filing an issue, make sure to answer these questions:
-
-- Which operating system and Python version are you using?
-- Which version of this project are you using?
-- What did you do?
-- What did you expect to see?
-- What did you see instead?
-
-The best way to get your bug fixed is to provide a test case,
-and/or steps to reproduce the issue.
-
-## How to request a feature
-
-Request features on the [Issue Tracker].
 
 ## How to set up your development environment
 
