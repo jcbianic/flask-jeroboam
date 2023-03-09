@@ -148,17 +148,17 @@ One thing **Flask-Jeroboam** won't give you is performance improvement. Undernea
 
 ## Intended audience
 
-The intended audience of **Flask-Jeroboam** is Flask developers who find FastAPI very attractive but also have excellent reasons to stick to Flask.
+The intended audience of **Flask-Jeroboam** is Flask developers who find FastAPI very convincing but also have excellent reasons to stick to Flask.
 
 ## About the name of the project
 
-A **Jeroboam** is a large bottle, or flask, containing 3 litres of wine[^1], instead of 0,75. Winemakers use this format for fine wines destined for ageing because they provide better ageing conditions. First, the ratio between the volume of wine it contains and the surface of exchange between the wine and the air is more favourable and slows down the oxidation reaction. These larger containers also take longer to cool down or warm up, leading to less thermal violence to the wine during conservation.
+A **Jeroboam** is a large bottle, or flask, containing 5 litres of wine[^1], instead of 0,75. Winemakers use this format for fine wines destined for ageing because it provides better ageing conditions. First, the ratio between the volume of wine it contains and the surface of exchange between the wine and the air is more favourable and slows down the oxidation reaction. These larger containers also take longer to cool down or warm up, leading to less thermal violence to the wine during conservation.
 
 In other words, they are more durable flasks for fine wines. The intention is to hold this promise for APIs.
 
 The wine-themed name is a tribute to the Bordeaux-based wine tech startup where the development of this package started.
 
-[^1]: Outside of the Bordeaux region it can be up to 4,5 litres like in Burgundy or Champagne.
+[^1]: Outside of the Bordeaux region Jeroboam bottle contain 3 litres, like in Burgundy or Champagne.
 
 ## License
 
