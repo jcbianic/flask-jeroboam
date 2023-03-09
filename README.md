@@ -1,6 +1,6 @@
 <div align="center">
     <img
-        src="https://github.com/jcbianic/flask-jeroboam/blob/main/docs/_static/jeroboam_logo_with_text.png"
+        src="https://github.com/jcbianic/flask-jeroboam/blob/main/docs/_static/img/jeroboam_logo_with_text.png"
         width="400px"
         alt="jeroboam-logo">
     </img>
@@ -62,89 +62,85 @@ $ pip install flask-jeroboam
 
 ### A toy example
 
-_Flask-Jeroboam_ subclasses both Flask and Blueprint classes. This means that the **Jeroboam** and **APIBlueprint** will behave exactly like their Flask counterparts unless you activate their specific behaviours.
+_Flask-Jeroboam_ subclasses both Flask and Blueprint classes. This means that the **Jeroboam** and **Blueprint** will behave exactly like their Flask counterparts unless you activate their specific behaviours.
 
 ```python
-from flask-jeroboam import Jeroboam
+from flask_jeroboam import Jeroboam
 
 app = Jeroboam()
 
-@app.get("ping")
+@app.get("/ping")
 def ping():
     return "pong"
+
+if __name__ == "__main__":
+    app.run()
 ```
 
-This toy example would work exactly like a regular Flask app. You would start your server just like with Flask. `flask run` would do perfectly fine here.
-
-Then hitting the endpoint with `curl localhost:5000/ping` would return the text response `pong`.
+This toy example would work exactly like a regular Flask app. If you run this file, then hitting the endpoint with `curl localhost:5000/ping` would return the text response `pong`.
 
 Let's try a more significant and relevant example and build a simplified endpoint to retrieve a list of wines. We are wine-themed, after all.
 
 ### Searching for wines
 
-Let's consider an endpoint that provides search capability onto a wine repository. It parses and validates three arguments from the query string and feeds them into a CRUD function `get_wines` that return a list of wines and the total count of wines matching the query.
-Additionally, this endpoint only needs to return the name of the cuvee and the appellation and discard any other informations. Let's take a look at what it might look like with _Flask-Jeroboam_:
+Let's consider an endpoint that provides search capability onto a wine repository. It parses and validates three arguments from the query string and feeds them into a CRUD function `get_wines` that return a list of wines as dictionnaries.
+Additionally, this endpoint only needs to return the name of the cuvee and the appellation, and discard any other informations. Let's take a look at what it might look like:
 
 ```python
-from flask_jeroboam import Jeroboam, Parser, Serializer
+from flask_jeroboam import Jeroboam, InboundModel, OutboundModel
+from pydantic.fields import Field
+from typing import List, Optional
+from docs_src.readme.crud import get_wines
 
 app = Jeroboam(__name__)
 
-class PaginatedSearch(Parser):
-    page: int = Field(default=1)
-    per_page: int = Field(default=10)
-    search: Optional[str]
 
-class WineOut(Serializer):
+class GenericPagination(InboundModel):
+    page: int = Field(1, ge=1)
+    per_page: int = Field(10, ge=1, le=100)
+
+    @property
+    def offset(self) -> int:
+        return (self.page - 1) * self.per_page
+
+
+class WineOut(OutboundModel):
     cuvee: str
     appellation: str
 
-class WineListOut(Serializer):
-    wines: WineOut
-    count: int
-    total_count: int
 
-@app.get("/wines", response_model=WineListOut)
-def read_wine_list(wine_search: PaginatedSearch):
-    wines, total_count = get_wines(wine_search)
-    return {"wines": wines, "count": len(wines), "total_count": total_count}
+@app.get("/wines", response_model=List[WineOut])
+def read_wine_list(pagination: GenericPagination, search: Optional[str]):
+    wines = get_wines(pagination, search)
+    return wines
 
 
 if __name__ == "__main__":
     app.run()
 ```
 
-Once you've started your server, then hitting the endpoint with `curl "localhost:5000/wines?page=1&per_page=2&search=Champagne"` would return something like:
+Once you've started your server, then hitting the endpoint with `curl "localhost:5000/wines?page=1&perPage=2&search=Champagne"` would return:
 
 ```json
-{
-  "wines": [
-    {
-      "appellation": "Champagne",
-      "cuvee": "Brut - Blanc de Blancs"
-    },
-    {
-      "appellation": "Champagne",
-      "cuvee": "Grande Cuvée - 170ème Edition"
-    }
-  ],
-  "count": 2,
-  "total_count": 3
-}
+[
+  {
+    "cuvee": "Brut - Blanc de Blancs",
+    "appellation": "Champagne"
+  },
+  {
+    "cuvee": "Grande Cuvée - 170ème Edition",
+    "appellation": "Champagne"
+  }
+]
 ```
+
+All examples in the documentation can be found in `docs_src/X` folder and should run as is. Their corresponding tests can be found in `tests/test_docs/X`.
 
 See the documentation on more advanced usage: [https://flask-jeroboam.readthedocs.io/](https://flask-jeroboam.readthedocs.io/)
 
 ## Motivation
 
-[FastAPI] has rapidly gained ground in Python Web Development since its inception in late 2018 ([1][survey]). It is indeed a fantastic framework with killer documentation. Besides best-in-class performance, it brings a very compelling API for request parsing and response serialization that speeds up API development and provides an incredibly smooth Developer Experience.
-
-Although trying to reproduce [FastAPI] [Starlette]-based performance in another framework like [Flask] would be rather hard and non-sensical, its API for defining endpoints is fair game. Some excellent Flask extensions deal with request parsing, response serialization, and auto-documentation, but nothing _exactly_ like [FastAPI]. That is what I started exploring with **Flask-Jeroboam**.
-
-[survey]: https://lp.jetbrains.com/python-developers-survey-2021/#FrameworksLibraries
-[ref#1]: https://testdriven.io/blog/moving-from-flask-to-fastapi/
-[ref#2]: https://developer.vonage.com/blog/21/08/10/the-ultimate-face-off-flask-vs-fastapi
-[ref#3]: https://towardsdatascience.com/understanding-flask-vs-fastapi-web-framework-fe12bb58ee75
+I just wanted to use **FastAPI's way** of defining view arguments and response models without leaving Flask.
 
 ## A word on performance
 
@@ -156,11 +152,13 @@ The intended audience of **Flask-Jeroboam** is Flask developers who find FastAPI
 
 ## About the name of the project
 
-A **Jeroboam** is a large bottle, or flask, containing 3 litres of wine, instead of 0,75 - although outside of the Bordeaux region it can be up to 4,5 litres like in Burgundy or Champagne. Winemakers use this format for fine wines destined for ageing because they provide better conditions. Namely, the ratio between the volume of wine it contains and the surface of exchange between the wine and the air is more favourable and slows down the oxidation reaction. These containers also take longer to cool down or warm up, leading to less thermal violence to the wine during conservation.
+A **Jeroboam** is a large bottle, or flask, containing 3 litres of wine[^1], instead of 0,75. Winemakers use this format for fine wines destined for ageing because they provide better ageing conditions. First, the ratio between the volume of wine it contains and the surface of exchange between the wine and the air is more favourable and slows down the oxidation reaction. These larger containers also take longer to cool down or warm up, leading to less thermal violence to the wine during conservation.
 
 In other words, they are more durable flasks for fine wines. The intention is to hold this promise for APIs.
 
 The wine-themed name is a tribute to the Bordeaux-based wine tech startup where the development of this package started.
+
+[^1]: Outside of the Bordeaux region it can be up to 4,5 litres like in Burgundy or Champagne.
 
 ## License
 
@@ -168,11 +166,13 @@ Distributed under the terms of the [MIT license][license], **Flask-Jeroboam** is
 
 ## Issues
 
-If you encounter any problems, please [file an issue] along with a detailed description.
+If you encounter any problems, please [file an issue] following available templates. Templates are available for feature requests, bug reports, documentation updates and implementation betterments.
 
 ## Credits
 
 The main inspiration for this project comes from [@tiangolo]'s [FastAPI].
+Starting from v0.1.0 it also includes forked code from [FastAPI].
+Appropriate credits are added to the module or functions docstrings.
 
 [Flask] and [pydantic] are the two direct dependencies and do most of the work.
 

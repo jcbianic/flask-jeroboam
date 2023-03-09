@@ -19,6 +19,8 @@ from pydantic import validate_model
 from pydantic.fields import FieldInfo
 from typing_extensions import ParamSpec
 
+from flask_jeroboam._constants import METHODS_DEFAULT_STATUS_CODE
+from flask_jeroboam._constants import NO_BODY_STATUS_CODES
 from flask_jeroboam._utils import create_field
 from flask_jeroboam._utils import get_typed_return_annotation
 from flask_jeroboam.exceptions import ResponseValidationError
@@ -37,20 +39,6 @@ from flask_jeroboam.typing import Union
 
 P = ParamSpec("P")
 R = TypeVar("R")
-
-METHODS_DEFAULT_STATUS_CODE = {
-    "GET": 200,
-    "HEAD": 200,
-    "POST": 201,
-    "PUT": 201,
-    "DELETE": 204,
-    "CONNECT": 200,
-    "OPTIONS": 200,
-    "TRACE": 200,
-    "PATCH": 200,
-}
-
-NO_BODY_STATUS_CODES = {204, 205, 304}
 
 
 class OutboundHandler:
@@ -329,4 +317,4 @@ class OutboundHandler:
 
         Credits: Inspired by FastAPI.
         """
-        return status_code < 200 or status_code in NO_BODY_STATUS_CODES
+        return status_code < 200 or str(status_code) in NO_BODY_STATUS_CODES

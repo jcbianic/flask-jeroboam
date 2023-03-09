@@ -1,4 +1,0 @@
-First Endpoint
-==============
-
-(coming soon)

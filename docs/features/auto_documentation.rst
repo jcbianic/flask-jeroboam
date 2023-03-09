@@ -1,4 +1,0 @@
-Auto-Documentation
-==================
-
-(coming soon)

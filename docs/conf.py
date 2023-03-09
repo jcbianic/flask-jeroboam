@@ -52,15 +52,17 @@ html_context = {
 # }
 # singlehtml_sidebars = {"index": ["project.html", "localtoc.html", "ethicalads.html"]}
 html_static_path = ["_static"]
-html_favicon = "_static/jeroboam_icon.png"
-html_logo = "_static/jeroboam_logo_with_text.png"
+html_favicon = "_static/img/jeroboam_icon.png"
+html_logo = "_static/img/jeroboam_logo_with_text.png"
 html_title = f"Flask-Jeroboam Documentation ({version})"
 html_show_sourcelink = False
 
 
 # CopyButton -----------------------------------------------------------------
 
-# copybutton_only_copy_prompt_lines = True
+copybutton_prompt_text = r">>> |\.\.\. |\$ "
+copybutton_prompt_is_regexp = True
+copybutton_only_copy_prompt_lines = True
 
 
 # MISCELLANEOUS -------------------------------------------------------------

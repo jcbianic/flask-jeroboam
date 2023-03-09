@@ -1,6 +1,8 @@
 """Testing Error Handling."""
 from flask.testing import FlaskClient
 
+from flask_jeroboam.jeroboam import Jeroboam
+
 
 def test_invalid_request(
     client: FlaskClient,
@@ -56,3 +58,24 @@ def test_internal_server_error(
     response = client.get("/server_error")
     assert response.status_code == 500
     assert response.data.startswith(b"InternalServerError: My Message")
+
+
+def test_opt_out_registering():
+    """GIVEN a decorated view function
+    WHEN it raises a ServerError
+    THEN I get a 500 response with ServerError Message
+    """
+    app = Jeroboam(__name__)
+    app.config["JEROBOAM_REGISTER_ERROR_HANDLERS"] = False
+    app.init_app()
+
+    @app.route("/will_raise_an_error")
+    def server_error(failing_argument: int):
+        return {"message": "Will not Return"}
+
+    client = app.test_client()
+    response = client.get("/will_raise_an_error?failing_argument=not_an_int")
+    assert response.status_code == 400
+    assert response.data.startswith(
+        b"<!doctype html>\n<html lang=en>\n<title>400 Bad Request"
+    )

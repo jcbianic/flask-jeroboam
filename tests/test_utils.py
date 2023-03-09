@@ -103,14 +103,16 @@ def test_file_upload():
 
 def test_warn_on_two_identical_operation_id(one_shot_app: Jeroboam):
     """Test that a warning is raised when two identical operation_id are found."""
+    app = Jeroboam(__name__)
+    app.init_app()
 
-    @one_shot_app.get("/test")
+    @app.get("/test")
     def test():
         pass
 
-    @one_shot_app.get("/test")
+    @app.get("/test")
     def get_test():
         pass
 
     with pytest.warns(UserWarning):
-        one_shot_app.openapi  # type: ignore
+        app.openapi  # type: ignore

@@ -4,11 +4,6 @@ import os
 from toml import load as load_toml  # type: ignore
 
 from flask_jeroboam import Jeroboam
-from flask_jeroboam.exceptions import InvalidRequest
-from flask_jeroboam.exceptions import ResponseValidationError
-from flask_jeroboam.exceptions import RessourceNotFound
-from flask_jeroboam.exceptions import ServerError
-from flask_jeroboam.openapi.blueprint import router as openapi_router
 from tests.app_test.apps.body import router as body_router
 from tests.app_test.apps.cookies import router as cookies_router
 from tests.app_test.apps.file import router as file_router
@@ -28,17 +23,6 @@ def create_test_app():
         TESTING=True,
     )
     app.config.from_file("openapi.toml", load=load_toml)
-
-    # TODO: Add it by default with CONFIG OPT-OUT
-
-    def handle_404(e):
-        return {"message": "Not Found"}, 404
-
-    app.register_error_handler(InvalidRequest, InvalidRequest.handle)
-    app.register_error_handler(RessourceNotFound, RessourceNotFound.handle)
-    app.register_error_handler(ServerError, ServerError.handle)
-    app.register_error_handler(ResponseValidationError, ResponseValidationError.handle)
-    app.register_error_handler(404, handle_404)
 
     @app.route("/api_route", tags=["Base"])
     def non_operation():
@@ -62,7 +46,8 @@ def create_test_app():
     app.register_blueprint(query_router)
     app.register_blueprint(misc_router)
     app.register_blueprint(outbound_router)
-    app.register_blueprint(openapi_router)
     app.register_blueprint(openapi_test_router)
+
+    app.init_app()
 
     return app

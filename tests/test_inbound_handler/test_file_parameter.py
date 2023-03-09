@@ -24,5 +24,5 @@ def test_valid_payload_in_files_is_injected(client: FlaskClient):
         },
     )
 
-    assert response.status_code == 201
     assert response.json == {"file_content": "b'Hello World !!'"}
+    assert response.status_code == 201

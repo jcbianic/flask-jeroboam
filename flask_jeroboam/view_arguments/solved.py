@@ -194,7 +194,9 @@ class SolvedBodyArgument(SolvedArgument):
     """Solved Scalar Query parameter."""
 
     def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
-        source: dict = request.json or {}
+        source: Union[dict, list] = request.json or {}
+        if isinstance(source, list):
+            return source
         return source.get(self.alias or self.name) if self.embed else source
 
 

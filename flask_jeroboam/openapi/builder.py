@@ -16,18 +16,18 @@ from flask_jeroboam.openapi.models.openapi import Components
 from flask_jeroboam.openapi.models.openapi import Info
 from flask_jeroboam.openapi.models.openapi import OpenAPI
 from flask_jeroboam.openapi.models.openapi import Tag
-from flask_jeroboam.rule import JeroboamRule
-from flask_jeroboam.view import JeroboamView
 
 
 if TYPE_CHECKING:  # pragma: no cover
     from flask_jeroboam.jeroboam import Jeroboam
+    from flask_jeroboam.rule import JeroboamRule
+    from flask_jeroboam.view import JeroboamView
 
 
 def build_openapi(
     *,
     app: "Jeroboam",
-    rules: List[JeroboamRule],
+    rules: List["JeroboamRule"],
     tags: Optional[List[Dict[str, Any]]] = None,
 ) -> OpenAPI:
     """Generate an OpenAPI schema for the given routes.
@@ -39,7 +39,7 @@ def build_openapi(
     openapi_version = app.config.get("JEROBOAM_OPENAPI_VERSION", "3.0.2")
     info = Info.parse_obj(
         {
-            "title": app.config.get("JEROBOAM_TITLE", app.name),
+            "title": app.config.get("JEROBOAM_TITLE", None) or app.name,
             "version": app.config.get("JEROBOAM_VERSION", "0.1.0"),
             "description": app.config.get("JEROBOAM_DESCRIPTION", None),
             "terms_of_service": app.config.get("JEROBOAM_TERMS_OF_SERVICE", None),
@@ -55,7 +55,7 @@ def build_openapi(
     operation_ids: Set[str] = set()
 
     # Les jerobomas views, probablement à déléguer à l'app
-    jeroboam_views: List[Optional[JeroboamView]] = [
+    jeroboam_views: List[Optional["JeroboamView"]] = [
         getattr(app.view_functions[rule.endpoint], "__jeroboam_view__", None)
         for rule in rules
     ]
@@ -82,6 +82,11 @@ def build_openapi(
         _memoized_update_if_value("security_schemes", security_schemes, components)
         definitions.update(path_definitions or {})
 
+    definitions = {
+        k: definitions[k]
+        for k in sorted(definitions)
+        if not k.endswith("request_body_as_model")
+    }
     # On package le tout.
     return OpenAPI(
         openapi=openapi_version,
@@ -89,5 +94,5 @@ def build_openapi(
         servers=servers,
         paths=paths,
         tags=[Tag(**tag) for tag in tags or []],
-        components=Components(schemas={k: definitions[k] for k in sorted(definitions)}),
+        components=Components(schemas=definitions),
     )

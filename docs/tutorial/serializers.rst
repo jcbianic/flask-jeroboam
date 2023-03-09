@@ -1,4 +1,0 @@
-Serializers
-===========
-
-(coming soon)
