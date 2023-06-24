@@ -295,7 +295,7 @@ class OutboundHandler:
             return {
                 "__root__": [self._adapt_datastructure_of(item) for item in content]
             }
-        elif dataclasses.is_dataclass(content):
+        elif dataclasses.is_dataclass(content) and not isinstance(content, type):
             return dataclasses.asdict(content)
 
         raise ValueError("Content must be a list, a dict, a dataclass, or a BaseModel.")
