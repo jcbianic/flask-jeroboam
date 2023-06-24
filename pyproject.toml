@@ -29,7 +29,7 @@ license = "MIT"
 name = "flask-jeroboam"
 readme = "README.md"
 repository = "https://github.com/jcbianic/flask-jeroboam"
-version = "0.1.0.beta2"
+version = "0.1.0b3"
 
 [tool.poetry.urls]
 Changelog = "https://github.com/jcbianic/flask-jeroboam/releases"

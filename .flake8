@@ -5,7 +5,7 @@ max-line-length = 80
 max-complexity = 5
 docstring-convention = google
 per-file-ignores =
-    tests/*:S101,D100,D205,D415,S106,B008,D101
+    tests/*:S101,D100,D205,D415,S106,B008,D101,B908
     docs_src/*:D101,D102,D103,B008
     tests/app_test/*:D103,B008
     __init__.py:F401

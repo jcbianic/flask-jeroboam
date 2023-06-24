@@ -2,6 +2,8 @@
 
 The corresponding test can be found in tests/test_outbound.py
 """
+from typing import Any
+from typing import Dict
 from typing import List
 
 from flask_jeroboam import Blueprint
@@ -15,7 +17,10 @@ from tests.app_test.models.outbound import UserOut
 
 router = Blueprint("outbound_router", __name__, tags=["Outbound"])
 
-valid_outbound_data = {"total_count": 10, "items": ["Apple", "Banana"]}
+valid_outbound_data: Dict[str, Any] = {
+    "total_count": 10,
+    "items": ["Apple", "Banana"],
+}
 
 
 @router.route(
@@ -65,7 +70,7 @@ def configuration_over_inference() -> dict:
 
 @router.get("/response_model/turned_off", response_model=None)
 def response_model_inference_is_turned_off() -> SimpleModelOut:
-    return SimpleModelOut(**{"total_count": 10, "items": ["Apple", "Banana"]})
+    return SimpleModelOut(**valid_outbound_data)
 
 
 @router.get("/return_type/dict", response_model=SimpleModelOut)
