@@ -58,7 +58,7 @@ def no_response_model():
 
 @router.get("/response_model/infered_from_return_annotation")
 def response_model_is_infered_from_return_annotation() -> SimpleModelOut:
-    return SimpleModelOut(**valid_outbound_data)
+    return SimpleModelOut(total_count=10, items=["Apple", "Banana"])
 
 
 @router.get(
@@ -70,7 +70,7 @@ def configuration_over_inference() -> dict:
 
 @router.get("/response_model/turned_off", response_model=None)
 def response_model_inference_is_turned_off() -> SimpleModelOut:
-    return SimpleModelOut(**valid_outbound_data)
+    return SimpleModelOut(total_count=10, items=["Apple", "Banana"])
 
 
 @router.get("/return_type/dict", response_model=SimpleModelOut)
