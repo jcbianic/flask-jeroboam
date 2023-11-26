@@ -56,7 +56,7 @@ def test_explicit_location_on_post(client):
 
 def test_explicit_cookie_location_with_other_explicit(client):
     """Test the explicit location GET example."""
-    client.set_cookie("localhost", "username", "john")
+    client.set_cookie("username", "john")
     response = client.get(
         "/explicit_location_is_query_string_and_cookie?page=42",
     )
@@ -66,7 +66,7 @@ def test_explicit_cookie_location_with_other_explicit(client):
 
 def test_explicit_cookie_location_with_other_implicit(client):
     """Test the explicit location GET example."""
-    client.set_cookie("localhost", "username", "john")
+    client.set_cookie("username", "john")
     response = client.get(
         "/implicit_and_explicit?page=42",
     )
@@ -76,7 +76,7 @@ def test_explicit_cookie_location_with_other_implicit(client):
 
 def test_argument_is_required(client):
     """Test the explicit location GET example."""
-    client.set_cookie("localhost", "username", "john")
+    client.set_cookie("username", "john")
     response = client.get(
         "implicit_location_is_query_string",
     )

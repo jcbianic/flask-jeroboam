@@ -38,6 +38,7 @@ Changelog = "https://github.com/jcbianic/flask-jeroboam/releases"
 Flask = "^2.1.3"
 pydantic = "^1.10.2"
 python = "^3.8.1"
+wheel = "^0.41.3"
 
 [tool.poetry.group.dev]
 optional = true
@@ -59,7 +60,6 @@ flake8 = "^6.0.0"
 flake8-bandit = ">=2.1.2"
 flake8-bugbear = ">=21.9.2"
 flake8-docstrings = ">=1.6.0"
-flake8-rst-docstrings = ">=0.2.5"
 isort = ">=5.10.1"
 mypy = ">=0.930"
 myst-parser = {version = ">=0.16.1"}
@@ -98,7 +98,7 @@ sphinx-tabs = "^3.4.1"
 sphinx-copybutton = "^0.5.1"
 
 [tool.poetry.group.workflows.dependencies]
-pip = "^22.3.1"
+pip = "^23.3.1"
 nox = "^2022.11.21"
 nox-poetry = "^1.0.2"
 poetry = ">=1.2, <1.3.1"

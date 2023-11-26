@@ -52,7 +52,7 @@ def build_openapi(
     servers = app.config.get("JEROBOAM_SERVERS", None)
 
     # Préparation
-    paths: Dict[str, Union[Any, PathItem]] = {}
+    paths: Dict[str, Any] = {}
     components: Dict[str, Dict[str, Any]] = {}
     operation_ids: Set[str] = set()
 

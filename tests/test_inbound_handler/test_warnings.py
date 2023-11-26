@@ -14,6 +14,7 @@ def test_form_param_on_get_raise_warning():
     with pytest.warns(UserWarning):
         app = Jeroboam(__name__)
 
-        @app.get("/form_on_get")
         def form_on_get(not_allowed: str = Form(...)):
             return "OK"
+
+        app.get("/form_on_get")(form_on_get)
