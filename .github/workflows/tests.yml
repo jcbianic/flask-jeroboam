@@ -44,12 +44,6 @@ jobs:
               upload: false,
             }
           - {
-              python: "3.8",
-              os: "ubuntu-latest",
-              session: "mypy",
-              upload: false,
-            }
-          - {
               python: "3.11",
               os: "ubuntu-latest",
               session: "tests",
@@ -63,12 +57,6 @@ jobs:
             }
           - {
               python: "3.9",
-              os: "ubuntu-latest",
-              session: "tests",
-              upload: true,
-            }
-          - {
-              python: "3.8",
               os: "ubuntu-latest",
               session: "tests",
               upload: true,
@@ -122,6 +110,7 @@ jobs:
           python -m pip install pipx
           pipx ensurepath
           pipx install poetry
+          poetry self add poetry-plugin-export
           poetry export --with workflows --without-hashes --format=constraints.txt > .github/workflows/constraints.txt
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
           poetry --version
@@ -209,6 +198,7 @@ jobs:
           python -m pip install pipx
           pipx ensurepath
           pipx install poetry
+          poetry self add poetry-plugin-export
           poetry export --with workflows --without-hashes --format=constraints.txt > .github/workflows/constraints.txt
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
           poetry --version
