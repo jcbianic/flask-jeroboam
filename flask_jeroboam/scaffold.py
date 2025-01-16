@@ -7,7 +7,7 @@ in Jeroboam and jeroboam's Blueprints.
 from typing import Any
 from typing import Callable
 
-from flask.scaffold import setupmethod
+from flask.sansio.scaffold import setupmethod
 from typing_extensions import TypeVar
 
 from flask_jeroboam.typing import JeroboamRouteCallable

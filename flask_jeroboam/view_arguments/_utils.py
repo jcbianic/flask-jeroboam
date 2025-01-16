@@ -5,6 +5,7 @@ from typing import List
 from typing import Optional
 from typing import Union
 
+from werkzeug.datastructures import Headers
 from werkzeug.datastructures import MultiDict
 
 from flask_jeroboam._utils import is_sequence_field
@@ -13,9 +14,9 @@ from flask_jeroboam.wrapper import current_app
 
 def _extract_scalar(
     *,
-    source: Union[MultiDict, dict],
-    name: Optional[str],
-    alias: Optional[str],
+    source: Union[Headers, dict],
+    name: str,
+    alias: str,
     **_kwargs,
 ):
     """Extract a scalar value from a source."""
@@ -33,7 +34,7 @@ def _extract_sequence(
 
 
 def _extract_sequence_with_key_transformer(
-    *, source: MultiDict, name: Optional[str], alias: Optional[str], **_kwargs
+    *, source: MultiDict, name: str, alias: str, **_kwargs
 ):
     """Apply the key transformer to the source."""
     transformed_source = current_app.query_string_key_transformer(
