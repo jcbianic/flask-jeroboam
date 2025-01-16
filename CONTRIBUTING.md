@@ -21,7 +21,7 @@ Here is a list of important resources for contributors:
 
 ## How to set up your development environment
 
-You need Python 3.8+ and the following tools:
+You need Python 3.9+ and the following tools:
 
 - [Poetry]
 - [Nox]
@@ -46,6 +46,34 @@ $ poetry run flask-jeroboam
 [nox-poetry]: https://nox-poetry.readthedocs.io/
 
 ## How to test the project
+
+You will need pyenv installed with appropriate python versions available (currently: 3.8 to 3.11) and poetry. Before to run the nox session, you'll need to create a poetry environment for each python version. Unless you do that nox won't have all the python versioned environment to run against and will fail on unavailable verions.
+
+```bash
+pyenv local 3.11
+poetry env use 3.11
+poetry install --with dev
+
+pyenv local 3.10
+poetry env use 3.10
+poetry install --with dev
+
+pyenv local 3.9
+poetry env use 3.9
+poetry install --with dev
+```
+
+Then you can run all nox sessions:
+
+```bash
+nox
+```
+
+If you want to run a specific nox session, do:
+
+```bash
+nox --session "pre-commit"
+```
 
 Run the full test suite:
 

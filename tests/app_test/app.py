@@ -1,4 +1,5 @@
 """Jeroboam Test App factory."""
+
 import os
 
 from toml import load as load_toml  # type: ignore

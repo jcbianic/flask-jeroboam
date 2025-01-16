@@ -1,4 +1,5 @@
 """Model Helpers."""
+
 import json
 import re
 from typing import Callable
@@ -28,9 +29,11 @@ def convert_dict_keys_to(
             for e in obj
         ]
     return {
-        convert_function(key): convert_dict_keys_to(value, convert_function)
-        if isinstance(value, (Dict, List))
-        else value
+        convert_function(key): (
+            convert_dict_keys_to(value, convert_function)
+            if isinstance(value, (Dict, List))
+            else value
+        )
         for key, value in obj.items()
     }
 

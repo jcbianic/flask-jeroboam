@@ -2,6 +2,7 @@
 
 Credits: This is a Fork of FastAPI's openapi/utils.py
 """
+
 import warnings
 from enum import Enum
 from typing import TYPE_CHECKING

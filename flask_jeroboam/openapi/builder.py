@@ -1,11 +1,11 @@
 """Main builder function for OPENAPI schema."""
+
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Set
-from typing import Union
 
 from pydantic.schema import get_model_name_map
 
@@ -16,7 +16,6 @@ from flask_jeroboam.openapi._utils import _get_model_definitions
 from flask_jeroboam.openapi.models.openapi import Components
 from flask_jeroboam.openapi.models.openapi import Info
 from flask_jeroboam.openapi.models.openapi import OpenAPI
-from flask_jeroboam.openapi.models.openapi import PathItem
 from flask_jeroboam.openapi.models.openapi import Tag
 
 

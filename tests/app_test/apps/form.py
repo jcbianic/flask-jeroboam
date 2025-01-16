@@ -2,6 +2,7 @@
 
 The corresponding test can be found in tests/test_inbound/test_form
 """
+
 from flask_jeroboam import Blueprint
 from flask_jeroboam import Form
 from tests.app_test.models.inbound import SimpleModelIn

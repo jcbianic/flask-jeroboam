@@ -1,4 +1,5 @@
 """Defining Fixtures for the Test Suite."""
+
 import pytest
 from flask.testing import FlaskClient
 

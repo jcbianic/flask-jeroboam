@@ -1,4 +1,5 @@
 """Code Sample for Getting Started with Flask-Jeroboam."""
+
 from pydantic import BaseModel
 from pydantic import Field
 

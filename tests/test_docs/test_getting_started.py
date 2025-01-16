@@ -1,4 +1,5 @@
 """Testing Examples from the Getting Started Page"""
+
 from docs_src.getting_started_00 import app
 
 

@@ -2,6 +2,7 @@
 
 The endpoints are defined in the app_test.apps.outbound.py module.
 """
+
 from typing import Any
 from typing import Dict
 

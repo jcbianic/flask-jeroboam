@@ -1,4 +1,5 @@
 """Code Example 01 for README.md."""
+
 from typing import List
 from typing import Optional
 

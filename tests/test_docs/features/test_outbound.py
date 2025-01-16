@@ -1,4 +1,5 @@
 """Testing the outbound feature page of our Documentation."""
+
 import pytest
 
 from docs_src.features.outbound import app

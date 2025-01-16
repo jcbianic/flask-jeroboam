@@ -3,6 +3,7 @@
 Params are solved at registration time. This way we reduce indirections when
 handling requests thus reducing overhead.
 """
+
 import re
 from copy import deepcopy
 from typing import Any
@@ -19,6 +20,7 @@ from pydantic.errors import MissingError
 from pydantic.fields import FieldInfo
 from pydantic.fields import ModelField
 from werkzeug.datastructures import FileStorage
+from werkzeug.datastructures import Headers
 from werkzeug.datastructures import MultiDict
 
 from flask_jeroboam._utils import is_sequence_field
@@ -156,7 +158,7 @@ class SolvedHeaderArgument(SolvedArgument):
         )
 
     def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
-        source: dict = request.headers or {}
+        source: Union[Headers, dict] = request.headers or {}
         return _extract_scalar(source=source, alias=self.alias, name=self.name)
 
 

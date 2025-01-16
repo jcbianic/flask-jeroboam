@@ -1,4 +1,5 @@
 """Testing Utils."""
+
 from functools import partial
 
 import pytest

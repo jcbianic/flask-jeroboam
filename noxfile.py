@@ -1,4 +1,5 @@
 """Nox sessions."""
+
 import os
 import shlex
 import shutil
@@ -23,16 +24,16 @@ except ImportError:
 
 
 package = "flask_jeroboam"
-python_versions = ["3.11", "3.10", "3.9", "3.8"]
+python_versions = ["3.11", "3.10", "3.9"]
 nox.needs_version = ">= 2021.6.6"
 nox.options.sessions = (
     "pre-commit",
-    "safety",
     "mypy",
     "tests",
     "typeguard",
     "xdoctest",
     "docs-build",
+    "safety",
 )
 
 
@@ -143,7 +144,7 @@ def safety(session: Session) -> None:
     """Scan dependencies for insecure packages."""
     requirements = session.poetry.export_requirements()
     session.install("safety")
-    session.run("safety", "check", "--full-report", f"--file={requirements}")
+    session.run("safety", "scan", "--full-report", f"--file={requirements}")
 
 
 @session(python=python_versions)

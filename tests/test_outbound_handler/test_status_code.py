@@ -2,6 +2,7 @@
 
 Endpoints are defined in the app_test.apps.outbound.py module.
 """
+
 import warnings
 from unittest.mock import patch
 

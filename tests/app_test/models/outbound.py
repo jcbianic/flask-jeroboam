@@ -1,4 +1,5 @@
 """Outbound Models for Testing."""
+
 from dataclasses import dataclass
 from typing import List
 

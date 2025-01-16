@@ -1,4 +1,5 @@
 """The Blueprint for the OpenAPI UI."""
+
 from typing import TYPE_CHECKING
 
 from flask import render_template

@@ -1,4 +1,5 @@
 """Code Sample for OpenAPI Features Documentation."""
+
 from typing import List
 from typing import Optional
 

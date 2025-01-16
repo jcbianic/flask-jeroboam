@@ -1,4 +1,5 @@
 """Augmented Rule for Flask-Jeroboam."""
+
 import re
 from typing import Any
 from typing import Optional

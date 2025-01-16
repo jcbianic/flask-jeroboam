@@ -6,6 +6,7 @@ This allow us to introduce new functionality to the route registration process.
 TODO: A probably better way to override it is to override the url_rule_class
 with a custom JeroboamRule Object
 """
+
 from typing import Any
 from typing import Callable
 from typing import Optional

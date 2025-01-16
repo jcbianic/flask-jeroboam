@@ -1,4 +1,5 @@
 """Fictional CRUD operations."""
+
 from typing import TYPE_CHECKING
 from typing import Dict
 from typing import List
