@@ -3,6 +3,7 @@
 It is used to override the route method of both Flask and Blueprints Object
 in Jeroboam and jeroboam's Blueprints.
 """
+
 from typing import Any
 from typing import Callable
 

@@ -1,4 +1,5 @@
 """Code Example 00 for README.md."""
+
 from flask_jeroboam import Jeroboam
 
 

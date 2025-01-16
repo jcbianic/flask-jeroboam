@@ -3,6 +3,7 @@
 They are small wrappers around werkzeug HTTP exceptions that customize
 how the message is colllected and formatted.
 """
+
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Optional

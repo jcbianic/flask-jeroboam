@@ -3,7 +3,6 @@
 The corresponding endpoints are defined in the test_app.apps.file.py module.
 """
 
-
 from io import BytesIO
 
 from flask.testing import FlaskClient

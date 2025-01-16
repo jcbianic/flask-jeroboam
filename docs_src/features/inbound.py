@@ -1,4 +1,5 @@
 """Code Sample for Inbound Features Documentation."""
+
 from typing import List
 
 from pydantic import BaseModel

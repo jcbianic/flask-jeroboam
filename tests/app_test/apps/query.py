@@ -2,6 +2,7 @@
 
 The corresponding test can be found in tests/test_inbound/test_query
 """
+
 from typing import FrozenSet
 from typing import Optional
 

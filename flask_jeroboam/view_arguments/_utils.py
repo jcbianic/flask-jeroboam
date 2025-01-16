@@ -1,4 +1,5 @@
 """Helper functions for extracting values from request locations."""
+
 from typing import Dict
 from typing import List
 from typing import Optional

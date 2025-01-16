@@ -3,6 +3,7 @@
 Subclasses the Flask Blueprint.
 Can be used as a drop in replacement of any Flask's Blueprint.
 """
+
 from typing import Any
 from typing import List
 from typing import Optional

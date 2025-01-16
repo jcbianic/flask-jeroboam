@@ -1,4 +1,5 @@
 """Inbound Models for Testing."""
+
 from typing import List
 from typing import Optional
 

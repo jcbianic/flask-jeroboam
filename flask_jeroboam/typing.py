@@ -1,4 +1,5 @@
 """Types used in the package."""
+
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Awaitable

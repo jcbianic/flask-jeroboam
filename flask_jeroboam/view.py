@@ -1,4 +1,5 @@
 """The Route Class."""
+
 from typing import Any
 from typing import Dict
 from typing import List

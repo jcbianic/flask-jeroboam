@@ -1,4 +1,5 @@
 """Custom responses for Flask-Jeroboam."""
+
 from flask import Response
 
 

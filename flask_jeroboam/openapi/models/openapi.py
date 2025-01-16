@@ -2,6 +2,7 @@
 
 Credits: A fork of FASTAPI's openapi/models.py
 """
+
 from enum import Enum
 from typing import Any
 from typing import Callable

@@ -1,4 +1,5 @@
 """Testing Error Handling."""
+
 from flask.testing import FlaskClient
 
 from flask_jeroboam.jeroboam import Jeroboam
