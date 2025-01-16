@@ -22,12 +22,6 @@ jobs:
           - {
               python: "3.11",
               os: "ubuntu-latest",
-              session: "safety",
-              upload: false,
-            }
-          - {
-              python: "3.11",
-              os: "ubuntu-latest",
               session: "mypy",
               upload: false,
             }
@@ -65,13 +59,13 @@ jobs:
               python: "3.11",
               os: "windows-latest",
               session: "tests",
-              upload: false,
+              upload: true,
             }
           - {
               python: "3.11",
               os: "macos-latest",
               session: "tests",
-              upload: false,
+              upload: true,
             }
           - {
               python: "3.11",
@@ -168,10 +162,11 @@ jobs:
           nox --python=${{ matrix.python }}
 
       - name: Upload coverage data
-        if: always() && matrix.upload
+        if: matrix.upload
         uses: "actions/upload-artifact@v3"
         with:
           name: coverage-data
+          include-hidden-files: true
           path: ".coverage.*"
 
       - name: Upload documentation
@@ -180,6 +175,14 @@ jobs:
         with:
           name: docs
           path: docs/_build
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - name: Run Safety CLI to check for vulnerabilities
+        uses: pyupio/safety-action@v1
+        with:
+          api-key: ${{ secrets.SAFETY_API_KEY }}
 
   coverage:
     runs-on: ubuntu-latest
