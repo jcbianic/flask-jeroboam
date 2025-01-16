@@ -138,6 +138,46 @@ All examples in the documentation can be found in `docs_src/X` folder and should
 
 See the documentation on more advanced usage: [https://flask-jeroboam.readthedocs.io/](https://flask-jeroboam.readthedocs.io/)
 
+## How to run the package locally (for development)
+
+If you want to contribute or tweak locally with the project you will need to clone it and properly install the tools.
+
+```bash
+git clone git@github.com:jcbianic/flask-jeroboam.git
+```
+
+You will need pyenv installed with appropriate python versions available (currently: 3.8 to 3.11) and poetry. Before to run the nox session, you'll need to create a poetry environment for each python version. Unless you do that nox won't have all the python versioned environment to run against and will fail on unavailable verions.
+
+```bash
+pyenv local 3.11
+poetry env use 3.11
+poetry install --with dev
+
+pyenv local 3.10
+poetry env use 3.10
+poetry install --with dev
+
+pyenv local 3.9
+poetry env use 3.9
+poetry install --with dev
+
+pyenv local 3.8
+poetry env use 3.8
+poetry install --with dev
+```
+
+Then you can run all nox sessions:
+
+```bash
+nox
+```
+
+If you want to run a specific nox session, do:
+
+```bash
+nox --session "pre-commit"
+```
+
 ## Motivation
 
 I just wanted to use **FastAPI's way** of defining view arguments and response models without leaving Flask.
