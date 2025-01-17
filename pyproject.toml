@@ -1,6 +1,6 @@
 [project]
 name = "flask-jeroboam"
-version = "0.1.0b3"
+version = "0.1.1"
 authors = [
   { name="Jean-Christophe Bianic", email="jc.bianic@gmail.com" },
 ]
