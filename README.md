@@ -13,6 +13,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/flask-jeroboam.svg)][pypi_]
 [![Python Version](https://img.shields.io/pypi/pyversions/flask-jeroboam)][python version]
+[![Download](https://img.shields.io/pypi/dm/flask-jeroboam)][downloads]
 [![License](https://img.shields.io/github/license/jcbianic/flask-jeroboam?color=green)][license]
 [![Commit](https://img.shields.io/github/last-commit/jcbianic/flask-jeroboam?color=green)][commit]
 
@@ -24,6 +25,7 @@
 
 [pypi_]: https://pypi.org/project/flask-jeroboam/
 [status]: https://pypi.org/project/flask-jeroboam/
+[downloads]: https://img.shields.io/pypi/dm/flask-jeroboam
 [python version]: https://pypi.org/project/flask-jeroboam
 [read the docs]: https://flask-jeroboam.readthedocs.io/
 [tests]: https://github.com/jcbianic/flask-jeroboam/actions?workflow=Tests
