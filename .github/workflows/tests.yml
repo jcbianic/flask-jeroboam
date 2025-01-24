@@ -14,12 +14,24 @@ jobs:
       matrix:
         include:
           - {
-              python: "3.11",
+              python: "3.13",
               os: "ubuntu-latest",
               session: "pre-commit",
               upload: false,
             }
           - {
+              python: "3.13",
+              os: "ubuntu-latest",
+              session: "mypy",
+              upload: false,
+            }
+          - {
+              python: "3.12",
+              os: "ubuntu-latest",
+              session: "mypy",
+              upload: false,
+            }
+          - {
               python: "3.11",
               os: "ubuntu-latest",
               session: "mypy",
@@ -38,6 +50,18 @@ jobs:
               upload: false,
             }
           - {
+              python: "3.13",
+              os: "ubuntu-latest",
+              session: "tests",
+              upload: true,
+            }
+          - {
+              python: "3.12",
+              os: "ubuntu-latest",
+              session: "tests",
+              upload: true,
+            }
+          - {
               python: "3.11",
               os: "ubuntu-latest",
               session: "tests",
@@ -52,6 +76,18 @@ jobs:
           - {
               python: "3.9",
               os: "ubuntu-latest",
+              session: "tests",
+              upload: true,
+            }
+          - {
+              python: "3.13",
+              os: "windows-latest",
+              session: "tests",
+              upload: true,
+            }
+          - {
+              python: "3.12",
+              os: "windows-latest",
               session: "tests",
               upload: true,
             }
@@ -62,25 +98,37 @@ jobs:
               upload: true,
             }
           - {
-              python: "3.11",
+              python: "3.13",
+              os: "macos-latest",
+              session: "tests",
+              upload: true,
+            }
+          - {
+              python: "3.12",
               os: "macos-latest",
               session: "tests",
               upload: true,
             }
           - {
               python: "3.11",
+              os: "macos-latest",
+              session: "tests",
+              upload: true,
+            }
+          - {
+              python: "3.13",
               os: "ubuntu-latest",
               session: "typeguard",
               upload: false,
             }
           - {
-              python: "3.11",
+              python: "3.13",
               os: "ubuntu-latest",
               session: "xdoctest",
               upload: false,
             }
           - {
-              python: "3.11",
+              python: "3.13",
               os: "ubuntu-latest",
               session: "docs-build",
               upload: false,
@@ -194,7 +242,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.13"
 
       - name: Install Poetry
         run: |
