@@ -116,19 +116,19 @@ jobs:
               upload: true,
             }
           - {
-              python: "3.13",
+              python: "3.11",
               os: "ubuntu-latest",
               session: "typeguard",
               upload: false,
             }
           - {
-              python: "3.13",
+              python: "3.11",
               os: "ubuntu-latest",
               session: "xdoctest",
               upload: false,
             }
           - {
-              python: "3.13",
+              python: "3.11",
               os: "ubuntu-latest",
               session: "docs-build",
               upload: false,
