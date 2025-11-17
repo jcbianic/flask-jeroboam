@@ -10,9 +10,13 @@ Welcome
 
 Welcome to **Flask-Jeroboam**'s documentation.
 
-**Flask-Jeroboam** is a `Flask`_ extension modelled after `FastAPI`_. Like the former, it uses `Pydantic`_
+**Flask-Jeroboam** is a `Flask`_ extension modelled after `FastAPI`_. It uses `Pydantic`_
 to provide easy-to-configure data validation in request parsing and response serialization, as well as
 OpenAPI-compliant documentation auto-generation.
+
+**Flask-Jeroboam** lets you enjoy FastAPI's elegant syntax while staying in Flask's ecosystem.
+It's perfect for developers who love FastAPI's type-safe approach but need to work with existing Flask applications
+or prefer Flask's maturity and extensive ecosystem.
 
 Start with :doc:`installation`, then jump right in with our :doc:`Getting Started Guide </getting_started>`. Next, the
 :doc:`In-depth Features Tour </features/index>` dive deep into how to use the extension, while the

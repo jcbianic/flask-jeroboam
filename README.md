@@ -7,6 +7,10 @@
 </div>
 <h1 align="center">Flask-Jeroboam</h1>
 
+<p align="center">
+    <a href="README.md">English</a> | <a href="README_fr.md">Français</a>
+</p>
+
 <div align="center">
 
 <i>Flask-Jeroboam is a Flask extension modelled after FastAPI. It uses Pydantic to provide easy-to-configure data validation in request parsing and response serialization.</i>
@@ -40,19 +44,23 @@
 
 **Documentation**: [https://flask-jeroboam.readthedocs.io/](https://flask-jeroboam.readthedocs.io/)
 
+**Documentation (Français)**: [docs/fr/](docs/fr/)
+
 **Source Code**: [https://github.com/jcbianic/flask-jeroboam](https://github.com/jcbianic/flask-jeroboam)
 
 ---
 
 Flask-Jeroboam is a thin layer on top of Flask to make request parsing, response serialization and auto-documentation as smooth and easy as in FastAPI.
 
-Its main features are:
+## Key Features
 
-- Request parsing based on typed annotations of endpoint arguments
-- Response serialization facilitation
-- (Planned) OpenAPI auto-Documentation based on the first two
+- **Automatic Request Parsing**: Parse and validate request data using typed annotations of endpoint arguments
+- **Response Serialization**: Effortlessly serialize responses with Pydantic models
+- **OpenAPI Auto-Documentation**: Generate interactive API documentation automatically
+- **Type Safety**: Leverage Python type hints for robust, self-documenting code
+- **Flask Compatible**: Drop-in replacement for Flask applications with full backward compatibility
 
-## How to install
+## Installation
 
 You can install _flask-jeroboam_ via [pip] or any other tool wired to [PyPI]:
 
@@ -60,7 +68,7 @@ You can install _flask-jeroboam_ via [pip] or any other tool wired to [PyPI]:
 $ pip install flask-jeroboam
 ```
 
-## How to use
+## Quick Start
 
 ### A toy example
 
@@ -140,7 +148,7 @@ All examples in the documentation can be found in `docs_src/X` folder and should
 
 See the documentation on more advanced usage: [https://flask-jeroboam.readthedocs.io/](https://flask-jeroboam.readthedocs.io/)
 
-## Motivation
+## Why Flask-Jeroboam?
 
 I just wanted to use **FastAPI's way** of defining view arguments and response models without leaving Flask.
 
