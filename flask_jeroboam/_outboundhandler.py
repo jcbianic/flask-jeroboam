@@ -65,27 +65,6 @@ class OutboundHandler:
         """The status code that will be used if no status code is provided."""
         return self._solve_status_code(None)
 
-    @property
-    def response_field(self):
-        """The response_model as model field (used by OpenAPI layer until Phase 8)."""
-        if self.response_model is None:
-            return None
-        from flask_jeroboam._compat import BaseConfig, ModelField, V1FieldInfo
-
-        class_validators = getattr(self.response_model, "__validators__", {})
-        field_info = getattr(self.response_model, "field_info", V1FieldInfo())
-        model_config = getattr(self.response_model, "__config__", BaseConfig)
-        return ModelField(
-            name=self.response_model.__name__,
-            type_=self.response_model,
-            class_validators=class_validators,
-            default=None,
-            model_config=model_config,
-            alias=self.response_model.__name__,
-            required=True,
-            field_info=field_info,
-        )
-
     def add_outbound_handling_to(
         self, view_func: JeroboamRouteCallable
     ) -> JeroboamRouteCallable:
