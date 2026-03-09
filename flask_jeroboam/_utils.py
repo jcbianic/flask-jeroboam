@@ -4,7 +4,6 @@ Credits: this is essentially a fork of FastAPI's own utils.py
 Original Source Code at https://github.com/tiangolo/fastapi
 """
 
-import dataclasses
 import inspect
 import re
 from collections.abc import Callable
@@ -18,13 +17,10 @@ from flask_jeroboam._compat import (
     SHAPE_LIST,
     SHAPE_SEQUENCE,
     SHAPE_SET,
-    SHAPE_SINGLETON,
     SHAPE_TUPLE,
     SHAPE_TUPLE_ELLIPSIS,
     BaseConfig,
     ModelField,
-    evaluate_forwardref,
-    lenient_issubclass,
 )
 
 from flask_jeroboam.view_arguments.arguments import ArgumentLocation, ViewArgument
@@ -39,6 +35,27 @@ sequence_shapes = {
 }
 sequence_types = (list, set, tuple)
 body_locations = {ArgumentLocation.body, ArgumentLocation.form, ArgumentLocation.file}
+
+
+def _evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
+    """Evaluate a ForwardRef in the given namespaces (Python version-safe).
+
+    Python 3.12 added type_params; 3.9+ made recursive_guard keyword-only.
+    """
+    try:
+        # Python 3.12+: type_params required
+        return ref._evaluate(globalns, localns, type_params=frozenset(), recursive_guard=frozenset())
+    except TypeError:
+        # Python 3.9–3.11: recursive_guard keyword-only, no type_params
+        return ref._evaluate(globalns, localns, recursive_guard=frozenset())  # type: ignore[call-arg]
+
+
+def _lenient_issubclass(cls: Any, class_or_tuple: Any) -> bool:
+    """issubclass that returns False instead of raising TypeError."""
+    try:
+        return issubclass(cls, class_or_tuple)
+    except TypeError:
+        return False
 
 
 def get_typed_signature(call: Callable[..., Any]) -> inspect.Signature:
@@ -61,7 +78,7 @@ def get_typed_annotation(annotation: Any, globalns: dict[str, Any]) -> Any:
     """Return a typed annotation."""
     if isinstance(annotation, str):
         annotation = ForwardRef(annotation)
-        annotation = evaluate_forwardref(annotation, globalns, globalns)
+        annotation = _evaluate_forwardref(annotation, globalns, globalns)
     return annotation
 
 
@@ -77,21 +94,6 @@ def get_typed_return_annotation(call: Callable[..., Any]) -> Any:  # pragma: no 
     return get_typed_annotation(annotation, globalns)
 
 
-def is_scalar_field(field: ModelField) -> bool:
-    """Check if a field is a scalar field."""
-    return (
-        False
-        if field.shape != SHAPE_SINGLETON
-        or lenient_issubclass(field.type_, BaseModel)
-        or lenient_issubclass(field.type_, sequence_types + (dict,))
-        or dataclasses.is_dataclass(field.type_)
-        or isinstance(field.field_info, ViewArgument)
-        or getattr(field.field_info, "location", None) in body_locations
-        else not field.sub_fields  # pragma: no cover
-        or all(is_scalar_field(f) for f in field.sub_fields)
-    )
-
-
 def is_sequence_field(field) -> bool:
     """Check if a field is a sequence field."""
     # Handle pydantic v2 FieldInfo (no shape/type_ attributes)
@@ -102,12 +104,12 @@ def is_sequence_field(field) -> bool:
         if annotation is None:
             return False
         return get_origin(annotation) in (list, tuple, set, frozenset)
-    # Pydantic v1 ModelField path
-    if (field.shape in sequence_shapes) and not lenient_issubclass(
+    # Pydantic v1 ModelField path (removed in Phase 6)
+    if (field.shape in sequence_shapes) and not _lenient_issubclass(
         field.type_, BaseModel
     ):
         return True
-    return bool(lenient_issubclass(field.type_, sequence_types))
+    return bool(_lenient_issubclass(field.type_, sequence_types))
 
 
 def _rename_query_params_keys(self, inbound_dict: dict, pattern: str) -> dict:
