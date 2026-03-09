@@ -8,17 +8,23 @@ I publish **Flask-Jeroboam** to `PyPI`_, the Python Package Index, and as such, 
 
 .. tabs::
 
-   .. group-tab:: poetry
+   .. group-tab:: uv
 
       .. code-block:: console
 
-         $ poetry add flask-jeroboam
+         $ uv add flask-jeroboam
 
    .. group-tab:: pip
 
       .. code-block:: console
 
          $ pip install flask-jeroboam
+
+   .. group-tab:: poetry
+
+      .. code-block:: console
+
+         $ poetry add flask-jeroboam
 
 
 With that command, you have installed **Flask-Jeroboam** with its two direct dependencies, `Flask`_ and `Pydantic`_ and their own dependencies tree (:ref:`check it out here <dependencies>`).
@@ -38,22 +44,22 @@ Installing **Flask-Jeroboam** will automatically install these packages along wi
 * `Pydantic`_ to provide data validation using Python type annotations.
 
 These two direct dependencies come with their own dependencies tree. In total, you will have up to 9 new packages installed.
-There is a nice `poetry`_ command to explore that tree. It goes like this:
+You can explore that tree with `uv`_:
 
 .. code-block:: console
 
-   $ poetry show flask-jeroboam --tree
-   flask-jeroboam 0.1.0b0 A Flask extension, inspired by FastAPI that uses Pydantic to provide easy-to-configure data validation for request parsing and response serialization.
-   ├── flask >=2.1.3,<3.0.0
-   │   ├── click >=8.0
-   │   │   └── colorama *
-   │   ├── itsdangerous >=2.0
-   │   ├── jinja2 >=3.0
-   │   │   └── markupsafe >=2.0
-   │   └── werkzeug >=2.2.2
-   │       └── markupsafe >=2.1.1 (circular dependency aborted here)
-   └── pydantic >=1.10.2,<2.0.0
-      └── typing-extensions >=4.2.0
+   $ uv tree --package flask-jeroboam
+   flask-jeroboam v0.1.1
+   ├── flask v3.1.3
+   │   ├── blinker v1.9.0
+   │   ├── click v8.1.8
+   │   ├── itsdangerous v2.2.0
+   │   ├── jinja2 v3.1.6
+   │   │   └── markupsafe v3.0.2
+   │   └── werkzeug v3.1.3
+   │       └── markupsafe v3.0.2 (*)
+   └── pydantic v1.10.21
+       └── typing-extensions v4.12.2
 
 .. _Flask: https://palletsprojects.com/p/flask/
 .. _Pydantic: https://docs.pydantic.dev/
@@ -78,11 +84,11 @@ Removing **Flask-Jeroboam** from your project's dependencies is as straightforwa
 
 .. tabs::
 
-   .. group-tab:: poetry
+   .. group-tab:: uv
 
       .. code-block:: bash
 
-         $ poetry remove flask-jeroboam
+         $ uv remove flask-jeroboam
 
    .. group-tab:: pip
 
@@ -90,7 +96,14 @@ Removing **Flask-Jeroboam** from your project's dependencies is as straightforwa
 
          $ pip uninstall flask-jeroboam
 
+   .. group-tab:: poetry
 
+      .. code-block:: bash
+
+         $ poetry remove flask-jeroboam
+
+
+.. _uv: https://docs.astral.sh/uv/
 .. _poetry: https://python-poetry.org/
 .. _pyenv: https://github.com/pyenv/pyenv
 .. _PyPI: https://pypi.org/

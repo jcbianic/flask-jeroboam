@@ -21,7 +21,7 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/181b7355cee7b1316893/maintainability)](https://img.shields.io/codeclimate/maintainability/jcbianic/flask-jeroboam?color=green)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/181b7355cee7b1316893/test_coverage)](https://img.shields.io/codeclimate/coverage/jcbianic/flask-jeroboam?color=green)
 [![Tests](https://github.com/jcbianic/flask-jeroboam/workflows/Tests/badge.svg)][tests]
-[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)][black]
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)][ruff]
 
 [pypi_]: https://pypi.org/project/flask-jeroboam/
 [status]: https://pypi.org/project/flask-jeroboam/
@@ -31,7 +31,7 @@
 [tests]: https://github.com/jcbianic/flask-jeroboam/actions?workflow=Tests
 [codecov]: https://app.codecov.io/gh/jcbianic/flask-jeroboam
 [pre-commit]: https://github.com/pre-commit/pre-commit
-[black]: https://github.com/psf/black
+[ruff]: https://github.com/astral-sh/ruff
 [commit]: https://img.shields.io/github/last-commit/jcbianic/flask-jeroboam
 
 </div>

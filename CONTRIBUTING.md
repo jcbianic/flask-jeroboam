@@ -21,49 +21,32 @@ Here is a list of important resources for contributors:
 
 ## How to set up your development environment
 
-You need Python 3.9+ and the following tools:
-
-- [Poetry]
-- [Nox]
-- [nox-poetry]
-
-Install the package with development requirements:
+You need Python 3.10+ and [uv]:
 
 ```console
-$ poetry install
+$ uv sync --group dev
 ```
 
 You can now run an interactive Python session,
 or the command-line interface:
 
 ```console
-$ poetry run python
-$ poetry run flask-jeroboam
+$ uv run python
+$ uv run flask-jeroboam
 ```
 
-[poetry]: https://python-poetry.org/
+[uv]: https://docs.astral.sh/uv/
 [nox]: https://nox.thea.codes/
-[nox-poetry]: https://nox-poetry.readthedocs.io/
 
 ## How to test the project
 
-You will need pyenv installed with appropriate python versions available (currently: 3.8 to 3.11) and poetry. Before to run the nox session, you'll need to create a poetry environment for each python version. Unless you do that nox won't have all the python versioned environment to run against and will fail on unavailable verions.
+uv manages Python versions and virtual environments automatically. To run all nox sessions across all supported Python versions (3.10–3.13), make sure the target versions are available:
 
 ```bash
-pyenv local 3.11
-poetry env use 3.11
-poetry install --with dev
-
-pyenv local 3.10
-poetry env use 3.10
-poetry install --with dev
-
-pyenv local 3.9
-poetry env use 3.9
-poetry install --with dev
+uv python install 3.10 3.11 3.12 3.13
 ```
 
-Then you can run all nox sessions:
+Then run all nox sessions:
 
 ```bash
 nox
