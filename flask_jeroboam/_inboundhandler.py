@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, create_model
 
-from flask_jeroboam._compat import ErrorWrapper, Undefined, get_annotation_from_field_info
+from flask_jeroboam._compat import Undefined, get_annotation_from_field_info
 from typing_extensions import ParamSpec
 
 from flask_jeroboam._utils import create_field, get_typed_signature
@@ -181,7 +181,7 @@ class InboundHandler:
         def wrapper(*args, **kwargs) -> JeroboamResponseReturnValue:
             inbound_values, errors = self._parse_and_validate_inbound_data(**kwargs)
             if errors:
-                raise InvalidRequest([errors])
+                raise InvalidRequest(errors)
             return view_func(*args, **inbound_values)
 
         return wrapper
@@ -295,7 +295,7 @@ class InboundHandler:
 
     def _parse_and_validate_inbound_data(
         self, **kwargs
-    ) -> tuple[dict, list | ErrorWrapper]:
+    ) -> tuple[dict, list[dict]]:
         """Parse and Validate the request Inbound data."""
         errors = []
         values = {}

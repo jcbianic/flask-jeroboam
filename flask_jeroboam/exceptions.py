@@ -4,18 +4,12 @@ They are small wrappers around werkzeug HTTP exceptions that customize
 how the message is colllected and formatted.
 """
 
-from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
-from pydantic.v1 import ValidationError, create_model as v1_create_model
-from flask_jeroboam._compat import ErrorList
 from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
 
 if TYPE_CHECKING:  # pragma: no cover
     from flask_jeroboam.jeroboam import Jeroboam
-
-
-RequestErrorModel = v1_create_model("Request")
 
 
 class RessourceNotFound(NotFound):
@@ -48,17 +42,17 @@ class RessourceNotFound(NotFound):
         return str(self), 404
 
 
-class InvalidRequest(ValidationError, BadRequest):
-    """A slightly modifiedversion of Werkzeug's BadRequest Exception."""
+class InvalidRequest(BadRequest):
+    """A slightly modified version of Werkzeug's BadRequest Exception."""
 
-    def __init__(self, errors: Sequence[ErrorList], *, body: Any = None):
+    def __init__(self, errors: list[dict], *, body: Any = None):
+        self.error_details = errors
         self.body = body
         self.response = None
-        super().__init__(errors, RequestErrorModel)
 
     def handle(self) -> tuple[dict, int]:
         """Handle the exception and return a message to the user."""
-        return {"detail": self.errors()}, 400
+        return {"detail": self.error_details}, 400
 
 
 class ServerError(InternalServerError):

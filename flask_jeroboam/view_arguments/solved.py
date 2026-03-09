@@ -10,7 +10,8 @@ from typing import Any
 
 from flask import request
 
-from flask_jeroboam._compat import BaseConfig, ErrorWrapper, MissingError, ModelField, V1FieldInfo as FieldInfo
+from flask_jeroboam._compat import BaseConfig, ErrorWrapper, ModelField, V1FieldInfo as FieldInfo
+from pydantic.v1 import ValidationError as _V1ValidationError, create_model as _v1_create_model
 from werkzeug.datastructures import FileStorage, Headers, MultiDict
 
 from flask_jeroboam._utils import is_sequence_field
@@ -22,6 +23,19 @@ from flask_jeroboam.view_arguments._utils import (
 from flask_jeroboam.view_arguments.arguments import ArgumentLocation, ViewArgument
 
 empty_field_info = FieldInfo()
+
+_DUMMY_V1_MODEL = _v1_create_model("_JeroboamRequest")
+
+
+def _error_wrapper_to_dicts(ew: ErrorWrapper) -> list[dict]:
+    """Convert a pydantic.v1 ErrorWrapper to a list of plain error dicts.
+
+    Uses pydantic.v1.ValidationError as the canonical converter so the output
+    format (including ctx for constrained fields) is guaranteed to match what
+    pydantic.v1 would produce. Returns a list because a single ErrorWrapper
+    wrapping a nested ValidationError may expand to multiple field errors.
+    """
+    return _V1ValidationError([ew], _DUMMY_V1_MODEL).errors()
 
 
 class SolvedArgument(ModelField):
@@ -101,16 +115,18 @@ class SolvedArgument(ModelField):
             **kwargs,
         )
 
-    def validate_request(self):
+    def validate_request(self) -> tuple[dict, list[dict]]:
         """Validate the request."""
-        values = {}
-        errors = []
+        values: dict = {}
+        errors: list[dict] = []
         assert self.location is not None  # noqa: S101
         inbound_values = self._get_values()
         if inbound_values is None and self.required:
-            errors.append(
-                ErrorWrapper(MissingError(), loc=(self.location.value, self.alias))
-            )
+            errors.append({
+                "loc": [self.location.value, self.alias],
+                "msg": "field required",
+                "type": "value_error.missing",
+            })
             return values, errors
         elif inbound_values is None:
             inbound_values = deepcopy(self.default)
@@ -122,18 +138,18 @@ class SolvedArgument(ModelField):
                 values[self.name] = self.type_.model_validate(inbound_values)
             except V2ValidationError as e:
                 for err in e.errors(include_url=False):
-                    loc = (self.location.value, self.alias) + tuple(
+                    loc = [self.location.value, self.alias] + [
                         str(l) for l in err.get("loc", ())
-                    )
-                    errors.append(ErrorWrapper(ValueError(err["msg"]), loc=loc))
+                    ]
+                    errors.append({"loc": loc, "msg": err["msg"], "type": err["type"]})
             except Exception as e:
-                errors.append(ErrorWrapper(e, loc=(self.location.value, self.alias)))
+                errors.append({"loc": [self.location.value, self.alias], "msg": str(e), "type": "value_error"})
             return values, errors
         values_, errors_ = self.validate(
             inbound_values, values, loc=(self.location.value, self.alias)
         )
         if isinstance(errors_, ErrorWrapper):
-            errors.append(errors_)
+            errors.extend(_error_wrapper_to_dicts(errors_))
         else:
             values[self.name] = values_
         return values, errors
