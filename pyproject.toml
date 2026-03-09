@@ -31,17 +31,16 @@ classifiers = [
   "Topic :: Internet",
   "Typing :: Typed",
 ]
+dependencies = [
+  "Flask>=3.1.3",
+  "pydantic>=1.10.21,<2.0",
+]
 
 [project.urls]
 Documentation = "https://flask-jeroboam.readthedocs.io"
 Homepage = "https://github.com/jcbianic/flask-jeroboam"
 Repository = "https://github.com/jcbianic/flask-jeroboam"
 Changelog = "https://github.com/jcbianic/flask-jeroboam/releases"
-
-dependencies = [
-  "Flask>=3.1.3",
-  "pydantic>=1.10.21,<2.0",
-]
 
 [dependency-groups]
 dev = [
