@@ -119,9 +119,9 @@ def precommit(session: nox.Session) -> None:
 @nox.session(python=python_versions)
 def mypy(session: nox.Session) -> None:
     """Type-check using mypy."""
-    args = session.posargs or ["flask_jeroboam", "tests", "docs/conf.py"]
+    args = session.posargs or ["flask_jeroboam", "tests"]
     session.install(".")
-    session.install("mypy", "pytest", "sphinx", "sphinx-click", "myst-parser")
+    session.install("mypy", "pytest")
     session.run("mypy", *args)
     if not session.posargs:
         session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
