@@ -90,10 +90,16 @@ line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "S"]
-ignore = []
+ignore = [
+  "B008",  # Function calls in default args — intentional FastAPI-style API design
+  "B905",  # zip() strict= — not enforced
+  "E721",  # Type comparison with == — intentional in generic type introspection
+  "N818",  # Exception name suffix — InvalidRequest is a public API name
+]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "S105", "S106"]
+"tests/**" = ["S101", "S105", "S106", "B018", "E402"]
+"**/*.pyi" = ["N802"]
 "noxfile.py" = ["S603", "S607"]
 
 [tool.mypy]

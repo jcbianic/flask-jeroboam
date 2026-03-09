@@ -3,9 +3,7 @@
 The corresponding test can be found in tests/test_inbound/test_path
 """
 
-from flask_jeroboam import Blueprint
-from flask_jeroboam import Path
-
+from flask_jeroboam import Blueprint, Path
 
 router = Blueprint("path_params_router", __name__, tags=["Path"])
 
@@ -172,7 +170,7 @@ def get_with_preproc_path_param_max_length(item_id: str = Path(max_length=3)):
 
 @router.get("/path/with_converter/param-min_maxlength/<string:item_id>")
 def get_with_preproc_path_param_min_max_length(
-    item_id: str = Path(max_length=3, min_length=2)
+    item_id: str = Path(max_length=3, min_length=2),
 ):
     return {"item_id": item_id}
 

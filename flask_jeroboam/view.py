@@ -1,11 +1,6 @@
 """The Route Class."""
 
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Type
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from typing_extensions import ParamSpec
 
@@ -14,7 +9,6 @@ from flask_jeroboam._outboundhandler import OutboundHandler
 from flask_jeroboam.responses import JSONResponse
 from flask_jeroboam.typing import JeroboamRouteCallable
 from flask_jeroboam.view_arguments.solved import SolvedArgument
-
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -34,8 +28,8 @@ class JeroboamView:
         self,
         rule: str,
         original_view_func: JeroboamRouteCallable,
-        options: Dict[str, Any],
-        response_class: Optional[Type] = JSONResponse,
+        options: dict[str, Any],
+        response_class: type | None = JSONResponse,
     ):
         """Initialize the JeroboamView.
 
@@ -44,7 +38,7 @@ class JeroboamView:
         assert response_class is not None  # noqa: S101
         self.endpoint = options.pop("endpoint", None)
         self.main_http_verb = self._solve_main_http_verb(options, original_view_func)
-        configured_status_code: Optional[int] = options.pop("status_code", None)
+        configured_status_code: int | None = options.pop("status_code", None)
         self.inbound_handler = InboundHandler(
             original_view_func, self.main_http_verb, rule
         )
@@ -86,12 +80,12 @@ class JeroboamView:
         return self.main_http_verb.lower()
 
     @property
-    def parameters(self) -> List[SolvedArgument]:
+    def parameters(self) -> list[SolvedArgument]:
         """Return the main HTTP verb of the Endpoint."""
         return self.inbound_handler.parameters
 
     def _solve_main_http_verb(
-        self, options: Dict[str, Any], original_view_func: JeroboamRouteCallable
+        self, options: dict[str, Any], original_view_func: JeroboamRouteCallable
     ) -> str:
         """Return the main HTTP verb of the Endpoint.
 

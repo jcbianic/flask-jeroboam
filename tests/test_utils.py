@@ -4,8 +4,7 @@ from functools import partial
 
 import pytest
 from flask.testing import FlaskClient
-from pydantic import BaseModel
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from flask_jeroboam import Body
 from flask_jeroboam._utils import _rename_query_params_keys

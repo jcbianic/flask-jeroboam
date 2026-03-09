@@ -3,7 +3,6 @@ from flask.testing import FlaskClient
 
 from tests.app_test.models.inbound import OptionalModelIn
 
-
 response_missing = {
     "detail": [
         {

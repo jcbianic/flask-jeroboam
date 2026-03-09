@@ -1,15 +1,8 @@
 """Code Sample for Inbound Features Documentation."""
 
-from typing import List
-
 from pydantic import BaseModel
 
-from flask_jeroboam import Body
-from flask_jeroboam import Cookie
-from flask_jeroboam import Jeroboam
-from flask_jeroboam import Path
-from flask_jeroboam import Query
-
+from flask_jeroboam import Body, Cookie, Jeroboam, Path, Query
 
 app = Jeroboam("Jeroboam Inbound Features App")
 app.init_app()
@@ -76,7 +69,7 @@ class Item(BaseModel):
 
 
 @app.get("/defining_type_with_type_hints")
-def get_type_hints(page: int, search: List[str], item: Item, price=Query(float)):
+def get_type_hints(page: int, search: list[str], item: Item, price=Query(float)):
     return (
         f"Received arguments are :\n"
         f"page : {page}\n"

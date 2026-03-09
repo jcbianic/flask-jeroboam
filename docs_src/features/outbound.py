@@ -1,12 +1,8 @@
 """Code Sample for Outbound Features Documentation."""
 
-from typing import Optional
-
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from flask_jeroboam import Jeroboam
-
 
 app = Jeroboam("Jeroboam Outbound Features App")
 app.init_app()
@@ -15,12 +11,12 @@ app.init_app()
 class Task(BaseModel):
     id: int
     name: str
-    description: Optional[str] = Field("Just here to make a point.")
+    description: str | None = Field("Just here to make a point.")
 
 
 class TaskIn(BaseModel):
     name: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class TaskOut(TaskIn):

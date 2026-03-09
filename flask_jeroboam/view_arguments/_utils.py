@@ -1,12 +1,6 @@
 """Helper functions for extracting values from request locations."""
 
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
-
-from werkzeug.datastructures import Headers
-from werkzeug.datastructures import MultiDict
+from werkzeug.datastructures import Headers, MultiDict
 
 from flask_jeroboam._utils import is_sequence_field
 from flask_jeroboam.wrapper import current_app
@@ -14,7 +8,7 @@ from flask_jeroboam.wrapper import current_app
 
 def _extract_scalar(
     *,
-    source: Union[Headers, dict],
+    source: Headers | dict,
     name: str,
     alias: str,
     **_kwargs,
@@ -24,8 +18,8 @@ def _extract_scalar(
 
 
 def _extract_sequence(
-    *, source: MultiDict, name: Optional[str], alias: Optional[str], **_kwargs
-) -> List:
+    *, source: MultiDict, name: str | None, alias: str | None, **_kwargs
+) -> list:
     """Extract a Sequence value from a source."""
     _values = source.getlist(alias)
     if len(_values) == 0:
@@ -66,9 +60,9 @@ def _undirected_extraction(
 def _extract_subfields(
     *,
     source: MultiDict,
-    fields: Dict,
+    fields: dict,
     **_kwargs,
-) -> Dict:
+) -> dict:
     """Extract a Sequence from subfields."""
     has_key_transformer = (
         getattr(current_app, "query_string_key_transformer", False) is not None

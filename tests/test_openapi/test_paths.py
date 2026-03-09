@@ -1,6 +1,5 @@
 from flask.testing import FlaskClient
 
-
 unspported_use_case = {
     "/non_decorated_route": {
         "get": {

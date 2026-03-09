@@ -1,37 +1,27 @@
 import dataclasses
 import traceback
+from collections.abc import Callable
 from functools import wraps
-from typing import Any
-from typing import Callable
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Type
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from flask import Response
 from flask.globals import current_app
-from pydantic import BaseConfig
-from pydantic import BaseModel
-from pydantic import create_model
-from pydantic import validate_model
+from pydantic import BaseConfig, BaseModel, create_model, validate_model
 from pydantic.fields import FieldInfo
 from typing_extensions import ParamSpec
 
-from flask_jeroboam._constants import METHODS_DEFAULT_STATUS_CODE
-from flask_jeroboam._constants import NO_BODY_STATUS_CODES
-from flask_jeroboam._utils import create_field
-from flask_jeroboam._utils import get_typed_return_annotation
+from flask_jeroboam._constants import METHODS_DEFAULT_STATUS_CODE, NO_BODY_STATUS_CODES
+from flask_jeroboam._utils import create_field, get_typed_return_annotation
 from flask_jeroboam.exceptions import ResponseValidationError
 from flask_jeroboam.responses import JSONResponse
-from flask_jeroboam.typing import HeadersValue
-from flask_jeroboam.typing import JeroboamBodyType
-from flask_jeroboam.typing import JeroboamResponseReturnValue
-from flask_jeroboam.typing import JeroboamRouteCallable
-from flask_jeroboam.typing import ResponseModel
-from flask_jeroboam.typing import Union
-
+from flask_jeroboam.typing import (
+    HeadersValue,
+    JeroboamBodyType,
+    JeroboamResponseReturnValue,
+    JeroboamRouteCallable,
+    ResponseModel,
+    Union,
+)
 
 # from flask_jeroboam.typing import TypedParams
 # from flask_jeroboam.utils import get_typed_return_annotation
@@ -56,10 +46,10 @@ class OutboundHandler:
     def __init__(
         self,
         view_func: Callable,
-        configured_status_code: Optional[int],
+        configured_status_code: int | None,
         main_http_verb: str,
-        options: Dict[str, Any],
-        response_class: Type = JSONResponse,
+        options: dict[str, Any],
+        response_class: type = JSONResponse,
     ):
         self.response_model = self._solve_response_model(view_func, options)
         self.configured_status_code = configured_status_code
@@ -136,7 +126,7 @@ class OutboundHandler:
 
     def _unpack_view_function_return_value(
         self, initial_return_value: JeroboamResponseReturnValue
-    ) -> Tuple[JeroboamBodyType, Optional[int], Optional[HeadersValue]]:
+    ) -> tuple[JeroboamBodyType, int | None, HeadersValue | None]:
         """Unpack the return value of the view function.
 
         Flask support various shapes of return values in their view function.
@@ -168,8 +158,8 @@ class OutboundHandler:
         return initial_return_value, None, None  # type: ignore
 
     def _solve_response_model(
-        self, view_func: Callable, options: Dict[str, Any]
-    ) -> Optional[ResponseModel]:
+        self, view_func: Callable, options: dict[str, Any]
+    ) -> ResponseModel | None:
         """Extract the Response Model from view function.
 
         The reponse_model must be a subclass of pydantic.BaseModel
@@ -185,17 +175,17 @@ class OutboundHandler:
             * Cloning the response_field doesn't seem to be necessary either
               to filter out unwanted data.
         """
-        response_model: Optional[Type] = options.pop(
+        response_model: type | None = options.pop(
             "response_model", get_typed_return_annotation(view_func)
         )
         if response_model is None:
             return None
 
         if getattr(response_model, "__origin__", None) == list:
-            field: Type = response_model.__args__[0]
+            field: type = response_model.__args__[0]
             response_model = create_model(
                 f"{field.__name__}AsList",
-                __root__=(List[field], ...),  # type: ignore[valid-type]
+                __root__=(list[field], ...),  # type: ignore[valid-type]
             )
         assert response_model is not None  # noqa: S101
         if not issubclass(response_model, BaseModel):
@@ -205,8 +195,8 @@ class OutboundHandler:
         return response_model
 
     def _solve_default_status_code_by_http_verb(
-        self, http_verb: str, configured_status_code: Optional[int]
-    ) -> Optional[int]:
+        self, http_verb: str, configured_status_code: int | None
+    ) -> int | None:
         """Determines sensible default status code depending for the main HTTP VERB.
 
         TODO: Add a CONFIGURATION OPTION for this.
@@ -225,7 +215,7 @@ class OutboundHandler:
             )
         return method_status_code
 
-    def _solve_status_code(self, returned_status_code: Optional[int]) -> int:
+    def _solve_status_code(self, returned_status_code: int | None) -> int:
         """Solve the status code from this Response.
 
         In order of priority:
@@ -278,7 +268,7 @@ class OutboundHandler:
 
     def _adapt_datastructure_of(
         self, content: JeroboamBodyType
-    ) -> Union[Dict, List[Any]]:
+    ) -> Union[dict, list[Any]]:
         """Prepare the content of the response.
 
         It basically accomodate for different datastructures and convert
@@ -302,9 +292,9 @@ class OutboundHandler:
 
     def _build_response(
         self,
-        content: Optional[str] = None,
-        status_code: Optional[int] = None,
-        headers: Optional[HeadersValue] = None,
+        content: str | None = None,
+        status_code: int | None = None,
+        headers: HeadersValue | None = None,
     ) -> Response:
         """Make a Response Object from content and status code, and passed_headers."""
         # Do we replace with a check on content is None ?

@@ -1,23 +1,16 @@
 """Main builder function for OPENAPI schema."""
 
-from typing import TYPE_CHECKING
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Set
+from typing import TYPE_CHECKING, Any
 
 from pydantic.schema import get_model_name_map
 
 from flask_jeroboam._utils import _memoized_update_if_value
-from flask_jeroboam.openapi._utils import _build_openapi_path_item
-from flask_jeroboam.openapi._utils import _get_flat_models_from_jeroboam_views
-from flask_jeroboam.openapi._utils import _get_model_definitions
-from flask_jeroboam.openapi.models.openapi import Components
-from flask_jeroboam.openapi.models.openapi import Info
-from flask_jeroboam.openapi.models.openapi import OpenAPI
-from flask_jeroboam.openapi.models.openapi import Tag
-
+from flask_jeroboam.openapi._utils import (
+    _build_openapi_path_item,
+    _get_flat_models_from_jeroboam_views,
+    _get_model_definitions,
+)
+from flask_jeroboam.openapi.models.openapi import Components, Info, OpenAPI, Tag
 
 if TYPE_CHECKING:  # pragma: no cover
     from flask_jeroboam.jeroboam import Jeroboam
@@ -28,8 +21,8 @@ if TYPE_CHECKING:  # pragma: no cover
 def build_openapi(
     *,
     app: "Jeroboam",
-    rules: List["JeroboamRule"],
-    tags: Optional[List[Dict[str, Any]]] = None,
+    rules: list["JeroboamRule"],
+    tags: list[dict[str, Any]] | None = None,
 ) -> OpenAPI:
     """Generate an OpenAPI schema for the given routes.
 
@@ -51,12 +44,12 @@ def build_openapi(
     servers = app.config.get("JEROBOAM_SERVERS", None)
 
     # Préparation
-    paths: Dict[str, Any] = {}
-    components: Dict[str, Dict[str, Any]] = {}
-    operation_ids: Set[str] = set()
+    paths: dict[str, Any] = {}
+    components: dict[str, dict[str, Any]] = {}
+    operation_ids: set[str] = set()
 
     # Les jerobomas views, probablement à déléguer à l'app
-    jeroboam_views: List[Optional["JeroboamView"]] = [
+    jeroboam_views: list[JeroboamView | None] = [
         getattr(app.view_functions[rule.endpoint], "__jeroboam_view__", None)
         for rule in rules
     ]

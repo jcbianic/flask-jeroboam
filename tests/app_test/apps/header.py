@@ -3,9 +3,7 @@
 The corresponding test can be found in tests/test_inbound/test_header
 """
 
-from flask_jeroboam import Blueprint
-from flask_jeroboam import Header
-
+from flask_jeroboam import Blueprint, Header
 
 router = Blueprint("headers_params_router", __name__, tags=["Header"])
 

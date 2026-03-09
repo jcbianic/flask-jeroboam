@@ -2,7 +2,6 @@
 
 import pytest
 
-
 response_not_valid_bool = {
     "detail": [
         {

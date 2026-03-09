@@ -1,8 +1,5 @@
-from typing import Optional
-
 from flask.testing import FlaskClient
-from pydantic import BaseModel
-from pydantic import validator
+from pydantic import BaseModel, validator
 
 from flask_jeroboam.jeroboam import Jeroboam
 
@@ -17,7 +14,7 @@ class ModelC(ModelB):
 
 class ModelA(BaseModel):
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     model_b: ModelB
 
     @validator("name")

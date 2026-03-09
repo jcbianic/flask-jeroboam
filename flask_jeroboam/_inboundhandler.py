@@ -1,38 +1,27 @@
 import inspect
 import re
 import typing as t
+from collections.abc import Callable
 from functools import wraps
 from typing import Any
-from typing import Callable
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Set
-from typing import Tuple
-from typing import Type
-from typing import Union
 
-from pydantic import BaseModel
-from pydantic import create_model
+from pydantic import BaseModel, create_model
 from pydantic.error_wrappers import ErrorWrapper
 from pydantic.fields import Undefined
 from pydantic.schema import get_annotation_from_field_info
 from typing_extensions import ParamSpec
 
-from flask_jeroboam._utils import create_field
-from flask_jeroboam._utils import get_typed_signature
+from flask_jeroboam._utils import create_field, get_typed_signature
 from flask_jeroboam.exceptions import InvalidRequest
-from flask_jeroboam.typing import JeroboamResponseReturnValue
-from flask_jeroboam.typing import JeroboamRouteCallable
-from flask_jeroboam.view_arguments.arguments import ArgumentLocation
-from flask_jeroboam.view_arguments.arguments import BodyArgument
-from flask_jeroboam.view_arguments.arguments import ViewArgument
-from flask_jeroboam.view_arguments.arguments import get_argument_class
-from flask_jeroboam.view_arguments.functions import Body
-from flask_jeroboam.view_arguments.functions import File
-from flask_jeroboam.view_arguments.functions import Form
+from flask_jeroboam.typing import JeroboamResponseReturnValue, JeroboamRouteCallable
+from flask_jeroboam.view_arguments.arguments import (
+    ArgumentLocation,
+    BodyArgument,
+    ViewArgument,
+    get_argument_class,
+)
+from flask_jeroboam.view_arguments.functions import Body, File, Form
 from flask_jeroboam.view_arguments.solved import SolvedArgument
-
 
 F = t.TypeVar("F", bound=t.Callable[..., t.Any])
 R = t.TypeVar("R", bound=t.Any)
@@ -65,18 +54,18 @@ class InboundHandler:
         )
         self.rule = rule
         self.path_param_names = set(re.findall(r"<(?:\w*:)?(\w*?)>", rule))
-        self.query_params: List[SolvedArgument] = []
-        self.path_params: List[SolvedArgument] = []
-        self.header_params: List[SolvedArgument] = []
-        self.cookie_params: List[SolvedArgument] = []
-        self.body_params: List[SolvedArgument] = []
-        self.form_params: List[SolvedArgument] = []
-        self.file_params: List[SolvedArgument] = []
-        self.other_params: List[SolvedArgument] = []
-        self.locations_to_visit: Set[ArgumentLocation] = set()
+        self.query_params: list[SolvedArgument] = []
+        self.path_params: list[SolvedArgument] = []
+        self.header_params: list[SolvedArgument] = []
+        self.cookie_params: list[SolvedArgument] = []
+        self.body_params: list[SolvedArgument] = []
+        self.form_params: list[SolvedArgument] = []
+        self.file_params: list[SolvedArgument] = []
+        self.other_params: list[SolvedArgument] = []
+        self.locations_to_visit: set[ArgumentLocation] = set()
         self._solve_params(view_func)
         self._check_compliance()
-        self._body_field: Optional[SolvedArgument] = None
+        self._body_field: SolvedArgument | None = None
 
     @staticmethod
     def _solve_default_params_location(
@@ -91,7 +80,7 @@ class InboundHandler:
             return ArgumentLocation.path
 
     @property
-    def parameters(self) -> List[SolvedArgument]:
+    def parameters(self) -> list[SolvedArgument]:
         """Return all Parameters of the InboundHandler."""
         return (
             self.query_params
@@ -101,7 +90,7 @@ class InboundHandler:
         )
 
     @property
-    def body_arguments(self) -> List[SolvedArgument]:
+    def body_arguments(self) -> list[SolvedArgument]:
         """Return all Body Arguments of the InboundHandler."""
         return self.body_params + self.form_params + self.file_params
 
@@ -115,7 +104,7 @@ class InboundHandler:
         """Check if the InboundHandler has any Configured Parameters."""
         return len(self.body_arguments) > 0
 
-    def body_field(self, name: Optional[str] = None) -> Optional[SolvedArgument]:
+    def body_field(self, name: str | None = None) -> SolvedArgument | None:
         """The Body Arguments are combined into a single Body Field."""
         if self._body_field is None and self.body_arguments and name:
             self._body_field = self._build_body_field(name)
@@ -126,7 +115,7 @@ class InboundHandler:
 
         Has unreachable branches. Single Arguments never reach this method.
         """
-        body_field_info_kwargs: Dict[str, Any] = {"default": None}
+        body_field_info_kwargs: dict[str, Any] = {"default": None}
         if len(self.file_params) > 0:  # pragma: no cover
             body_field_info: Callable = File
         elif len(self.form_params) > 0:
@@ -142,7 +131,7 @@ class InboundHandler:
                 body_field_info_kwargs["media_type"] = body_param_media_types[0]
         return body_field_info(**body_field_info_kwargs)
 
-    def _build_body_field(self, name: str) -> Optional[SolvedArgument]:
+    def _build_body_field(self, name: str) -> SolvedArgument | None:
         """Build the Body Field from the Body Arguments.
 
         TODO: refactor this method: inelegant.
@@ -155,13 +144,13 @@ class InboundHandler:
         body_param_names_set = {param.name for param in self.body_arguments}
         if (
             len(body_param_names_set) == 1
-            and not getattr(field_info, "embed", None) is None
+            and getattr(field_info, "embed", None) is not None
         ):
             if not issubclass(first_param.type_, BaseModel):
                 first_param.embed = True
             return first_param
         model_name = f"{name}_request_body_as_model"
-        BodyModel: Type[BaseModel] = create_model(model_name)  # noqa: N806
+        BodyModel: type[BaseModel] = create_model(model_name)  # noqa: N806
         any_embed = any(argument.embed for argument in self.body_arguments)
         any_required = any(argument.required for argument in self.body_arguments)
         for argument in self.body_arguments:
@@ -229,7 +218,7 @@ class InboundHandler:
         self,
         param_name: str,
         param: inspect.Parameter,
-        force_location: Optional[ArgumentLocation] = None,
+        force_location: ArgumentLocation | None = None,
         ignore_default: bool = False,
     ) -> SolvedArgument:
         """Analyse the param and its annotation to solve its configiration.
@@ -268,7 +257,7 @@ class InboundHandler:
         self,
         param_name: str,
         param: inspect.Parameter,
-        force_location: Optional[ArgumentLocation] = None,
+        force_location: ArgumentLocation | None = None,
     ) -> ArgumentLocation:
         if param_name in self.path_param_names:
             return ArgumentLocation.path
@@ -307,7 +296,7 @@ class InboundHandler:
 
     def _parse_and_validate_inbound_data(
         self, **kwargs
-    ) -> Tuple[Dict, Union[List, ErrorWrapper]]:
+    ) -> tuple[dict, list | ErrorWrapper]:
         """Parse and Validate the request Inbound data."""
         errors = []
         values = {}

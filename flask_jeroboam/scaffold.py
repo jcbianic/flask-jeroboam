@@ -4,15 +4,14 @@ It is used to override the route method of both Flask and Blueprints Object
 in Jeroboam and jeroboam's Blueprints.
 """
 
+from collections.abc import Callable
 from typing import Any
-from typing import Callable
 
 from flask.sansio.scaffold import setupmethod
 from typing_extensions import TypeVar
 
 from flask_jeroboam.typing import JeroboamRouteCallable
 from flask_jeroboam.view import JeroboamView
-
 
 R = TypeVar("R", bound=Any)
 
@@ -61,7 +60,10 @@ class JeroboamScaffoldOverRide:
             if blueprint_option is not None:
                 options["include_in_openapi"] = blueprint_option
             self.add_url_rule(  # type: ignore
-                rule, view.endpoint, view.as_view, **options  # type: ignore
+                rule,
+                view.endpoint,
+                view.as_view,
+                **options,  # type: ignore
             )
             return view_func
 

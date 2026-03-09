@@ -5,8 +5,6 @@ Can be used as a drop in replacement of any Flask's Blueprint.
 """
 
 from typing import Any
-from typing import List
-from typing import Optional
 
 from flask.blueprints import Blueprint as FlaskBlueprint
 
@@ -19,7 +17,7 @@ class Blueprint(JeroboamScaffoldOverRide, FlaskBlueprint):  # type:ignore
     def __init__(
         self,
         *args: Any,
-        tags: Optional[List[str]] = None,
+        tags: list[str] | None = None,
         include_in_openapi: bool = True,
         **kwargs: Any,
     ) -> None:

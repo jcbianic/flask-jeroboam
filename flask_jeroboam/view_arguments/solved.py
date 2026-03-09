@@ -7,29 +7,21 @@ handling requests thus reducing overhead.
 import re
 from copy import deepcopy
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Type
-from typing import Union
 
 from flask import request
 from pydantic import BaseConfig
 from pydantic.error_wrappers import ErrorWrapper
 from pydantic.errors import MissingError
-from pydantic.fields import FieldInfo
-from pydantic.fields import ModelField
-from werkzeug.datastructures import FileStorage
-from werkzeug.datastructures import Headers
-from werkzeug.datastructures import MultiDict
+from pydantic.fields import FieldInfo, ModelField
+from werkzeug.datastructures import FileStorage, Headers, MultiDict
 
 from flask_jeroboam._utils import is_sequence_field
-from flask_jeroboam.view_arguments._utils import _extract_scalar
-from flask_jeroboam.view_arguments._utils import _extract_sequence
-from flask_jeroboam.view_arguments._utils import _extract_subfields
-from flask_jeroboam.view_arguments.arguments import ArgumentLocation
-from flask_jeroboam.view_arguments.arguments import ViewArgument
-
+from flask_jeroboam.view_arguments._utils import (
+    _extract_scalar,
+    _extract_sequence,
+    _extract_subfields,
+)
+from flask_jeroboam.view_arguments.arguments import ArgumentLocation, ViewArgument
 
 empty_field_info = FieldInfo()
 
@@ -43,9 +35,9 @@ class SolvedArgument(ModelField):
         name: str,
         type_: type,
         required: bool = False,
-        view_param: Optional[ViewArgument] = None,
-        class_validators: Optional[Dict] = None,
-        model_config: Type[BaseConfig] = BaseConfig,
+        view_param: ViewArgument | None = None,
+        class_validators: dict | None = None,
+        model_config: type[BaseConfig] = BaseConfig,
         field_info: FieldInfo = empty_field_info,
         **kwargs,
     ):
@@ -82,9 +74,9 @@ class SolvedArgument(ModelField):
         name: str,
         type_: type,
         required: bool = False,
-        view_param: Optional[ViewArgument] = None,
-        class_validators: Optional[Dict] = None,
-        model_config: Type[BaseConfig] = BaseConfig,
+        view_param: ViewArgument | None = None,
+        class_validators: dict | None = None,
+        model_config: type[BaseConfig] = BaseConfig,
         field_info: FieldInfo = empty_field_info,
         **kwargs,
     ):
@@ -135,7 +127,7 @@ class SolvedArgument(ModelField):
 
     def _get_values(
         self,
-    ) -> Union[FileStorage, MultiDict, dict, Optional[str], List[Any]]:
+    ) -> FileStorage | MultiDict | dict | str | None | list[Any]:
         """The Value extraction method is specialized by location."""
         raise NotImplementedError
 
@@ -143,7 +135,7 @@ class SolvedArgument(ModelField):
 class SolvedPathArgument(SolvedArgument):
     """Solved Path parameter."""
 
-    def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
+    def _get_values(self) -> dict | str | None | list[Any]:
         source: dict = request.view_args or {}
         return _extract_scalar(source=source, alias=self.alias, name=self.name)
 
@@ -157,15 +149,15 @@ class SolvedHeaderArgument(SolvedArgument):
             r"_(\w)", lambda x: f"-{x.group(1).upper()}", self.name.capitalize()
         )
 
-    def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
-        source: Union[Headers, dict] = request.headers or {}
+    def _get_values(self) -> dict | str | None | list[Any]:
+        source: Headers | dict = request.headers or {}
         return _extract_scalar(source=source, alias=self.alias, name=self.name)
 
 
 class SolvedCookieArgument(SolvedArgument):
     """Solved Cookie parameter."""
 
-    def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
+    def _get_values(self) -> dict | str | None | list[Any]:
         source: dict = request.cookies or {}
         return _extract_scalar(source=source, alias=self.alias, name=self.name)
 
@@ -182,7 +174,7 @@ class SolvedQueryArgument(SolvedArgument):
         else:
             self.extractor = _extract_scalar
 
-    def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
+    def _get_values(self) -> dict | str | None | list[Any]:
         source: MultiDict = request.args
         return self.extractor(
             source=source,
@@ -195,8 +187,8 @@ class SolvedQueryArgument(SolvedArgument):
 class SolvedBodyArgument(SolvedArgument):
     """Solved Scalar Query parameter."""
 
-    def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
-        source: Union[dict, list] = request.json or {}
+    def _get_values(self) -> dict | str | None | list[Any]:
+        source: dict | list = request.json or {}
         if isinstance(source, list):
             return source
         return source.get(self.alias or self.name) if self.embed else source
@@ -207,7 +199,7 @@ class SolvedFileArgument(SolvedArgument):
 
     def _get_values(
         self,
-    ) -> Union[FileStorage, MultiDict, dict, Optional[str], List[Any]]:
+    ) -> FileStorage | MultiDict | dict | str | None | list[Any]:
         source: MultiDict = request.files or MultiDict()
         return source.get(self.alias or self.name) if self.embed else source
 
@@ -215,6 +207,6 @@ class SolvedFileArgument(SolvedArgument):
 class SolvedFormArgument(SolvedArgument):
     """Solved Form parameter."""
 
-    def _get_values(self) -> Union[dict, Optional[str], List[Any]]:
+    def _get_values(self) -> dict | str | None | list[Any]:
         source: MultiDict = request.form or MultiDict()
         return source.get(self.alias or self.name) if self.embed else source

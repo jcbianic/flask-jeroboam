@@ -3,23 +3,20 @@
 The corresponding test can be found in tests/test_inbound/test_query
 """
 
-from typing import FrozenSet
-from typing import Optional
-
-from flask_jeroboam import Blueprint
-from flask_jeroboam import Query
-from tests.app_test.models.inbound import ModelWithListIn
-from tests.app_test.models.inbound import OptionalModelIn
-from tests.app_test.models.inbound import QueryStringWithList
-from tests.app_test.models.inbound import SimpleModelIn
+from flask_jeroboam import Blueprint, Query
+from tests.app_test.models.inbound import (
+    ModelWithListIn,
+    OptionalModelIn,
+    QueryStringWithList,
+    SimpleModelIn,
+)
 from tests.app_test.models.outbound import ModelWithListOut
-
 
 router = Blueprint("query_params_router", __name__, tags=["Query"])
 
 
 @router.get("/query/frozenset")
-def get_query_type_frozenset(query: FrozenSet[int] = Query(...)):
+def get_query_type_frozenset(query: frozenset[int] = Query(...)):
     return {"query": ",".join(map(str, sorted(query)))}
 
 
@@ -39,7 +36,7 @@ def get_query_type(query: int):
 
 
 @router.get("/query/int/optional")
-def get_query_type_optional(query: Optional[int] = None):
+def get_query_type_optional(query: int | None = None):
     return {"query": query}
 
 
@@ -85,7 +82,7 @@ def get_list_of_strings(query_string: QueryStringWithList):
 
 
 @router.get("/query/optional_model")
-def get_optional_param(payload: Optional[OptionalModelIn]):
+def get_optional_param(payload: OptionalModelIn | None):
     return payload.json() if payload else {}
 
 

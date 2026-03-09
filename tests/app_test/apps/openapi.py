@@ -6,7 +6,6 @@ The corresponding test can be found in tests/test_openapi/*
 from flask_jeroboam import Blueprint
 from flask_jeroboam.view_arguments.functions import Query
 
-
 router = Blueprint("openapi_args_router", __name__, tags=["OpenApi"])
 
 
@@ -24,7 +23,7 @@ def read_argument_not_included_in_schema(
 def read_openapi_extra(
     with_openapi_extra: int = Query(
         include_in_schema=False,
-    )
+    ),
 ):
     return {"with_openapi_extra": with_openapi_extra}
 
