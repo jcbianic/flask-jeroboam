@@ -53,31 +53,6 @@ class InboundModel(BaseModel):
         populate_by_name=True,
     )
 
-    @classmethod
-    def __get_validators__(cls):
-        """Bridge for pydantic v1 ModelField compatibility.
-
-        TODO Phase 6: Remove when SolvedArgument is rewritten for pydantic v2.
-        """
-        yield cls._v1_validate
-
-    @classmethod
-    def _v1_validate(cls, v):
-        if isinstance(v, cls):
-            return v
-        from pydantic import ValidationError as V2ValidationError
-        from pydantic.v1 import ValidationError as V1ValidationError
-        from pydantic.v1.error_wrappers import ErrorWrapper as V1ErrorWrapper
-
-        try:
-            return cls.model_validate(v)
-        except V2ValidationError as e:
-            v1_errors = [
-                V1ErrorWrapper(ValueError(err["msg"]), loc=tuple(str(l) for l in err.get("loc", ())))
-                for err in e.errors(include_url=False)
-            ]
-            raise V1ValidationError(v1_errors, cls) from e
-
 
 class OutboundModel(BaseModel):
     """Basic configuration for serializing Responses."""
