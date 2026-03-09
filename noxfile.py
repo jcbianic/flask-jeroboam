@@ -121,7 +121,7 @@ def mypy(session: nox.Session) -> None:
     """Type-check using mypy."""
     args = session.posargs or ["flask_jeroboam", "tests", "docs/conf.py"]
     session.install(".")
-    session.install("mypy", "pytest")
+    session.install("mypy", "pytest", "sphinx", "sphinx-click", "myst-parser")
     session.run("mypy", *args)
     if not session.posargs:
         session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")

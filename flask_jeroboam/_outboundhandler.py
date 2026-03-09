@@ -182,7 +182,7 @@ class OutboundHandler:
             return None
 
         if getattr(response_model, "__origin__", None) == list:
-            field: type = response_model.__args__[0]
+            field: type = response_model.__args__[0]  # type: ignore[attr-defined]
             response_model = create_model(
                 f"{field.__name__}AsList",
                 __root__=(list[field], ...),  # type: ignore[valid-type]
@@ -233,7 +233,7 @@ class OutboundHandler:
                 returned_status_code,
                 self.configured_status_code,
                 self.method_default_status_code,
-                self.response_class.default_status_code,
+                self.response_class.default_status_code,  # type: ignore[attr-defined]
             ]
             if candidate is not None
         ]
