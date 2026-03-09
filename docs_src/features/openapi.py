@@ -1,14 +1,8 @@
 """Code Sample for OpenAPI Features Documentation."""
 
-from typing import List
-from typing import Optional
-
 from pydantic import BaseModel
 
-from flask_jeroboam import Blueprint
-from flask_jeroboam import Jeroboam
-from flask_jeroboam import Path
-
+from flask_jeroboam import Blueprint, Jeroboam, Path
 
 app = Jeroboam("Jeroboam Inbound Features App")
 app.init_app()
@@ -16,7 +10,7 @@ app.init_app()
 
 class TaskIn(BaseModel):
     name: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class TaskOut(TaskIn):
@@ -31,8 +25,8 @@ def get_health():
 blueprint = Blueprint("tasks", __name__, tags=["tasks"])
 
 
-@blueprint.get("/tasks", response_model=List[TaskOut])
-def get_tasks(page: int = 1, per_page: int = Path(10), search: Optional[str] = None):
+@blueprint.get("/tasks", response_model=list[TaskOut])
+def get_tasks(page: int = 1, per_page: int = Path(10), search: str | None = None):
     return [{"id": 1, "name": "Task 1"}, {"id": 2, "name": "Task 2"}]
 
 

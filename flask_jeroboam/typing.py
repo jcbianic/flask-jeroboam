@@ -1,23 +1,16 @@
 """Types used in the package."""
 
-from typing import TYPE_CHECKING
-from typing import Any
-from typing import Awaitable
-from typing import Callable
-from typing import Dict
-from typing import Iterator
-from typing import List
-from typing import Mapping
-from typing import Optional
-from typing import Protocol
-from typing import Tuple
-from typing import Type
-from typing import TypeVar
-from typing import Union
+from collections.abc import Awaitable, Callable, Iterator, Mapping
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Protocol,
+    TypeVar,
+    Union,
+)
 
 from flask.typing import HeadersValue
 from pydantic import BaseModel
-
 
 if TYPE_CHECKING:  # pragma: no cover
     from _typeshed.wsgi import WSGIApplication  # noqa: F401
@@ -28,13 +21,13 @@ if TYPE_CHECKING:  # pragma: no cover
 class DataclassProtocol(Protocol):
     """A Protiocol to type annotate dataclasses."""
 
-    __dataclass_fields__: Dict
-    __dataclass_params__: Dict
-    __post_init__: Optional[Callable]
+    __dataclass_fields__: dict
+    __dataclass_params__: dict
+    __post_init__: Callable | None
 
 
-ResponseModel = Type[BaseModel]
-TypedParams = Dict[str, Any]
+ResponseModel = type[BaseModel]
+TypedParams = dict[str, Any]
 
 
 DataClassType = TypeVar("DataClassType", bound=DataclassProtocol)
@@ -46,8 +39,8 @@ JeroboamBodyType = Union[
     BaseModel,
     str,
     bytes,
-    List[Any],
-    List[BaseModel],
+    list[Any],
+    list[BaseModel],
     # Only dict is actually accepted, but Mapping allows for TypedDic
     Mapping[str, Any],
     Iterator[str],
@@ -55,23 +48,23 @@ JeroboamBodyType = Union[
     DataclassProtocol,
 ]
 
-JeroboamResponseWithStatusCode = Union[
-    Tuple[JeroboamBodyType, int], Tuple[JeroboamBodyType, int, HeadersValue]
-]
+JeroboamResponseWithStatusCode = (
+    tuple[JeroboamBodyType, int] | tuple[JeroboamBodyType, int, HeadersValue]
+)
 
 JeroboamResponseReturnValue = Union[
     JeroboamBodyType,
-    Tuple[JeroboamBodyType, HeadersValue],
-    Tuple[JeroboamBodyType, int],
-    Tuple[JeroboamBodyType, int, HeadersValue],
+    tuple[JeroboamBodyType, HeadersValue],
+    tuple[JeroboamBodyType, int],
+    tuple[JeroboamBodyType, int, HeadersValue],
     "WSGIApplication",
 ]
 
-JeroboamReturnValue = Union[
-    JeroboamResponseReturnValue, Awaitable[JeroboamResponseReturnValue]
-]
+JeroboamReturnValue = (
+    JeroboamResponseReturnValue | Awaitable[JeroboamResponseReturnValue]
+)
 
-JeroboamRouteCallable = Union[
-    Callable[..., JeroboamResponseReturnValue],
-    Callable[..., Awaitable[JeroboamResponseReturnValue]],
-]
+JeroboamRouteCallable = (
+    Callable[..., JeroboamResponseReturnValue]
+    | Callable[..., Awaitable[JeroboamResponseReturnValue]]
+)

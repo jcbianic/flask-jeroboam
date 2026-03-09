@@ -4,35 +4,35 @@ Credits: This is a Fork of FastAPI's openapi/utils.py
 """
 
 import warnings
+from collections.abc import Sequence
 from enum import Enum
-from typing import TYPE_CHECKING
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Sequence
-from typing import Set
-from typing import Tuple
-from typing import Type
-from typing import Union
-from typing import cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Optional,
+    cast,
+)
 
 from pydantic import BaseModel
 from pydantic.fields import ModelField
-from pydantic.schema import field_schema
-from pydantic.schema import get_flat_models_from_fields
-from pydantic.schema import model_process_schema
+from pydantic.schema import (
+    field_schema,
+    get_flat_models_from_fields,
+    model_process_schema,
+)
 
-from flask_jeroboam._constants import NO_BODY_STATUS_CODES
-from flask_jeroboam._constants import REF_PREFIX
-from flask_jeroboam._constants import VALIDATION_ERROR_DEFINITION
-from flask_jeroboam._constants import VALIDATION_ERROR_RESPONSE_DEFINITION
-from flask_jeroboam._utils import _append_truthy
-from flask_jeroboam._utils import _set_nested_defaults
-from flask_jeroboam._utils import _throw_away_falthy_values
-from flask_jeroboam.view_arguments.arguments import BodyArgument
-from flask_jeroboam.view_arguments.arguments import ParameterArgument
-
+from flask_jeroboam._constants import (
+    NO_BODY_STATUS_CODES,
+    REF_PREFIX,
+    VALIDATION_ERROR_DEFINITION,
+    VALIDATION_ERROR_RESPONSE_DEFINITION,
+)
+from flask_jeroboam._utils import (
+    _append_truthy,
+    _set_nested_defaults,
+    _throw_away_falthy_values,
+)
+from flask_jeroboam.view_arguments.arguments import BodyArgument, ParameterArgument
 
 if TYPE_CHECKING:  # pragma: no cover
     from flask_jeroboam.rule import JeroboamRule
@@ -43,8 +43,8 @@ if TYPE_CHECKING:  # pragma: no cover
 def _get_openapi_operation_parameters(
     *,
     all_route_params: Sequence[ModelField],
-    model_name_map: Dict[Union[Type[BaseModel], Type[Enum]], str],
-) -> List[Dict[str, Any]]:
+    model_name_map: dict[type[BaseModel] | type[Enum], str],
+) -> list[dict[str, Any]]:
     parameters = []
     for param in all_route_params:
         field_info = param.field_info
@@ -71,8 +71,8 @@ def _get_openapi_operation_parameters(
 
 
 def _get_openapi_operation_metadata(
-    *, rule: "JeroboamRule", method: str, operation_ids: Set[str]
-) -> Dict[str, Any]:
+    *, rule: "JeroboamRule", method: str, operation_ids: set[str]
+) -> dict[str, Any]:
     operation_id = rule.operation_id or rule.unique_id or rule.endpoint
     if operation_id in operation_ids:
         message = (
@@ -80,7 +80,7 @@ def _get_openapi_operation_metadata(
         )
         warnings.warn(message, UserWarning, stacklevel=2)
     operation_ids.add(operation_id)
-    operation: Dict[str, Any] = _throw_away_falthy_values(
+    operation: dict[str, Any] = _throw_away_falthy_values(
         {
             "tags": rule.tags,
             "description": rule.description,
@@ -94,9 +94,9 @@ def _get_openapi_operation_metadata(
 
 def _get_openapi_operation_request_body(
     *,
-    body_field: Optional[ModelField],
-    model_name_map: Dict[Union[Type[BaseModel], Type[Enum]], str],
-) -> Optional[Dict[str, Any]]:
+    body_field: ModelField | None,
+    model_name_map: dict[type[BaseModel] | type[Enum], str],
+) -> dict[str, Any] | None:
     assert body_field  # noqa: S101
     # TODO: something is broken here.
     body_schema, body_definition, _ = field_schema(
@@ -104,11 +104,11 @@ def _get_openapi_operation_request_body(
     )
     field_info = cast(BodyArgument, body_field.field_info)
     request_media_type = field_info.media_type
-    request_body_oai: Dict[str, Any] = {}
+    request_body_oai: dict[str, Any] = {}
     if required := body_field.required:
         request_body_oai["required"] = required
     if body_schema.get("$ref", "").endswith("request_body_as_model"):
-        request_media_content: Dict[str, Any] = {
+        request_media_content: dict[str, Any] = {
             "schema": body_definition[body_schema.get("$ref", "").split("/")[-1]]
         }
     else:
@@ -118,8 +118,8 @@ def _get_openapi_operation_request_body(
 
 
 def _get_response_schema(
-    response_field: Optional[ModelField], model_name_map
-) -> Dict[str, Any]:
+    response_field: ModelField | None, model_name_map
+) -> dict[str, Any]:
     response_schema = {"type": "string"}
     if response_field:
         response_schema, _, _ = field_schema(
@@ -137,10 +137,10 @@ def _add_responses(
     model_name_map,
     jeroboam_view,
 ):
-    definitions: Dict[str, Any] = {}
+    definitions: dict[str, Any] = {}
     status_code = str(jeroboam_view.outbound_handler.latent_status_code)
     current_response_class = jeroboam_view.outbound_handler.response_class
-    route_response_media_type: Optional[str] = current_response_class.default_mimetype
+    route_response_media_type: str | None = current_response_class.default_mimetype
 
     _set_nested_defaults(
         original_dict=operation,
@@ -186,8 +186,8 @@ def _build_openapi_path_item(
     rule: "JeroboamRule",
     jeroboam_view: "JeroboamView",
     model_name_map,
-    operation_ids: Set[str],
-) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
+    operation_ids: set[str],
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     """Build OpenApi path from our rule Object.
 
     TODO: Gérer les Callbacks ?
@@ -228,10 +228,10 @@ def _build_openapi_path_item(
 
 def _get_model_definitions(
     *,
-    flat_models: Set[Union[Type[BaseModel], Type[Enum]]],
-    model_name_map: Dict[Union[Type[BaseModel], Type[Enum]], str],
-) -> Dict[str, Any]:
-    definitions: Dict[str, Dict[str, Any]] = {}
+    flat_models: set[type[BaseModel] | type[Enum]],
+    model_name_map: dict[type[BaseModel] | type[Enum], str],
+) -> dict[str, Any]:
+    definitions: dict[str, dict[str, Any]] = {}
     for model in flat_models:
         m_schema, m_definitions, _ = model_process_schema(
             model, model_name_map=model_name_map, ref_prefix=REF_PREFIX
@@ -245,9 +245,9 @@ def _get_model_definitions(
 
 
 def _get_flat_models_from_jeroboam_views(
-    jeroboam_views: List[Optional["JeroboamView"]], rules: List["JeroboamRule"]
+    jeroboam_views: list[Optional["JeroboamView"]], rules: list["JeroboamRule"]
 ):
-    params: List[Union[ModelField, "SolvedArgument"]] = []
+    params: list[ModelField | SolvedArgument] = []
     for jeroboam_view, rule in zip(jeroboam_views, rules):
         if getattr(jeroboam_view, "include_in_openapi", False) is False:
             continue

@@ -4,14 +4,12 @@ The endpoints are defined in the app_test.apps.outbound.py module.
 """
 
 from typing import Any
-from typing import Dict
 
 import pytest
 from flask.testing import FlaskClient
 
 from flask_jeroboam.jeroboam import Jeroboam
 from tests.app_test.models.outbound import SimpleModelOut
-
 
 valid_outbound_data = {"items": ["Apple", "Banana"], "total_count": 10}
 valid_response_body = {"items": ["Apple", "Banana"], "totalCount": 10}
@@ -198,7 +196,7 @@ def test_wrong_dict_being_sent(
 def test_view_function_tuple_return_shape(
     shape: str,
     status_code: int,
-    headers: Dict[str, str],
+    headers: dict[str, str],
     client: FlaskClient,
 ):
     """GIVEN an endpoint with a response_model defined and a dict return value

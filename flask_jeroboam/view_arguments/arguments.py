@@ -6,10 +6,8 @@ localised fields with some extra information.
 
 from enum import Enum
 from typing import Any
-from typing import Type
 
-from pydantic.fields import FieldInfo
-from pydantic.fields import Undefined
+from pydantic.fields import FieldInfo, Undefined
 
 
 class ArgumentLocation(Enum):
@@ -179,7 +177,7 @@ class FileArgument(FormArgument):
         )
 
 
-def get_argument_class(location: ArgumentLocation) -> Type[ViewArgument]:
+def get_argument_class(location: ArgumentLocation) -> type[ViewArgument]:
     """Get the Parameter class for a given location."""
     return {
         ArgumentLocation.query: QueryArgument,

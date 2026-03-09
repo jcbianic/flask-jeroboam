@@ -1,12 +1,9 @@
-from typing import List
-
 import pytest
 from flask.testing import FlaskClient
 
 from flask_jeroboam import Jeroboam
 from flask_jeroboam.models import InboundModel
 from flask_jeroboam.view_arguments.functions import Body
-
 
 response_not_valid_int = {
     "detail": [
@@ -67,8 +64,8 @@ def test_post_body_list_of_base_model(
         item: str
         count: int
 
-    @one_shot_app.post("/body/list_non_scalar", response_model=List[InBound])
-    def post_body_list_non_scalar(payload: List[InBound] = Body()):
+    @one_shot_app.post("/body/list_non_scalar", response_model=list[InBound])
+    def post_body_list_non_scalar(payload: list[InBound] = Body()):
         return payload
 
     response = one_shot_client.post(

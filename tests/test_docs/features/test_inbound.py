@@ -1,6 +1,5 @@
 import pytest
 
-
 """Testing the inbound feature doc Page."""
 from docs_src.features.inbound import app
 

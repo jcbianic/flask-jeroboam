@@ -1,6 +1,5 @@
 import pytest
 
-
 not_a_valid_int = {
     "detail": [
         {

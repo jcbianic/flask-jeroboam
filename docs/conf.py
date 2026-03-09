@@ -1,9 +1,10 @@
 """Configuration for Generating Docs."""
 
 # import packaging.version
-from pallets_sphinx_themes import ProjectLink  # type: ignore
-from pallets_sphinx_themes import get_version  # type: ignore
-
+from pallets_sphinx_themes import (
+    ProjectLink,  # type: ignore
+    get_version,  # type: ignore
+)
 
 # Project --------------------------------------------------------------
 

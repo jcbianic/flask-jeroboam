@@ -1,15 +1,9 @@
 """Code Example 01 for README.md."""
 
-from typing import List
-from typing import Optional
-
 from pydantic.fields import Field
 
 from docs_src.readme._crud import get_wines
-from flask_jeroboam import InboundModel
-from flask_jeroboam import Jeroboam
-from flask_jeroboam import OutboundModel
-
+from flask_jeroboam import InboundModel, Jeroboam, OutboundModel
 
 app = Jeroboam(__name__)
 
@@ -33,8 +27,8 @@ def ping():
     return "pong"
 
 
-@app.get("/wines", response_model=List[WineOut])
-def read_wine_list(pagination: GenericPagination, search: Optional[str]):
+@app.get("/wines", response_model=list[WineOut])
+def read_wine_list(pagination: GenericPagination, search: str | None):
     wines = get_wines(pagination, search)
     return wines
 

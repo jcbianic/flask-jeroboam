@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Dict
 
 
 class MethodEnum(str, Enum):
@@ -43,7 +42,7 @@ VALIDATION_ERROR_RESPONSE_DEFINITION = {
     },
 }
 
-status_code_ranges: Dict[str, str] = {
+status_code_ranges: dict[str, str] = {
     "1XX": "Information",
     "2XX": "Success",
     "3XX": "Redirection",

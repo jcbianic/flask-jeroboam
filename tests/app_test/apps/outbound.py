@@ -4,21 +4,15 @@ The corresponding test can be found in tests/test_outbound.py
 """
 
 from typing import Any
-from typing import Dict
-from typing import List
 
 from flask_jeroboam import Blueprint
 from flask_jeroboam.responses import JSONResponse
 from flask_jeroboam.view_arguments.functions import Body
-from tests.app_test.models.outbound import MyDataClass
-from tests.app_test.models.outbound import SimpleModelOut
-from tests.app_test.models.outbound import UserIn
-from tests.app_test.models.outbound import UserOut
-
+from tests.app_test.models.outbound import MyDataClass, SimpleModelOut, UserIn, UserOut
 
 router = Blueprint("outbound_router", __name__, tags=["Outbound"])
 
-valid_outbound_data: Dict[str, Any] = {
+valid_outbound_data: dict[str, Any] = {
     "total_count": 10,
     "items": ["Apple", "Banana"],
 }
@@ -79,7 +73,7 @@ def view_function_returns_a_dict() -> dict:
     return valid_outbound_data
 
 
-@router.get("/return_type/list", response_model=List[SimpleModelOut])
+@router.get("/return_type/list", response_model=list[SimpleModelOut])
 def view_function_returns_a_list():
     return [valid_outbound_data, valid_outbound_data]
 

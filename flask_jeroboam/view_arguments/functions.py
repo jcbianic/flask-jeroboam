@@ -13,13 +13,15 @@ Credits: This module is a fork of FlaskAPI params_function module.
 
 from typing import Any
 
-from flask_jeroboam.view_arguments.arguments import BodyArgument
-from flask_jeroboam.view_arguments.arguments import CookieArgument
-from flask_jeroboam.view_arguments.arguments import FileArgument
-from flask_jeroboam.view_arguments.arguments import FormArgument
-from flask_jeroboam.view_arguments.arguments import HeaderArgument
-from flask_jeroboam.view_arguments.arguments import PathArgument
-from flask_jeroboam.view_arguments.arguments import QueryArgument
+from flask_jeroboam.view_arguments.arguments import (
+    BodyArgument,
+    CookieArgument,
+    FileArgument,
+    FormArgument,
+    HeaderArgument,
+    PathArgument,
+    QueryArgument,
+)
 
 
 def Path(  # noqa:N802

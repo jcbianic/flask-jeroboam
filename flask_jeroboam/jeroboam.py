@@ -7,9 +7,8 @@ TODO: A probably better way to override it is to override the url_rule_class
 with a custom JeroboamRule Object
 """
 
-from typing import Any
-from typing import Callable
-from typing import Optional
+from collections.abc import Callable
+from typing import Any, Optional
 
 from flask import Flask
 from typing_extensions import TypeVar
@@ -22,7 +21,6 @@ from flask_jeroboam.openapi.models.openapi import OpenAPI
 from flask_jeroboam.responses import JSONResponse
 from flask_jeroboam.rule import JeroboamRule
 from flask_jeroboam.scaffold import JeroboamScaffoldOverRide
-
 
 R = TypeVar("R", bound=Any)
 
@@ -38,13 +36,13 @@ class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
 
     url_rule_class = JeroboamRule
 
-    query_string_key_transformer: Optional[Callable] = None
+    query_string_key_transformer: Callable | None = None
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Init."""
         super().__init__(*args, **kwargs)
         self.config.update(JeroboamConfig.load().dict())
-        self._openapi: Optional[OpenAPI] = None
+        self._openapi: OpenAPI | None = None
 
     def init_app(self, app: Optional["Jeroboam"] = None) -> None:
         """Setup is performed after app has received all its configuration."""

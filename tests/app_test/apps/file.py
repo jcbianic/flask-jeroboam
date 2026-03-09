@@ -3,10 +3,8 @@
 The corresponding test can be found in tests/test_inbound/test_file
 """
 
-from flask_jeroboam import Blueprint
-from flask_jeroboam import File
+from flask_jeroboam import Blueprint, File
 from flask_jeroboam.datastructures import UploadFile
-
 
 router = Blueprint("file_params_router", __name__, tags=["File"])
 

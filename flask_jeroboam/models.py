@@ -2,10 +2,7 @@
 
 import json
 import re
-from typing import Callable
-from typing import Dict
-from typing import List
-from typing import Union
+from collections.abc import Callable
 
 from pydantic import BaseModel
 
@@ -19,9 +16,7 @@ def snake_case_to_camel(string: str) -> str:
 pattern = re.compile(r"(?<!^)(?=[A-Z])")
 
 
-def convert_dict_keys_to(
-    obj: Union[dict, list], convert_function: Callable
-) -> Union[dict, list]:
+def convert_dict_keys_to(obj: dict | list, convert_function: Callable) -> dict | list:
     """Convert all keys of a dict to a given format."""
     if isinstance(obj, list):
         return [
@@ -31,7 +26,7 @@ def convert_dict_keys_to(
     return {
         convert_function(key): (
             convert_dict_keys_to(value, convert_function)
-            if isinstance(value, (Dict, List))
+            if isinstance(value, (dict, list))
             else value
         )
         for key, value in obj.items()

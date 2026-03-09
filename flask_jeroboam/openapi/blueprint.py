@@ -7,10 +7,8 @@ from flask import render_template
 from flask_jeroboam.blueprint import Blueprint
 from flask_jeroboam.openapi.models.openapi import OpenAPI
 from flask_jeroboam.openapi.models.ui_context import SwaggerContextOut
-from flask_jeroboam.responses import HTMLResponse
-from flask_jeroboam.responses import JSONResponse
+from flask_jeroboam.responses import HTMLResponse, JSONResponse
 from flask_jeroboam.wrapper import current_app
-
 
 if TYPE_CHECKING:  # pragma: no cover
     from flask_jeroboam.jeroboam import Jeroboam

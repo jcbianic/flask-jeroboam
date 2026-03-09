@@ -2,7 +2,6 @@
 
 from flask_jeroboam import Jeroboam
 
-
 app = Jeroboam(__name__)
 
 

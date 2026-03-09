@@ -12,7 +12,6 @@ from flask.testing import FlaskClient
 from flask_jeroboam.jeroboam import Jeroboam
 from tests.app_test.models.outbound import SimpleModelOut
 
-
 valid_outbound_data = {"items": ["Apple", "Banana"], "total_count": 10}
 valid_response_body = {"items": ["Apple", "Banana"], "totalCount": 10}
 unsorted_reponse_body = {"total_count": 10, "items": ["Apple", "Banana"]}

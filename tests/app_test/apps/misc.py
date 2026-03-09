@@ -1,9 +1,7 @@
 """A Test Blueprint for testing Misc Behavior."""
 
 from flask_jeroboam import Blueprint
-from flask_jeroboam.exceptions import RessourceNotFound
-from flask_jeroboam.exceptions import ServerError
-
+from flask_jeroboam.exceptions import RessourceNotFound, ServerError
 
 router = Blueprint("misc_router", __name__, tags=["Misc"])
 

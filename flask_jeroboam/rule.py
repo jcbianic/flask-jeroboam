@@ -2,10 +2,8 @@
 
 import re
 from typing import Any
-from typing import Optional
 
 from werkzeug.routing import Rule as FlaskRule
-
 
 pattern = re.compile(r"<(\w*):")
 
@@ -13,9 +11,7 @@ pattern = re.compile(r"<(\w*):")
 class JeroboamRule(FlaskRule):
     """Subclass of werkzeug.routing.Rule."""
 
-    def __init__(
-        self, rule: str, endpoint: Optional[str] = None, **options: Any
-    ) -> None:
+    def __init__(self, rule: str, endpoint: str | None = None, **options: Any) -> None:
         """Initialize a JeroRule."""
         self.include_in_openapi = endpoint != "static" and options.pop(
             "include_in_openapi", True

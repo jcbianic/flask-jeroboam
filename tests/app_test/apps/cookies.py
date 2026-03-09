@@ -3,9 +3,7 @@
 The corresponding test can be found in tests/test_inbound/test_cookie
 """
 
-from flask_jeroboam import Blueprint
-from flask_jeroboam import Cookie
-
+from flask_jeroboam import Blueprint, Cookie
 
 router = Blueprint("cookies_params_router", __name__, tags=["Cookies"])
 

@@ -1,10 +1,8 @@
 """Code Sample for Getting Started with Flask-Jeroboam."""
 
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from flask_jeroboam import Jeroboam
-
 
 app = Jeroboam("Jeroboam Getting Started App")
 app.init_app()
