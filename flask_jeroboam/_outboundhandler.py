@@ -7,13 +7,10 @@ from typing import Any, TypeVar
 from flask import Response
 from flask.globals import current_app
 from pydantic import BaseModel, RootModel, ValidationError, create_model
-from pydantic.fields import FieldInfo
-
-from flask_jeroboam._compat import BaseConfig
 from typing_extensions import ParamSpec
 
 from flask_jeroboam._constants import METHODS_DEFAULT_STATUS_CODE, NO_BODY_STATUS_CODES
-from flask_jeroboam._utils import create_field, get_typed_return_annotation
+from flask_jeroboam._utils import get_typed_return_annotation
 from flask_jeroboam.exceptions import ResponseValidationError
 from flask_jeroboam.responses import JSONResponse
 from flask_jeroboam.typing import (
@@ -70,18 +67,22 @@ class OutboundHandler:
 
     @property
     def response_field(self):
-        """The response_model as model field."""
+        """The response_model as model field (used by OpenAPI layer until Phase 8)."""
         if self.response_model is None:
             return None
+        from flask_jeroboam._compat import BaseConfig, ModelField, V1FieldInfo
+
         class_validators = getattr(self.response_model, "__validators__", {})
-        field_info = getattr(self.response_model, "field_info", FieldInfo())
+        field_info = getattr(self.response_model, "field_info", V1FieldInfo())
         model_config = getattr(self.response_model, "__config__", BaseConfig)
-        return create_field(
+        return ModelField(
             name=self.response_model.__name__,
             type_=self.response_model,
             class_validators=class_validators,
-            required=True,
+            default=None,
             model_config=model_config,
+            alias=self.response_model.__name__,
+            required=True,
             field_info=field_info,
         )
 

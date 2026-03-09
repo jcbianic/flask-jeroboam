@@ -6,11 +6,11 @@ from functools import wraps
 from typing import Any
 
 from pydantic import BaseModel, create_model
+from pydantic_core import PydanticUndefined
 
-from flask_jeroboam._compat import Undefined, get_annotation_from_field_info
 from typing_extensions import ParamSpec
 
-from flask_jeroboam._utils import create_field, get_typed_signature
+from flask_jeroboam._utils import _lenient_issubclass, get_typed_signature
 from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.typing import JeroboamResponseReturnValue, JeroboamRouteCallable
 from flask_jeroboam.view_arguments.arguments import (
@@ -145,31 +145,26 @@ class InboundHandler:
             len(body_param_names_set) == 1
             and getattr(field_info, "embed", None) is not None
         ):
-            if not issubclass(first_param.type_, BaseModel):
+            if not _lenient_issubclass(first_param.annotation, BaseModel):
                 first_param.embed = True
             return first_param
         model_name = f"{name}_request_body_as_model"
-        BodyModel: type[BaseModel] = create_model(model_name)  # noqa: N806
         any_embed = any(argument.embed for argument in self.body_arguments)
         any_required = any(argument.required for argument in self.body_arguments)
+        field_defs: dict[str, Any] = {}
         for argument in self.body_arguments:
             argument.embed = any_embed
-            BodyModel.__fields__[argument.name] = argument
-        field_info = self._solve_body_field_info()
-        field = create_field(
-            name=BodyModel.__name__,
-            type_=BodyModel,
-            required=any_required,
-            alias="body",
-            field_info=field_info,
-            class_validators={},
-        )
-        assert field  # noqa: S101
+            if argument.required:
+                field_defs[argument.name] = (argument.annotation, ...)
+            else:
+                field_defs[argument.name] = (argument.annotation, argument.default)
+        BodyModel: type[BaseModel] = create_model(model_name, **field_defs)  # noqa: N806
+        body_field_info = self._solve_body_field_info()
         return SolvedArgument.specialize(
             name=name,
-            type_=field.type_,
+            annotation=BodyModel,
             required=any_required,
-            view_param=field_info,
+            view_param=body_field_info,
         )
 
     def add_inbound_handling_to(
@@ -239,15 +234,12 @@ class InboundHandler:
 
         default_value = self._solve_default_value(param, ignore_default)
         # Solving Required
-        required: bool = default_value is Undefined or getattr(
-            view_param, "required", False
-        )
+        required: bool = default_value is PydanticUndefined
         annotation = param.annotation if param.annotation != param.empty else Any
-        annotation = get_annotation_from_field_info(annotation, view_param, param_name)
 
         return SolvedArgument.specialize(
             name=param_name,
-            type_=annotation,
+            annotation=annotation,
             required=required,
             view_param=view_param,
         )
@@ -271,8 +263,8 @@ class InboundHandler:
         ignore_default: bool,
     ) -> Any:
         default_value: Any = getattr(param.default, "default", param.default)
-        if default_value in {param.empty, Ellipsis} or ignore_default:
-            default_value = Undefined
+        if default_value in {param.empty, Ellipsis, PydanticUndefined} or ignore_default:
+            default_value = PydanticUndefined
         return default_value
 
     def _register_view_parameter(self, solved_parameter: SolvedArgument) -> None:

@@ -4,8 +4,8 @@ not_a_valid_int = {
     "detail": [
         {
             "loc": ["cookie", "cookie"],
-            "msg": "value is not a valid integer",
-            "type": "type_error.integer",
+            "msg": "Input should be a valid integer, unable to parse string as an integer",
+            "type": "int_parsing",
         }
     ]
 }

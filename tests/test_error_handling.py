@@ -18,8 +18,8 @@ def test_invalid_request(
         "detail": [
             {
                 "loc": ["query", "missing_param"],
-                "msg": "field required",
-                "type": "value_error.missing",
+                "msg": "Field required",
+                "type": "missing",
             }
         ]
     }

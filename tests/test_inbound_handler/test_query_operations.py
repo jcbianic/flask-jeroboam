@@ -7,8 +7,8 @@ response_missing = {
     "detail": [
         {
             "loc": ["query", "query"],
-            "msg": "field required",
-            "type": "value_error.missing",
+            "msg": "Field required",
+            "type": "missing",
         }
     ]
 }
@@ -17,8 +17,8 @@ response_not_valid_int = {
     "detail": [
         {
             "loc": ["query", "query"],
-            "msg": "value is not a valid integer",
-            "type": "type_error.integer",
+            "msg": "Input should be a valid integer, unable to parse string as an integer",
+            "type": "int_parsing",
         }
     ]
 }

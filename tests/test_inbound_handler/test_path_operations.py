@@ -6,8 +6,8 @@ response_not_valid_bool = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "value could not be parsed to a boolean",
-            "type": "type_error.bool",
+            "msg": "Input should be a valid boolean, unable to interpret input",
+            "type": "bool_parsing",
         }
     ]
 }
@@ -16,8 +16,8 @@ response_not_valid_int = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "value is not a valid integer",
-            "type": "type_error.integer",
+            "msg": "Input should be a valid integer, unable to parse string as an integer",
+            "type": "int_parsing",
         }
     ]
 }
@@ -26,8 +26,8 @@ response_not_valid_float = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "value is not a valid float",
-            "type": "type_error.float",
+            "msg": "Input should be a valid number, unable to parse string as a number",
+            "type": "float_parsing",
         }
     ]
 }
@@ -36,9 +36,9 @@ response_at_least_3 = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "ensure this value has at least 3 characters",
-            "type": "value_error.any_str.min_length",
-            "ctx": {"limit_value": 3},
+            "msg": "String should have at least 3 characters",
+            "type": "string_too_short",
+            "ctx": {"min_length": 3},
         }
     ]
 }
@@ -48,9 +48,9 @@ response_at_least_2 = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "ensure this value has at least 2 characters",
-            "type": "value_error.any_str.min_length",
-            "ctx": {"limit_value": 2},
+            "msg": "String should have at least 2 characters",
+            "type": "string_too_short",
+            "ctx": {"min_length": 2},
         }
     ]
 }
@@ -60,9 +60,9 @@ response_maximum_3 = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "ensure this value has at most 3 characters",
-            "type": "value_error.any_str.max_length",
-            "ctx": {"limit_value": 3},
+            "msg": "String should have at most 3 characters",
+            "type": "string_too_long",
+            "ctx": {"max_length": 3},
         }
     ]
 }
@@ -72,9 +72,9 @@ response_greater_than_3 = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "ensure this value is greater than 3",
-            "type": "value_error.number.not_gt",
-            "ctx": {"limit_value": 3},
+            "msg": "Input should be greater than 3",
+            "type": "greater_than",
+            "ctx": {"gt": 3.0},
         }
     ]
 }
@@ -84,9 +84,9 @@ response_greater_than_0 = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "ensure this value is greater than 0",
-            "type": "value_error.number.not_gt",
-            "ctx": {"limit_value": 0},
+            "msg": "Input should be greater than 0",
+            "type": "greater_than",
+            "ctx": {"gt": 0.0},
         }
     ]
 }
@@ -96,9 +96,9 @@ response_greater_than_1 = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "ensure this value is greater than 1",
-            "type": "value_error.number.not_gt",
-            "ctx": {"limit_value": 1},
+            "msg": "Input should be greater than 1",
+            "type": "greater_than",
+            "ctx": {"gt": 1.0},
         }
     ]
 }
@@ -108,9 +108,9 @@ response_greater_than_equal_3 = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "ensure this value is greater than or equal to 3",
-            "type": "value_error.number.not_ge",
-            "ctx": {"limit_value": 3},
+            "msg": "Input should be greater than or equal to 3",
+            "type": "greater_than_equal",
+            "ctx": {"ge": 3.0},
         }
     ]
 }
@@ -120,9 +120,9 @@ response_less_than_3 = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "ensure this value is less than 3",
-            "type": "value_error.number.not_lt",
-            "ctx": {"limit_value": 3},
+            "msg": "Input should be less than 3",
+            "type": "less_than",
+            "ctx": {"lt": 3.0},
         }
     ]
 }
@@ -132,9 +132,9 @@ response_less_than_0 = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "ensure this value is less than 0",
-            "type": "value_error.number.not_lt",
-            "ctx": {"limit_value": 0},
+            "msg": "Input should be less than 0",
+            "type": "less_than",
+            "ctx": {"lt": 0.0},
         }
     ]
 }
@@ -144,9 +144,9 @@ response_less_than_equal_3 = {
     "detail": [
         {
             "loc": ["path", "item_id"],
-            "msg": "ensure this value is less than or equal to 3",
-            "type": "value_error.number.not_le",
-            "ctx": {"limit_value": 3},
+            "msg": "Input should be less than or equal to 3",
+            "type": "less_than_equal",
+            "ctx": {"le": 3.0},
         }
     ]
 }

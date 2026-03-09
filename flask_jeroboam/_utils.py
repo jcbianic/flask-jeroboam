@@ -9,34 +9,6 @@ import re
 from collections.abc import Callable
 from typing import Any, ForwardRef
 
-from pydantic import BaseModel
-from pydantic.fields import FieldInfo
-
-from flask_jeroboam._compat import (
-    SHAPE_FROZENSET,
-    SHAPE_LIST,
-    SHAPE_SEQUENCE,
-    SHAPE_SET,
-    SHAPE_TUPLE,
-    SHAPE_TUPLE_ELLIPSIS,
-    BaseConfig,
-    ModelField,
-)
-
-from flask_jeroboam.view_arguments.arguments import ArgumentLocation, ViewArgument
-
-sequence_shapes = {
-    SHAPE_LIST,
-    SHAPE_SET,
-    SHAPE_FROZENSET,
-    SHAPE_TUPLE,
-    SHAPE_SEQUENCE,
-    SHAPE_TUPLE_ELLIPSIS,
-}
-sequence_types = (list, set, tuple)
-body_locations = {ArgumentLocation.body, ArgumentLocation.form, ArgumentLocation.file}
-
-
 def _evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
     """Evaluate a ForwardRef in the given namespaces (Python version-safe).
 
@@ -96,20 +68,12 @@ def get_typed_return_annotation(call: Callable[..., Any]) -> Any:  # pragma: no 
 
 def is_sequence_field(field) -> bool:
     """Check if a field is a sequence field."""
-    # Handle pydantic v2 FieldInfo (no shape/type_ attributes)
-    if not hasattr(field, "shape"):
-        from typing import get_origin
+    from typing import get_origin
 
-        annotation = getattr(field, "annotation", None)
-        if annotation is None:
-            return False
-        return get_origin(annotation) in (list, tuple, set, frozenset)
-    # Pydantic v1 ModelField path (removed in Phase 6)
-    if (field.shape in sequence_shapes) and not _lenient_issubclass(
-        field.type_, BaseModel
-    ):
-        return True
-    return bool(_lenient_issubclass(field.type_, sequence_types))
+    annotation = getattr(field, "annotation", None)
+    if annotation is None:
+        return False
+    return get_origin(annotation) in (list, tuple, set, frozenset)
 
 
 def _rename_query_params_keys(self, inbound_dict: dict, pattern: str) -> dict:
@@ -125,37 +89,6 @@ def _rename_query_params_keys(self, inbound_dict: dict, pattern: str) -> dict:
             inbound_dict[new_key] = new_array
             del inbound_dict[old_key]
     return inbound_dict
-
-
-def create_field(
-    *,
-    name: str,
-    type_: type[BaseModel],
-    required: bool,
-    alias: str | None = None,
-    field_info: FieldInfo | None = None,
-    class_validators: dict,
-    model_config: type[BaseConfig] | None = None,
-) -> ModelField | None:
-    """Create a pydantic ModelField from a model class.
-
-    Removed the partial-trcatch trick from FastAPI's original implementation.
-    I didn't find a way to reproduce.
-    """
-    class_validators = class_validators or {}
-    field_info = field_info or FieldInfo()
-    model_config = model_config or getattr(type_, "__config__", BaseConfig)
-
-    return ModelField(
-        name=name,
-        type_=type_,
-        class_validators=class_validators,
-        default=None,
-        model_config=model_config,  # type: ignore
-        alias=alias or name,
-        required=required,
-        field_info=field_info,
-    )
 
 
 def _throw_away_falthy_values(

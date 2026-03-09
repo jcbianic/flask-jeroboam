@@ -83,8 +83,8 @@ def test_argument_is_required(client):
         "detail": [
             {
                 "loc": ["query", "page"],
-                "msg": "field required",
-                "type": "value_error.missing",
+                "msg": "Field required",
+                "type": "missing",
             }
         ]
     }
@@ -148,10 +148,10 @@ def test_validation_option(client):
     assert response.json == {
         "detail": [
             {
-                "ctx": {"limit_value": 1},
+                "ctx": {"ge": 1.0},
                 "loc": ["query", "page"],
-                "msg": "ensure this value is greater than or equal to 1",
-                "type": "value_error.number.not_ge",
+                "msg": "Input should be greater than or equal to 1",
+                "type": "greater_than_equal",
             }
         ]
     }

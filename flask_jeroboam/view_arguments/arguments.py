@@ -7,7 +7,8 @@ localised fields with some extra information.
 from enum import Enum
 from typing import Any
 
-from flask_jeroboam._compat import Undefined, V1FieldInfo as FieldInfo
+from pydantic.fields import FieldInfo
+from pydantic_core import PydanticUndefined
 
 
 class ArgumentLocation(Enum):
@@ -24,23 +25,28 @@ class ArgumentLocation(Enum):
 
 
 class ViewArgument(FieldInfo):
-    """Base class for all View parameters."""
+    """Base class for all View parameters.
+
+    Inherits from pydantic v2 FieldInfo so that constraints (gt, lt,
+    min_length, …) are stored natively and can be applied via
+    TypeAdapter(Annotated[annotation, view_arg_instance]).
+    """
 
     location: ArgumentLocation
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
-        self.example = kwargs.pop("example", Undefined)
-        self.examples = kwargs.pop("examples", None)
+        # Normalise Ellipsis (used as "required" marker in pydantic v1 style)
+        if default is Ellipsis:
+            default = PydanticUndefined
         self.embed = kwargs.pop("embed", False)
         self.include_in_schema = kwargs.pop("include_in_schema", True)
-        super().__init__(
-            default,
-            **kwargs,
-        )
+        self.example = kwargs.pop("example", PydanticUndefined)
+        self.examples = kwargs.pop("examples", None)
+        super().__init__(default=default, **kwargs)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.default})"
@@ -60,7 +66,7 @@ class ParameterArgument(ViewArgument):
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
         self.deprecated = kwargs.pop("deprecated", None)
@@ -86,11 +92,11 @@ class PathArgument(ParameterArgument):
         *args: Any,
         **kwargs: Any,
     ):
+        # Path params are always required — ignore any supplied default
         super().__init__(
-            ...,
+            PydanticUndefined,
             **kwargs,
         )
-        self.required = True
 
 
 class HeaderArgument(ParameterArgument):
@@ -100,7 +106,7 @@ class HeaderArgument(ParameterArgument):
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
         self.convert_underscores = kwargs.pop("convert_underscores", True)
@@ -128,7 +134,7 @@ class BodyArgument(ViewArgument):
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
         self.embed = kwargs.get("embed", False)
@@ -146,7 +152,7 @@ class FormArgument(BodyArgument):
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
         embed = kwargs.pop("embed", True)
@@ -165,7 +171,7 @@ class FileArgument(FormArgument):
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
         embed = kwargs.pop("embed", False)

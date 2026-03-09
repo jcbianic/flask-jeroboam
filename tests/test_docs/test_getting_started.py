@@ -36,8 +36,8 @@ def test_getting_started_03(app=app):
         "detail": [
             {
                 "loc": ["query", "page"],
-                "msg": "value is not a valid integer",
-                "type": "type_error.integer",
+                "msg": "Input should be a valid integer, unable to parse string as an integer",
+                "type": "int_parsing",
             }
         ]
     }
