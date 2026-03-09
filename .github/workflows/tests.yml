@@ -214,10 +214,12 @@ jobs:
       - name: Combine coverage data and display human readable report
         run: nox --session=coverage
 
-      - name: Publish Code Coverage to Code Climate
-        uses: paambaati/codeclimate-action@v9
-        continue-on-error: true
-        env:
-          CC_TEST_REPORTER_ID: ${{secrets.CC_REPORTER_ID}}
+      - name: Generate coverage XML report
+        run: nox --session=coverage -- xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          coverageCommand: nox --session=coverage -- xml
+          files: ./coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
