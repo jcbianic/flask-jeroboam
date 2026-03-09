@@ -10,6 +10,9 @@ jobs:
   tests:
     name: ${{ matrix.session }} ${{ matrix.python }} / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      actions: write
     strategy:
       fail-fast: false
       matrix:
@@ -190,6 +193,9 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     needs: tests
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
