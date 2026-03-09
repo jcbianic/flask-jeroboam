@@ -25,7 +25,7 @@ def post_body_as_str(payload: str = Body()):
 @router.post("/body/base_model")
 def post_base_model_in_form(payload: SimpleModelIn = Body()):
     """POST Form Parameter as pydantic BaseModel."""
-    return payload.json()
+    return payload.model_dump_json()
 
 
 @router.post("/body/multi_primitive")

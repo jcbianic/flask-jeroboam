@@ -6,8 +6,10 @@ from typing import Any, TypeVar
 
 from flask import Response
 from flask.globals import current_app
-from pydantic import BaseConfig, BaseModel, create_model, validate_model
+from pydantic import BaseModel, RootModel, ValidationError, create_model
 from pydantic.fields import FieldInfo
+
+from flask_jeroboam._compat import BaseConfig
 from typing_extensions import ParamSpec
 
 from flask_jeroboam._constants import METHODS_DEFAULT_STATUS_CODE, NO_BODY_STATUS_CODES
@@ -183,10 +185,8 @@ class OutboundHandler:
 
         if getattr(response_model, "__origin__", None) == list:
             field: type = response_model.__args__[0]  # type: ignore[attr-defined]
-            response_model = create_model(
-                f"{field.__name__}AsList",
-                __root__=(list[field], ...),  # type: ignore[valid-type]
-            )
+            response_model = RootModel[list[field]]  # type: ignore[valid-type]
+            response_model.__name__ = f"{field.__name__}AsList"  # type: ignore[attr-defined]
         assert response_model is not None  # noqa: S101
         if not issubclass(response_model, BaseModel):
             raise TypeError(
@@ -258,13 +258,17 @@ class OutboundHandler:
         exclude_defaults, exclude_none options ?
         """
         assert self.response_model is not None  # noqa: S101
-        outbound_data: dict = self._adapt_datastructure_of(content)  # type: ignore
-        values, _, error = validate_model(self.response_model, outbound_data)
-        if error:
+        if issubclass(self.response_model, RootModel):
+            content_to_validate = content
+        else:
+            content_to_validate = self._adapt_datastructure_of(content)  # type: ignore  # May raise ValueError
+        try:
+            validated = self.response_model.model_validate(content_to_validate)
+        except ValidationError as error:
             raise ResponseValidationError(
                 "A validation", error, traceback.format_exc()
             ) from error
-        return self.response_model(**values).json()
+        return validated.model_dump_json()
 
     def _adapt_datastructure_of(
         self, content: JeroboamBodyType
@@ -280,7 +284,7 @@ class OutboundHandler:
         if isinstance(content, dict):
             return content
         elif isinstance(content, BaseModel):
-            return content.dict()
+            return content.model_dump()
         elif isinstance(content, list):
             return {
                 "__root__": [self._adapt_datastructure_of(item) for item in content]

@@ -12,7 +12,7 @@ router = Blueprint("form_params_router", __name__, tags=["Form"])
 @router.post("/form/base_model")
 def post_base_model_in_form(form_payload: SimpleModelIn = Form(embed=False)):
     """POST Form Parameter as pydantic BaseModel."""
-    return form_payload.json()
+    return form_payload.model_dump_json()
 
 
 @router.post("/form/primitives_in_form")

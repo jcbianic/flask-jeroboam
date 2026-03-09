@@ -14,8 +14,9 @@ from typing import (
 )
 
 from pydantic import BaseModel
-from pydantic.fields import ModelField
-from pydantic.schema import (
+
+from flask_jeroboam._compat import (
+    ModelField,
     field_schema,
     get_flat_models_from_fields,
     model_process_schema,

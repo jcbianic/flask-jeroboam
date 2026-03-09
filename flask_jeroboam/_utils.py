@@ -10,8 +10,10 @@ import re
 from collections.abc import Callable
 from typing import Any, ForwardRef
 
-from pydantic import BaseConfig, BaseModel
-from pydantic.fields import (
+from pydantic import BaseModel
+from pydantic.fields import FieldInfo
+
+from flask_jeroboam._compat import (
     SHAPE_FROZENSET,
     SHAPE_LIST,
     SHAPE_SEQUENCE,
@@ -19,11 +21,11 @@ from pydantic.fields import (
     SHAPE_SINGLETON,
     SHAPE_TUPLE,
     SHAPE_TUPLE_ELLIPSIS,
-    FieldInfo,
+    BaseConfig,
     ModelField,
+    evaluate_forwardref,
+    lenient_issubclass,
 )
-from pydantic.typing import evaluate_forwardref
-from pydantic.utils import lenient_issubclass
 
 from flask_jeroboam.view_arguments.arguments import ArgumentLocation, ViewArgument
 
@@ -90,8 +92,17 @@ def is_scalar_field(field: ModelField) -> bool:
     )
 
 
-def is_sequence_field(field: ModelField) -> bool:
+def is_sequence_field(field) -> bool:
     """Check if a field is a sequence field."""
+    # Handle pydantic v2 FieldInfo (no shape/type_ attributes)
+    if not hasattr(field, "shape"):
+        from typing import get_origin
+
+        annotation = getattr(field, "annotation", None)
+        if annotation is None:
+            return False
+        return get_origin(annotation) in (list, tuple, set, frozenset)
+    # Pydantic v1 ModelField path
     if (field.shape in sequence_shapes) and not lenient_issubclass(
         field.type_, BaseModel
     ):

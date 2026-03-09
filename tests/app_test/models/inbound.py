@@ -21,8 +21,8 @@ class QueryStringWithList(InboundModel):
 class OptionalModelIn(InboundModel):
     """a BaseModel with Optional Fields."""
 
-    page: int | None
-    per_page: int | None
+    page: int | None = None
+    per_page: int | None = None
 
 
 class ModelWithListIn(InboundModel):

@@ -9,10 +9,8 @@ from copy import deepcopy
 from typing import Any
 
 from flask import request
-from pydantic import BaseConfig
-from pydantic.error_wrappers import ErrorWrapper
-from pydantic.errors import MissingError
-from pydantic.fields import FieldInfo, ModelField
+
+from flask_jeroboam._compat import BaseConfig, ErrorWrapper, MissingError, ModelField, V1FieldInfo as FieldInfo
 from werkzeug.datastructures import FileStorage, Headers, MultiDict
 
 from flask_jeroboam._utils import is_sequence_field
@@ -116,6 +114,21 @@ class SolvedArgument(ModelField):
             return values, errors
         elif inbound_values is None:
             inbound_values = deepcopy(self.default)
+        if _is_v2_only_model(self.type_):
+            # Pydantic v2 BaseModel: use model_validate directly
+            from pydantic import ValidationError as V2ValidationError
+
+            try:
+                values[self.name] = self.type_.model_validate(inbound_values)
+            except V2ValidationError as e:
+                for err in e.errors(include_url=False):
+                    loc = (self.location.value, self.alias) + tuple(
+                        str(l) for l in err.get("loc", ())
+                    )
+                    errors.append(ErrorWrapper(ValueError(err["msg"]), loc=loc))
+            except Exception as e:
+                errors.append(ErrorWrapper(e, loc=(self.location.value, self.alias)))
+            return values, errors
         values_, errors_ = self.validate(
             inbound_values, values, loc=(self.location.value, self.alias)
         )
@@ -167,7 +180,7 @@ class SolvedQueryArgument(SolvedArgument):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if hasattr(self.type_, "__fields__"):
+        if hasattr(self.type_, "model_fields") or hasattr(self.type_, "__fields__"):
             self.extractor = _extract_subfields
         elif is_sequence_field(self):
             self.extractor = _extract_sequence
@@ -176,22 +189,39 @@ class SolvedQueryArgument(SolvedArgument):
 
     def _get_values(self) -> dict | str | None | list[Any]:
         source: MultiDict = request.args
+        fields = getattr(self.type_, "model_fields", None) or getattr(
+            self.type_, "__fields__", {}
+        )
         return self.extractor(
             source=source,
             alias=self.alias,
             name=self.name,
-            fields=getattr(self.type_, "__fields__", {}),
+            fields=fields,
         )
 
 
+def _is_v2_only_model(type_: Any) -> bool:
+    """Check if type_ is a pydantic v2 BaseModel that lacks __get_validators__."""
+    from pydantic import BaseModel as V2BaseModel
+    from pydantic.v1 import BaseModel as V1BaseModel
+
+    return (
+        isinstance(type_, type)
+        and issubclass(type_, V2BaseModel)
+        and not issubclass(type_, V1BaseModel)
+        and not hasattr(type_, "__get_validators__")
+    )
+
+
 class SolvedBodyArgument(SolvedArgument):
-    """Solved Scalar Query parameter."""
+    """Solved Body parameter."""
 
     def _get_values(self) -> dict | str | None | list[Any]:
         source: dict | list = request.json or {}
         if isinstance(source, list):
             return source
         return source.get(self.alias or self.name) if self.embed else source
+
 
 
 class SolvedFileArgument(SolvedArgument):

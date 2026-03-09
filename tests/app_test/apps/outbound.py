@@ -86,7 +86,7 @@ def view_function_returns_a_base_model():
 @router.get("/return_type/response", response_model=SimpleModelOut)
 def view_function_returns_a_response():
     return JSONResponse(
-        SimpleModelOut(total_count=10, items=["Apple", "Banana"]).json()
+        SimpleModelOut(total_count=10, items=["Apple", "Banana"]).model_dump_json()
     )
 
 

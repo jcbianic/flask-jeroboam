@@ -11,6 +11,7 @@ from tests.app_test.apps.file import router as file_router
 from tests.app_test.apps.form import router as form_router
 from tests.app_test.apps.header import router as header_router
 from tests.app_test.apps.misc import router as misc_router
+from tests.app_test.apps.mixed import router as mixed_router
 from tests.app_test.apps.openapi import router as openapi_test_router
 from tests.app_test.apps.outbound import router as outbound_router
 from tests.app_test.apps.path import router as path_router
@@ -46,6 +47,7 @@ def create_test_app():
     app.register_blueprint(path_router)
     app.register_blueprint(query_router)
     app.register_blueprint(misc_router)
+    app.register_blueprint(mixed_router)
     app.register_blueprint(outbound_router)
     app.register_blueprint(openapi_test_router)
 

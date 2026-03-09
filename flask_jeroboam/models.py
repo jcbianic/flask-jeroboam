@@ -4,7 +4,7 @@ import json
 import re
 from collections.abc import Callable
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 def snake_case_to_camel(string: str) -> str:
@@ -48,17 +48,46 @@ def json_dumps_to_camel_case(*args, **kwargs):
 class InboundModel(BaseModel):
     """Basic configuration for parsing Requests."""
 
-    class Config:
-        """This Configuration allow to receive QueryStrings in PascalCase."""
+    model_config = ConfigDict(
+        alias_generator=snake_case_to_camel,
+        populate_by_name=True,
+    )
 
-        alias_generator = snake_case_to_camel
-        allow_population_by_field_name = True
+    @classmethod
+    def __get_validators__(cls):
+        """Bridge for pydantic v1 ModelField compatibility.
+
+        TODO Phase 6: Remove when SolvedArgument is rewritten for pydantic v2.
+        """
+        yield cls._v1_validate
+
+    @classmethod
+    def _v1_validate(cls, v):
+        if isinstance(v, cls):
+            return v
+        from pydantic import ValidationError as V2ValidationError
+        from pydantic.v1 import ValidationError as V1ValidationError
+        from pydantic.v1.error_wrappers import ErrorWrapper as V1ErrorWrapper
+
+        try:
+            return cls.model_validate(v)
+        except V2ValidationError as e:
+            v1_errors = [
+                V1ErrorWrapper(ValueError(err["msg"]), loc=tuple(str(l) for l in err.get("loc", ())))
+                for err in e.errors(include_url=False)
+            ]
+            raise V1ValidationError(v1_errors, cls) from e
 
 
 class OutboundModel(BaseModel):
-    """Basic Configiration for serializing Responses."""
+    """Basic configuration for serializing Responses."""
 
-    class Config:
-        """This Configuration allow to return response in PascalCase."""
+    model_config = ConfigDict(
+        alias_generator=snake_case_to_camel,
+        populate_by_name=True,
+    )
 
-        json_dumps = json_dumps_to_camel_case
+    def model_dump_json(self, **kwargs) -> str:
+        """Serialize to JSON with camelCase keys by default."""
+        kwargs.setdefault("by_alias", True)
+        return super().model_dump_json(**kwargs)

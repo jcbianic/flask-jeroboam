@@ -7,7 +7,7 @@ from collections.abc import Callable, Iterable
 from enum import Enum
 from typing import Any, Optional, Union
 
-from pydantic import AnyUrl, BaseModel, Field
+from pydantic import AnyUrl, BaseModel, ConfigDict, Field
 
 from flask_jeroboam._logger import logger
 
@@ -17,20 +17,24 @@ try:  # pragma: no cover
 
     assert email_validator  # noqa: S101
 except ImportError:  # pragma: no cover
+    from pydantic import GetCoreSchemaHandler
+    from pydantic_core import core_schema as _core_schema
 
     class EmailStr(str):  # type: ignore
         """An empty EmailStr to warn users if email-validator is not installed."""
 
         @classmethod
-        def __get_validators__(cls) -> Iterable[Callable[..., Any]]:
-            yield cls.validate
+        def __get_pydantic_core_schema__(
+            cls, source_type: Any, handler: GetCoreSchemaHandler
+        ) -> Any:
+            return _core_schema.no_info_plain_validator_function(cls.validate)
 
         @classmethod
         def validate(cls, v: Any) -> str:
             """Raises a warning if email-validator is not installed."""
             logger.warning(
                 "email-validator not installed, email fields will be treated as str.\n"
-                "To install, run: poetry add pydantic[email-validator]"
+                "To install, run: pip install pydantic[email]"
             )
             return str(v)
 
@@ -40,16 +44,14 @@ class Contact(BaseModel):
     url: AnyUrl | None = None
     email: EmailStr | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class License(BaseModel):
     name: str
     url: AnyUrl | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class Info(BaseModel):
@@ -60,8 +62,7 @@ class Info(BaseModel):
     license: License | None = None
     version: str
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class ServerVariable(BaseModel):
@@ -69,8 +70,7 @@ class ServerVariable(BaseModel):
     default: str
     description: str | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class Server(BaseModel):
@@ -78,8 +78,7 @@ class Server(BaseModel):
     description: str | None = None
     variables: dict[str, ServerVariable] | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class Reference(BaseModel):
@@ -98,16 +97,14 @@ class XML(BaseModel):
     attribute: bool | None = None
     wrapped: bool | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class ExternalDocumentation(BaseModel):
     description: str | None = None
     url: AnyUrl
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class Schema(BaseModel):
@@ -118,14 +115,14 @@ class Schema(BaseModel):
     exclusive_maximum: float | None = Field(None, alias="exclusiveMaximum")
     minimum: float | None = None
     exclusive_minimum: float | None = Field(None, alias="exclusiveMinimum")
-    max_length: int | None = Field(default=None, gte=0, alias="maxLength")
-    min_length: int | None = Field(default=None, gte=0, alias="minLength")
+    max_length: int | None = Field(default=None, ge=0, alias="maxLength")
+    min_length: int | None = Field(default=None, ge=0, alias="minLength")
     pattern: str | None = None
-    max_items: int | None = Field(default=None, gte=0, alias="maxItems")
-    min_items: int | None = Field(default=None, gte=0, alias="minItems")
+    max_items: int | None = Field(default=None, ge=0, alias="maxItems")
+    min_items: int | None = Field(default=None, ge=0, alias="minItems")
     unique_items: bool | None = Field(None, alias="uniqueItems")
-    max_properties: int | None = Field(default=None, gte=0, alias="maxProperties")
-    min_properties: int | None = Field(default=None, gte=0, alias="minProperties")
+    max_properties: int | None = Field(default=None, ge=0, alias="maxProperties")
+    min_properties: int | None = Field(default=None, ge=0, alias="minProperties")
     required: list[str] | None = None
     enum: list[Any] | None = None
     type: str | None = None
@@ -150,8 +147,7 @@ class Schema(BaseModel):
     example: Any | None = None
     deprecated: bool | None = None
 
-    class Config:
-        extra: str = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class Example(BaseModel):
@@ -160,8 +156,7 @@ class Example(BaseModel):
     value: Any | None = None
     external_value: AnyUrl | None = Field(None, alias="externalValue")
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class ParameterInType(Enum):
@@ -178,8 +173,7 @@ class Encoding(BaseModel):
     explode: bool | None = None
     allow_reserved: bool | None = Field(None, alias="allowReserved")
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class MediaType(BaseModel):
@@ -188,8 +182,7 @@ class MediaType(BaseModel):
     examples: dict[str, Example | Reference] | None = None
     encoding: dict[str, Encoding] | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class ParameterBase(BaseModel):
@@ -206,8 +199,7 @@ class ParameterBase(BaseModel):
     # Serialization rules for more complex scenarios
     content: dict[str, MediaType] | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class Parameter(ParameterBase):
@@ -224,8 +216,7 @@ class RequestBody(BaseModel):
     content: dict[str, MediaType]
     required: bool | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class Link(BaseModel):
@@ -236,8 +227,7 @@ class Link(BaseModel):
     description: str | None = None
     server: Server | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class Response(BaseModel):
@@ -246,8 +236,7 @@ class Response(BaseModel):
     content: dict[str, MediaType] | None = None
     links: dict[str, Link | Reference] | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class Operation(BaseModel):
@@ -265,8 +254,7 @@ class Operation(BaseModel):
     security: list[dict[str, list[str]]] | None = None
     servers: list[Server] | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class PathItem(BaseModel):
@@ -284,8 +272,7 @@ class PathItem(BaseModel):
     servers: list[Server] | None = None
     parameters: list[Parameter | Reference] | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class SecuritySchemeType(Enum):
@@ -299,8 +286,7 @@ class SecurityBase(BaseModel):
     type_: SecuritySchemeType = Field(alias="type")
     description: str | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class APIKeyIn(Enum):
@@ -321,7 +307,7 @@ class HTTPBase(SecurityBase):
 
 
 class HTTPBearer(HTTPBase):
-    scheme = "bearer"
+    scheme: str = "bearer"
     bearer_format: str | None = Field(None, alias="bearerFormat")
 
 
@@ -329,8 +315,7 @@ class OAuthFlow(BaseModel):
     refresh_url: str | None = Field(None, alias="refreshUrl")
     scopes: dict[str, str] = {}
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class OAuthFlowImplicit(OAuthFlow):
@@ -360,8 +345,7 @@ class OAuthFlows(BaseModel):
         None, alias="authorizationCode"
     )
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class OAuth2(SecurityBase):
@@ -393,8 +377,7 @@ class Components(BaseModel):
     # Using Any for Specification Extensions
     callbacks: dict[str, dict[str, PathItem] | Reference | Any] | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class Tag(BaseModel):
@@ -402,8 +385,7 @@ class Tag(BaseModel):
     description: str | None = None
     external_docs: ExternalDocumentation | None = Field(None, alias="externalDocs")
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class OpenAPI(BaseModel):
@@ -419,10 +401,9 @@ class OpenAPI(BaseModel):
         default=None, alias="externalDocs"
     )
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
-Schema.update_forward_refs()
-Operation.update_forward_refs()
-Encoding.update_forward_refs()
+Schema.model_rebuild()
+Operation.model_rebuild()
+Encoding.model_rebuild()

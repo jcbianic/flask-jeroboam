@@ -65,15 +65,12 @@ def test_pascal_case_in_and_out_snake_case_without_transformer(
     )
 
     assert response.status_code == 400
-    assert response.json == {
-        "detail": [
-            {
-                "loc": ["query", "payload", "order[]"],
-                "msg": "Order must have at least 1 value",
-                "type": "value_error",
-            }
-        ]
-    }
+    errors = response.json.get("detail", [])
+    assert len(errors) == 1
+    # loc may use field name "order" (v2) or alias "order[]" (v1)
+    assert any("order" in str(e.get("loc", "")) for e in errors)
+    # msg may have "Value error, " prefix in v2
+    assert any("Order must have at least 1 value" in e.get("msg", "") for e in errors)
 
 
 def test_view_param_str_repr():

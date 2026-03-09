@@ -7,7 +7,7 @@ localised fields with some extra information.
 from enum import Enum
 from typing import Any
 
-from pydantic.fields import FieldInfo, Undefined
+from flask_jeroboam._compat import Undefined, V1FieldInfo as FieldInfo
 
 
 class ArgumentLocation(Enum):
@@ -36,7 +36,7 @@ class ViewArgument(FieldInfo):
         self.example = kwargs.pop("example", Undefined)
         self.examples = kwargs.pop("examples", None)
         self.embed = kwargs.pop("embed", False)
-        self.include_in_schema = kwargs.get("include_in_schema", True)
+        self.include_in_schema = kwargs.pop("include_in_schema", True)
         super().__init__(
             default,
             **kwargs,

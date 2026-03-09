@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, Any
 
-from pydantic.schema import get_model_name_map
+from flask_jeroboam._compat import get_model_name_map
 
 from flask_jeroboam._utils import _memoized_update_if_value
 from flask_jeroboam.openapi._utils import (
@@ -31,7 +31,7 @@ def build_openapi(
     """
     # Meta
     openapi_version = app.config.get("JEROBOAM_OPENAPI_VERSION", "3.0.2")
-    info = Info.parse_obj(
+    info = Info.model_validate(
         {
             "title": app.config.get("JEROBOAM_TITLE", None) or app.name,
             "version": app.config.get("JEROBOAM_VERSION", "0.1.0"),

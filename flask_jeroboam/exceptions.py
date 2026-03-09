@@ -7,15 +7,15 @@ how the message is colllected and formatted.
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, ValidationError, create_model
-from pydantic.error_wrappers import ErrorList
+from pydantic.v1 import ValidationError, create_model as v1_create_model
+from flask_jeroboam._compat import ErrorList
 from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
 
 if TYPE_CHECKING:  # pragma: no cover
     from flask_jeroboam.jeroboam import Jeroboam
 
 
-RequestErrorModel: type[BaseModel] = create_model("Request")
+RequestErrorModel = v1_create_model("Request")
 
 
 class RessourceNotFound(NotFound):

@@ -68,24 +68,24 @@ def get_enum_status_code():
 @router.get("/query/base_model")
 def get_base_model(payload: SimpleModelIn):
     """Base Model as Query Param."""
-    return payload.json()
+    return payload.model_dump_json()
 
 
 @router.get("/query/base_model/forward_ref")
 def get_base_model_as_forward_ref(payload: "SimpleModelIn"):
-    return payload.json()
+    return payload.model_dump_json()
 
 
 @router.get("/query/list_of_strings")
 def get_list_of_strings(query_string: QueryStringWithList):
-    return query_string.json()
+    return query_string.model_dump_json()
 
 
 @router.get("/query/optional_model")
 def get_optional_param(payload: OptionalModelIn | None):
-    return payload.json() if payload else {}
+    return payload.model_dump_json() if payload else {}
 
 
 @router.get("/query/special_pattern", response_model=ModelWithListOut)
 def read_items(payload: ModelWithListIn):
-    return payload.json()
+    return payload.model_dump_json()

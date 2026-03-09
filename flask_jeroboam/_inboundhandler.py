@@ -6,9 +6,8 @@ from functools import wraps
 from typing import Any
 
 from pydantic import BaseModel, create_model
-from pydantic.error_wrappers import ErrorWrapper
-from pydantic.fields import Undefined
-from pydantic.schema import get_annotation_from_field_info
+
+from flask_jeroboam._compat import ErrorWrapper, Undefined, get_annotation_from_field_info
 from typing_extensions import ParamSpec
 
 from flask_jeroboam._utils import create_field, get_typed_signature
