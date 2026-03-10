@@ -99,7 +99,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "S105", "S106", "B018", "E402"]
+"tests/**" = ["S101", "S105", "S106", "B018", "E402", "E501"]
 "**/*.pyi" = ["N802"]
 "noxfile.py" = ["S603", "S607"]
 
@@ -109,6 +109,12 @@ show_column_numbers = true
 show_error_codes = true
 show_error_context = true
 warn_unreachable = true
+
+[[tool.mypy.overrides]]
+# Flask's TestResponse.json is typed as Any | None; suppress the resulting
+# union-attr / index / operator errors throughout the test suite.
+module = "tests.*"
+disable_error_code = ["union-attr", "index", "operator"]
 
 
 [build-system]

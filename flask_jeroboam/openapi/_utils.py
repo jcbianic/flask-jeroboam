@@ -5,7 +5,6 @@ Credits: This is a Fork of FastAPI's openapi/utils.py
 
 import warnings
 from collections.abc import Sequence
-from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -22,7 +21,6 @@ from flask_jeroboam._constants import (
     VALIDATION_ERROR_RESPONSE_DEFINITION,
 )
 from flask_jeroboam._utils import (
-    _append_truthy,
     _lenient_issubclass,
     _set_nested_defaults,
     _throw_away_falthy_values,
@@ -55,10 +53,12 @@ def _get_param_schema(param: "SolvedArgument") -> dict[str, Any]:
     from pydantic import TypeAdapter
 
     # For Optional[X] (union with None), use just the inner type for schema generation
-    # so that we get {"type": "integer"} rather than {"anyOf": [{"type": "integer"}, {"type": "null"}]}
+    # so that we get {"type": "integer"} rather than {"anyOf": [...]}
     inner_annotation = _unwrap_optional_annotation(param.annotation)
     if inner_annotation is not param.annotation:
-        schema = TypeAdapter(inner_annotation).json_schema(ref_template=REF_PREFIX + "{model}")
+        schema = TypeAdapter(inner_annotation).json_schema(
+            ref_template=REF_PREFIX + "{model}"
+        )
     else:
         schema = param._type_adapter.json_schema(ref_template=REF_PREFIX + "{model}")
     # Remove "default": None from schema — None defaults are implicit in optional params
@@ -127,17 +127,20 @@ def _get_openapi_operation_request_body(
     field_info = cast(BodyArgument, body_field.field_info)
     request_media_type = field_info.media_type
 
-    is_synthetic = (
-        _lenient_issubclass(annotation, BaseModel)
-        and annotation.__name__.endswith("request_body_as_model")
-    )
+    is_synthetic = _lenient_issubclass(
+        annotation, BaseModel
+    ) and annotation.__name__.endswith("request_body_as_model")
     if is_synthetic:
-        body_schema = cast(type[BaseModel], annotation).model_json_schema(ref_template=REF_PREFIX + "{model}")
+        body_schema = cast(type[BaseModel], annotation).model_json_schema(
+            ref_template=REF_PREFIX + "{model}"
+        )
         body_schema.pop("$defs", None)
     elif _lenient_issubclass(annotation, BaseModel):
         body_schema = {"$ref": f"{REF_PREFIX}{annotation.__name__}"}
     else:
-        body_schema = body_field._type_adapter.json_schema(ref_template=REF_PREFIX + "{model}")
+        body_schema = body_field._type_adapter.json_schema(
+            ref_template=REF_PREFIX + "{model}"
+        )
 
     request_body_oai: dict[str, Any] = {}
     if body_field.required:
@@ -273,7 +276,9 @@ def _get_flat_models_from_jeroboam_views(
         if response_model is not None:
             models.add(response_model)
         body_field = jeroboam_view.inbound_handler.body_field(rule.unique_id)
-        if body_field is not None and _lenient_issubclass(body_field.annotation, BaseModel):
+        if body_field is not None and _lenient_issubclass(
+            body_field.annotation, BaseModel
+        ):
             if not body_field.annotation.__name__.endswith("request_body_as_model"):
                 models.add(body_field.annotation)
     return models

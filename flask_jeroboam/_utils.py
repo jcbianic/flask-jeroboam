@@ -9,6 +9,7 @@ import re
 from collections.abc import Callable
 from typing import Any, ForwardRef
 
+
 def _evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
     """Evaluate a ForwardRef in the given namespaces (Python version-safe).
 
@@ -16,7 +17,9 @@ def _evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
     """
     try:
         # Python 3.12+: type_params required
-        return ref._evaluate(globalns, localns, type_params=frozenset(), recursive_guard=frozenset())  # type: ignore[call-overload]
+        return ref._evaluate(  # type: ignore[call-arg,call-overload]
+            globalns, localns, type_params=frozenset(), recursive_guard=frozenset()
+        )
     except TypeError:
         # Python 3.9–3.11: recursive_guard keyword-only, no type_params
         return ref._evaluate(globalns, localns, recursive_guard=frozenset())  # type: ignore[call-arg]
