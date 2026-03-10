@@ -6,23 +6,9 @@ Original Source Code at https://github.com/tiangolo/fastapi
 
 import inspect
 import re
+import typing
 from collections.abc import Callable
-from typing import Any, ForwardRef
-
-
-def _evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
-    """Evaluate a ForwardRef in the given namespaces (Python version-safe).
-
-    Python 3.12 added type_params; 3.9+ made recursive_guard keyword-only.
-    """
-    try:
-        # Python 3.12+: type_params required
-        return ref._evaluate(  # type: ignore[call-arg,call-overload]
-            globalns, localns, type_params=frozenset(), recursive_guard=frozenset()
-        )
-    except TypeError:
-        # Python 3.9–3.11: recursive_guard keyword-only, no type_params
-        return ref._evaluate(globalns, localns, recursive_guard=frozenset())  # type: ignore[call-arg]
+from typing import Any
 
 
 def _lenient_issubclass(cls: Any, class_or_tuple: Any) -> bool:
@@ -34,39 +20,32 @@ def _lenient_issubclass(cls: Any, class_or_tuple: Any) -> bool:
 
 
 def get_typed_signature(call: Callable[..., Any]) -> inspect.Signature:
-    """Return a signature with the annotations evaluated."""
+    """Return a signature with string annotations resolved via get_type_hints."""
     signature = inspect.signature(call)
     globalns = getattr(call, "__globals__", {})
+    try:
+        hints = typing.get_type_hints(call, globalns=globalns, include_extras=True)
+    except Exception:
+        hints = {}
     typed_params = [
         inspect.Parameter(
             name=param.name,
             kind=param.kind,
             default=param.default,
-            annotation=get_typed_annotation(param.annotation, globalns),
+            annotation=hints.get(param.name, param.annotation),
         )
         for param in signature.parameters.values()
     ]
     return inspect.Signature(typed_params)
 
 
-def get_typed_annotation(annotation: Any, globalns: dict[str, Any]) -> Any:
-    """Return a typed annotation."""
-    if isinstance(annotation, str):
-        annotation = ForwardRef(annotation)
-        annotation = _evaluate_forwardref(annotation, globalns, globalns)
-    return annotation
-
-
 def get_typed_return_annotation(call: Callable[..., Any]) -> Any:  # pragma: no cover
     """Return a typed return annotation."""
-    signature = inspect.signature(call)
-    annotation = signature.return_annotation
-
-    if annotation is inspect.Signature.empty:
+    try:
+        hints = typing.get_type_hints(call, include_extras=True)
+    except Exception:
         return None
-
-    globalns = getattr(call, "__globals__", {})
-    return get_typed_annotation(annotation, globalns)
+    return hints.get("return", None)
 
 
 def is_sequence_field(field) -> bool:
