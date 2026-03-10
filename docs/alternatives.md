@@ -4,14 +4,14 @@ Flask-Jeroboam exists in a space with several other libraries. This page gives y
 
 ## The Landscape
 
-| Library | Monthly Downloads | Approach | Pydantic | Response Validation |
-|---|---|---|---|---|
-| flask-restx | ~2.6M | Class-based resources, Swagger UI | ❌ None | ❌ |
-| flask-smorest | ~1.3M | Marshmallow-based, OpenAPI | ❌ Marshmallow | ❌ |
-| flask-openapi3 | ~2.2M | Named-model injection | ✅ v2 | Opt-in |
-| apiflask | ~227K | Framework-level replacement | Partial | ❌ |
-| spectree | ~252K | Decorator-based validation | ✅ v1+v2 | Opt-in |
-| flask-jeroboam | — | FastAPI-style per-parameter | ✅ v2 | ✅ Default |
+| Library        | Monthly Downloads | Approach                          | Pydantic       | Response Validation |
+| -------------- | ----------------- | --------------------------------- | -------------- | ------------------- |
+| flask-restx    | ~2.6M             | Class-based resources, Swagger UI | ❌ None        | ❌                  |
+| flask-smorest  | ~1.3M             | Marshmallow-based, OpenAPI        | ❌ Marshmallow | ❌                  |
+| flask-openapi3 | ~2.2M             | Named-model injection             | ✅ v2          | Opt-in              |
+| apiflask       | ~227K             | Framework-level replacement       | Partial        | ❌                  |
+| spectree       | ~252K             | Decorator-based validation        | ✅ v1+v2       | Opt-in              |
+| flask-jeroboam | —                 | FastAPI-style per-parameter       | ✅ v2          | ✅ Default          |
 
 ---
 
@@ -23,7 +23,7 @@ Flask-openapi3 is the closest functional alternative and worth understanding in 
 
 The two libraries made opposite bets at the center of their parameter declaration API.
 
-**flask-openapi3 uses reserved magic argument names.** You group all params of a given HTTP location into a single Pydantic model, then pass that model as a function argument whose *name* tells the library where to look:
+**flask-openapi3 uses reserved magic argument names.** You group all params of a given HTTP location into a single Pydantic model, then pass that model as a function argument whose _name_ tells the library where to look:
 
 ```python
 # flask-openapi3
@@ -119,10 +119,12 @@ Flask-Jeroboam infers parameter location from the HTTP verb — `GET`/`HEAD`/`DE
 ### Summary
 
 Choose **flask-openapi3** if:
+
 - You prefer explicit model-grouping over per-parameter declarations
 - You need ReDoc, Scalar, or other UI options beyond Swagger
 
 Choose **Flask-Jeroboam** if:
+
 - You are familiar with FastAPI and want that exact parameter syntax
 - You need response validation on by default, not opt-in
 - You need clean decorator/middleware composition without validation ordering surprises
@@ -135,11 +137,13 @@ Choose **Flask-Jeroboam** if:
 FastAPI is not a Flask extension — it is a separate framework built on Starlette/ASGI. Flask-Jeroboam is explicitly modelled after FastAPI's parameter syntax, so most FastAPI patterns transfer directly.
 
 Choose **FastAPI** if:
+
 - You are starting a new project with no Flask legacy
 - You need native async/await throughout
 - Performance from ASGI is a requirement
 
 Choose **Flask-Jeroboam** if:
+
 - You have an existing Flask codebase
 - You depend on Flask-specific extensions (Flask-Login, Flask-Admin, Flask-SQLAlchemy, etc.)
 - You use server-side rendering alongside your API
