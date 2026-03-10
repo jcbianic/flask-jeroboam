@@ -7,7 +7,8 @@ localised fields with some extra information.
 from enum import Enum
 from typing import Any
 
-from pydantic.fields import FieldInfo, Undefined
+from pydantic.fields import FieldInfo
+from pydantic_core import PydanticUndefined
 
 
 class ArgumentLocation(Enum):
@@ -23,24 +24,29 @@ class ArgumentLocation(Enum):
     unknown = "unknown"
 
 
-class ViewArgument(FieldInfo):
-    """Base class for all View parameters."""
+class ViewArgument(FieldInfo):  # type: ignore[misc]
+    """Base class for all View parameters.
+
+    Inherits from pydantic v2 FieldInfo so that constraints (gt, lt,
+    min_length, …) are stored natively and can be applied via
+    TypeAdapter(Annotated[annotation, view_arg_instance]).
+    """
 
     location: ArgumentLocation
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
-        self.example = kwargs.pop("example", Undefined)
-        self.examples = kwargs.pop("examples", None)
+        # Normalise Ellipsis (used as "required" marker in pydantic v1 style)
+        if default is Ellipsis:
+            default = PydanticUndefined
         self.embed = kwargs.pop("embed", False)
-        self.include_in_schema = kwargs.get("include_in_schema", True)
-        super().__init__(
-            default,
-            **kwargs,
-        )
+        self.include_in_schema = kwargs.pop("include_in_schema", True)
+        self.example = kwargs.pop("example", PydanticUndefined)
+        self.examples = kwargs.pop("examples", None)
+        super().__init__(default=default, **kwargs)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.default})"
@@ -55,12 +61,12 @@ class ViewArgument(FieldInfo):
         }
 
 
-class ParameterArgument(ViewArgument):
+class ParameterArgument(ViewArgument):  # type: ignore[misc]
     """A Parameter that is not located in the body."""
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
         self.deprecated = kwargs.pop("deprecated", None)
@@ -70,13 +76,13 @@ class ParameterArgument(ViewArgument):
         )
 
 
-class QueryArgument(ParameterArgument):
+class QueryArgument(ParameterArgument):  # type: ignore[misc]
     """A Parameter found in the Query String."""
 
     location = ArgumentLocation.query
 
 
-class PathArgument(ParameterArgument):
+class PathArgument(ParameterArgument):  # type: ignore[misc]
     """A Parameter found in Path."""
 
     location = ArgumentLocation.path
@@ -86,21 +92,21 @@ class PathArgument(ParameterArgument):
         *args: Any,
         **kwargs: Any,
     ):
+        # Path params are always required — ignore any supplied default
         super().__init__(
-            ...,
+            PydanticUndefined,
             **kwargs,
         )
-        self.required = True
 
 
-class HeaderArgument(ParameterArgument):
+class HeaderArgument(ParameterArgument):  # type: ignore[misc]
     """A Header parameter."""
 
     location = ArgumentLocation.header
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
         self.convert_underscores = kwargs.pop("convert_underscores", True)
@@ -110,13 +116,13 @@ class HeaderArgument(ParameterArgument):
         )
 
 
-class CookieArgument(ParameterArgument):
+class CookieArgument(ParameterArgument):  # type: ignore[misc]
     """A Parameter located in Cookies."""
 
     location = ArgumentLocation.cookie
 
 
-class BodyArgument(ViewArgument):
+class BodyArgument(ViewArgument):  # type: ignore[misc]
     """A Parameter located in Body.
 
     Body Parameters can be embedded. which means that they must
@@ -128,10 +134,9 @@ class BodyArgument(ViewArgument):
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
-        self.embed = kwargs.get("embed", False)
         self.media_type = kwargs.pop("media_type", "application/json")
         super().__init__(
             default,
@@ -139,14 +144,14 @@ class BodyArgument(ViewArgument):
         )
 
 
-class FormArgument(BodyArgument):
+class FormArgument(BodyArgument):  # type: ignore[misc]
     """A Parameter located in Body."""
 
     location = ArgumentLocation.form
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
         embed = kwargs.pop("embed", True)
@@ -158,14 +163,14 @@ class FormArgument(BodyArgument):
         )
 
 
-class FileArgument(FormArgument):
+class FileArgument(FormArgument):  # type: ignore[misc]
     """A Parameter located in Body."""
 
     location = ArgumentLocation.file
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
         embed = kwargs.pop("embed", False)

@@ -6,12 +6,11 @@ from typing import Any, TypeVar
 
 from flask import Response
 from flask.globals import current_app
-from pydantic import BaseConfig, BaseModel, create_model, validate_model
-from pydantic.fields import FieldInfo
+from pydantic import BaseModel, RootModel, ValidationError
 from typing_extensions import ParamSpec
 
 from flask_jeroboam._constants import METHODS_DEFAULT_STATUS_CODE, NO_BODY_STATUS_CODES
-from flask_jeroboam._utils import create_field, get_typed_return_annotation
+from flask_jeroboam._utils import get_typed_return_annotation
 from flask_jeroboam.exceptions import ResponseValidationError
 from flask_jeroboam.responses import JSONResponse
 from flask_jeroboam.typing import (
@@ -65,23 +64,6 @@ class OutboundHandler:
     def latent_status_code(self) -> int:
         """The status code that will be used if no status code is provided."""
         return self._solve_status_code(None)
-
-    @property
-    def response_field(self):
-        """The response_model as model field."""
-        if self.response_model is None:
-            return None
-        class_validators = getattr(self.response_model, "__validators__", {})
-        field_info = getattr(self.response_model, "field_info", FieldInfo())
-        model_config = getattr(self.response_model, "__config__", BaseConfig)
-        return create_field(
-            name=self.response_model.__name__,
-            type_=self.response_model,
-            class_validators=class_validators,
-            required=True,
-            model_config=model_config,
-            field_info=field_info,
-        )
 
     def add_outbound_handling_to(
         self, view_func: JeroboamRouteCallable
@@ -183,10 +165,12 @@ class OutboundHandler:
 
         if getattr(response_model, "__origin__", None) == list:
             field: type = response_model.__args__[0]  # type: ignore[attr-defined]
-            response_model = create_model(
-                f"{field.__name__}AsList",
-                __root__=(list[field], ...),  # type: ignore[valid-type]
-            )
+
+            class _AsList(RootModel[list[field]]):  # type: ignore[valid-type]
+                pass
+
+            _AsList.__name__ = f"{field.__name__}AsList"
+            response_model = _AsList
         assert response_model is not None  # noqa: S101
         if not issubclass(response_model, BaseModel):
             raise TypeError(
@@ -206,9 +190,9 @@ class OutboundHandler:
             import warnings
 
             warnings.warn(
-                f"No sensible default status code for verb {http_verb}."
-                "Maybe it's a exotic one. Make sure to set the status_code"
-                "in the options and if you think we should add it, please fill"
+                f"No sensible default status code for verb {http_verb}. "
+                "Maybe it's an exotic one. Make sure to set the status_code "
+                "in the options and if you think we should add it, please file "
                 "an issue.",
                 UserWarning,
                 stacklevel=2,
@@ -258,13 +242,17 @@ class OutboundHandler:
         exclude_defaults, exclude_none options ?
         """
         assert self.response_model is not None  # noqa: S101
-        outbound_data: dict = self._adapt_datastructure_of(content)  # type: ignore
-        values, _, error = validate_model(self.response_model, outbound_data)
-        if error:
+        if issubclass(self.response_model, RootModel):
+            content_to_validate = content
+        else:
+            content_to_validate = self._adapt_datastructure_of(content)  # type: ignore  # May raise ValueError
+        try:
+            validated = self.response_model.model_validate(content_to_validate)
+        except ValidationError as error:
             raise ResponseValidationError(
                 "A validation", error, traceback.format_exc()
             ) from error
-        return self.response_model(**values).json()
+        return validated.model_dump_json()
 
     def _adapt_datastructure_of(
         self, content: JeroboamBodyType
@@ -280,11 +268,9 @@ class OutboundHandler:
         if isinstance(content, dict):
             return content
         elif isinstance(content, BaseModel):
-            return content.dict()
+            return content.model_dump()
         elif isinstance(content, list):
-            return {
-                "__root__": [self._adapt_datastructure_of(item) for item in content]
-            }
+            return [self._adapt_datastructure_of(item) for item in content]
         elif dataclasses.is_dataclass(content) and not isinstance(content, type):
             return dataclasses.asdict(content)
 

@@ -6,12 +6,10 @@ from functools import wraps
 from typing import Any
 
 from pydantic import BaseModel, create_model
-from pydantic.error_wrappers import ErrorWrapper
-from pydantic.fields import Undefined
-from pydantic.schema import get_annotation_from_field_info
+from pydantic_core import PydanticUndefined
 from typing_extensions import ParamSpec
 
-from flask_jeroboam._utils import create_field, get_typed_signature
+from flask_jeroboam._utils import _lenient_issubclass, get_typed_signature
 from flask_jeroboam.exceptions import InvalidRequest
 from flask_jeroboam.typing import JeroboamResponseReturnValue, JeroboamRouteCallable
 from flask_jeroboam.view_arguments.arguments import (
@@ -115,7 +113,7 @@ class InboundHandler:
 
         Has unreachable branches. Single Arguments never reach this method.
         """
-        body_field_info_kwargs: dict[str, Any] = {"default": None}
+        body_field_info_kwargs: dict[str, Any] = {"default": None, "embed": False}
         if len(self.file_params) > 0:  # pragma: no cover
             body_field_info: Callable = File
         elif len(self.form_params) > 0:
@@ -146,31 +144,26 @@ class InboundHandler:
             len(body_param_names_set) == 1
             and getattr(field_info, "embed", None) is not None
         ):
-            if not issubclass(first_param.type_, BaseModel):
+            if not _lenient_issubclass(first_param.annotation, BaseModel):
                 first_param.embed = True
             return first_param
         model_name = f"{name}_request_body_as_model"
-        BodyModel: type[BaseModel] = create_model(model_name)  # noqa: N806
         any_embed = any(argument.embed for argument in self.body_arguments)
         any_required = any(argument.required for argument in self.body_arguments)
+        field_defs: dict[str, Any] = {}
         for argument in self.body_arguments:
             argument.embed = any_embed
-            BodyModel.__fields__[argument.name] = argument
-        field_info = self._solve_body_field_info()
-        field = create_field(
-            name=BodyModel.__name__,
-            type_=BodyModel,
-            required=any_required,
-            alias="body",
-            field_info=field_info,
-            class_validators={},
-        )
-        assert field  # noqa: S101
+            if argument.required:
+                field_defs[argument.name] = (argument.annotation, ...)
+            else:
+                field_defs[argument.name] = (argument.annotation, argument.default)
+        BodyModel: type[BaseModel] = create_model(model_name, **field_defs)  # noqa: N806
+        body_field_info = self._solve_body_field_info()
         return SolvedArgument.specialize(
             name=name,
-            type_=field.type_,
+            annotation=BodyModel,
             required=any_required,
-            view_param=field_info,
+            view_param=body_field_info,
         )
 
     def add_inbound_handling_to(
@@ -182,7 +175,7 @@ class InboundHandler:
         def wrapper(*args, **kwargs) -> JeroboamResponseReturnValue:
             inbound_values, errors = self._parse_and_validate_inbound_data(**kwargs)
             if errors:
-                raise InvalidRequest([errors])
+                raise InvalidRequest(errors)
             return view_func(*args, **inbound_values)
 
         return wrapper
@@ -197,8 +190,8 @@ class InboundHandler:
             import warnings
 
             warnings.warn(
-                f"You have defined Form or File Parameters on a {self.main_http_verb}"
-                "request. This is not supported by Flask:"
+                f"You have defined Form or File Parameters on a {self.main_http_verb} "
+                "request. This is not supported by Flask: "
                 "https://flask.palletsprojects.com/en/2.2.x/api/#incoming-request-data",
                 UserWarning,
                 stacklevel=2,
@@ -236,19 +229,19 @@ class InboundHandler:
             view_param = param.default
         else:
             param_class = get_argument_class(solved_location)
-            view_param = param_class(param.default)
+            raw_default = param.default
+            if raw_default is param.empty or raw_default is Ellipsis:
+                raw_default = PydanticUndefined
+            view_param = param_class(raw_default)
 
         default_value = self._solve_default_value(param, ignore_default)
         # Solving Required
-        required: bool = default_value is Undefined or getattr(
-            view_param, "required", False
-        )
+        required: bool = default_value is PydanticUndefined
         annotation = param.annotation if param.annotation != param.empty else Any
-        annotation = get_annotation_from_field_info(annotation, view_param, param_name)
 
         return SolvedArgument.specialize(
             name=param_name,
-            type_=annotation,
+            annotation=annotation,
             required=required,
             view_param=view_param,
         )
@@ -272,8 +265,11 @@ class InboundHandler:
         ignore_default: bool,
     ) -> Any:
         default_value: Any = getattr(param.default, "default", param.default)
-        if default_value in {param.empty, Ellipsis} or ignore_default:
-            default_value = Undefined
+        if (
+            default_value in {param.empty, Ellipsis, PydanticUndefined}
+            or ignore_default
+        ):
+            default_value = PydanticUndefined
         return default_value
 
     def _register_view_parameter(self, solved_parameter: SolvedArgument) -> None:
@@ -294,9 +290,7 @@ class InboundHandler:
             ArgumentLocation.file: self.file_params,
         }.get(solved_parameter.location, self.other_params).append(solved_parameter)
 
-    def _parse_and_validate_inbound_data(
-        self, **kwargs
-    ) -> tuple[dict, list | ErrorWrapper]:
+    def _parse_and_validate_inbound_data(self, **kwargs) -> tuple[dict, list[dict]]:
         """Parse and Validate the request Inbound data."""
         errors = []
         values = {}
@@ -307,5 +301,13 @@ class InboundHandler:
         if body_field := self.body_field(self.rule):
             body_value, body_errors = body_field.validate_request()
             errors.extend(body_errors)
-            values.update(body_value)
+            if len(self.body_arguments) > 1:
+                # Synthetic model wraps multiple params — unpack fields
+                # back into individual kwargs for the view function.
+                for model in body_value.values():
+                    if isinstance(model, BaseModel):  # pragma: no branch
+                        for field_name in type(model).model_fields:
+                            values[field_name] = getattr(model, field_name)
+            else:
+                values.update(body_value)
         return values, errors

@@ -1,6 +1,6 @@
 """Inbound Models for Testing."""
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from flask_jeroboam import InboundModel
 
@@ -21,8 +21,8 @@ class QueryStringWithList(InboundModel):
 class OptionalModelIn(InboundModel):
     """a BaseModel with Optional Fields."""
 
-    page: int | None
-    per_page: int | None
+    page: int | None = None
+    per_page: int | None = None
 
 
 class ModelWithListIn(InboundModel):
@@ -33,8 +33,9 @@ class ModelWithListIn(InboundModel):
     ids: list[int] = Field(alias="id[]")
     order: list[dict] = Field(alias="order[]")
 
-    @validator("order")
-    def order_validator(cls, value):  # noqa: B902,N805
+    @field_validator("order")
+    @classmethod
+    def order_validator(cls, value):
         """Validate order."""
         if len(value) == 0:
             raise ValueError("Order must have at least 1 value")

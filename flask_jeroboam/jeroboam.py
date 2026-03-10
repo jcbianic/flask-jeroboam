@@ -41,7 +41,7 @@ class Jeroboam(JeroboamScaffoldOverRide, Flask):  # type:ignore
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Init."""
         super().__init__(*args, **kwargs)
-        self.config.update(JeroboamConfig.load().dict())
+        self.config.update(JeroboamConfig.load().model_dump())
         self._openapi: OpenAPI | None = None
 
     def init_app(self, app: Optional["Jeroboam"] = None) -> None:

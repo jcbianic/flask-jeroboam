@@ -2,8 +2,6 @@
 
 from typing import TYPE_CHECKING, Any
 
-from pydantic.schema import get_model_name_map
-
 from flask_jeroboam._utils import _memoized_update_if_value
 from flask_jeroboam.openapi._utils import (
     _build_openapi_path_item,
@@ -31,12 +29,12 @@ def build_openapi(
     """
     # Meta
     openapi_version = app.config.get("JEROBOAM_OPENAPI_VERSION", "3.0.2")
-    info = Info.parse_obj(
+    info = Info.model_validate(
         {
             "title": app.config.get("JEROBOAM_TITLE", None) or app.name,
             "version": app.config.get("JEROBOAM_VERSION", "0.1.0"),
             "description": app.config.get("JEROBOAM_DESCRIPTION", None),
-            "terms_of_service": app.config.get("JEROBOAM_TERMS_OF_SERVICE", None),
+            "termsOfService": app.config.get("JEROBOAM_TERMS_OF_SERVICE", None),
             "contact": app.config.get("JEROBOAM_CONTACT", None),
             "license": app.config.get("JEROBOAM_LICENCE_INFO", None),
         }
@@ -56,9 +54,8 @@ def build_openapi(
 
     # On créer des objects intermédiaires
     flat_models = _get_flat_models_from_jeroboam_views(jeroboam_views, rules)
-    model_name_map = get_model_name_map(flat_models)
     definitions = _get_model_definitions(
-        flat_models=flat_models, model_name_map=model_name_map
+        flat_models=flat_models,
     )
 
     # On itères sur les rules and views pour récuperr les Paths Items et Définitions.
@@ -68,7 +65,6 @@ def build_openapi(
         path_dict, security_schemes, path_definitions = _build_openapi_path_item(
             rule=rule,
             jeroboam_view=jeroboam_view,
-            model_name_map=model_name_map,
             operation_ids=operation_ids,
         )
         _memoized_update_if_value(rule.openapi_path, path_dict, paths)

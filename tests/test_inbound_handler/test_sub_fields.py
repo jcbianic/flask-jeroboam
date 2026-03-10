@@ -1,5 +1,5 @@
 from flask.testing import FlaskClient
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from flask_jeroboam.jeroboam import Jeroboam
 
@@ -17,8 +17,9 @@ class ModelA(BaseModel):
     description: str | None = None
     model_b: ModelB
 
-    @validator("name")
-    def lower_username(cls, name: str, values):  # noqa: B902, N805
+    @field_validator("name")
+    @classmethod
+    def lower_username(cls, name: str):
         """Validate that the name ends in A."""
         if not name.endswith("A"):
             raise ValueError("name must end in A")

@@ -1,4 +1,5 @@
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 from flask_jeroboam.openapi.models.openapi import Server
 
@@ -23,4 +24,4 @@ class JeroboamConfig(BaseSettings):
     @classmethod
     def load(cls) -> "JeroboamConfig":
         """Load config."""
-        return cls.parse_obj({})
+        return cls.model_validate({})

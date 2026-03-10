@@ -5,7 +5,6 @@ Credits: This is a Fork of FastAPI's openapi/utils.py
 
 import warnings
 from collections.abc import Sequence
-from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -14,12 +13,6 @@ from typing import (
 )
 
 from pydantic import BaseModel
-from pydantic.fields import ModelField
-from pydantic.schema import (
-    field_schema,
-    get_flat_models_from_fields,
-    model_process_schema,
-)
 
 from flask_jeroboam._constants import (
     NO_BODY_STATUS_CODES,
@@ -28,9 +21,10 @@ from flask_jeroboam._constants import (
     VALIDATION_ERROR_RESPONSE_DEFINITION,
 )
 from flask_jeroboam._utils import (
-    _append_truthy,
+    _lenient_issubclass,
     _set_nested_defaults,
     _throw_away_falthy_values,
+    _unwrap_optional,
 )
 from flask_jeroboam.view_arguments.arguments import BodyArgument, ParameterArgument
 
@@ -40,10 +34,28 @@ if TYPE_CHECKING:  # pragma: no cover
     from flask_jeroboam.view_arguments.solved import SolvedArgument
 
 
+def _get_param_schema(param: "SolvedArgument") -> dict[str, Any]:
+    from pydantic import TypeAdapter
+
+    # For Optional[X] (union with None), use just the inner type for schema generation
+    # so that we get {"type": "integer"} rather than {"anyOf": [...]}
+    inner_annotation = _unwrap_optional(param.annotation)
+    if inner_annotation is not param.annotation:
+        schema = TypeAdapter(inner_annotation).json_schema(
+            ref_template=REF_PREFIX + "{model}"
+        )
+    else:
+        schema = param._type_adapter.json_schema(ref_template=REF_PREFIX + "{model}")
+    # Remove "default": None from schema — None defaults are implicit in optional params
+    if schema.get("default") is None:
+        schema.pop("default", None)
+    schema.setdefault("title", param.alias.replace("_", " ").title())
+    return schema
+
+
 def _get_openapi_operation_parameters(
     *,
-    all_route_params: Sequence[ModelField],
-    model_name_map: dict[type[BaseModel] | type[Enum], str],
+    all_route_params: "Sequence[SolvedArgument]",
 ) -> list[dict[str, Any]]:
     parameters = []
     for param in all_route_params:
@@ -56,11 +68,7 @@ def _get_openapi_operation_parameters(
                 "name": param.alias,
                 "in": field_info.location.value,
                 "required": param.required,
-                "schema": field_schema(
-                    cast(ModelField, param),
-                    model_name_map=model_name_map,
-                    ref_prefix=REF_PREFIX,
-                )[0],
+                "schema": _get_param_schema(param),
                 "deprecated": field_info.deprecated,
                 "description": field_info.description,
             },
@@ -94,47 +102,48 @@ def _get_openapi_operation_metadata(
 
 def _get_openapi_operation_request_body(
     *,
-    body_field: ModelField | None,
-    model_name_map: dict[type[BaseModel] | type[Enum], str],
+    body_field: "SolvedArgument | None",
 ) -> dict[str, Any] | None:
-    assert body_field  # noqa: S101
-    # TODO: something is broken here.
-    body_schema, body_definition, _ = field_schema(
-        body_field, model_name_map=model_name_map, ref_prefix=REF_PREFIX
-    )
+    if body_field is None:  # pragma: no cover
+        return None
+    annotation = body_field.annotation
     field_info = cast(BodyArgument, body_field.field_info)
     request_media_type = field_info.media_type
-    request_body_oai: dict[str, Any] = {}
-    if required := body_field.required:
-        request_body_oai["required"] = required
-    if body_schema.get("$ref", "").endswith("request_body_as_model"):
-        request_media_content: dict[str, Any] = {
-            "schema": body_definition[body_schema.get("$ref", "").split("/")[-1]]
-        }
+
+    is_synthetic = _lenient_issubclass(
+        annotation, BaseModel
+    ) and annotation.__name__.endswith("request_body_as_model")
+    if is_synthetic:
+        body_schema = cast(type[BaseModel], annotation).model_json_schema(
+            ref_template=REF_PREFIX + "{model}"
+        )
+        body_schema.pop("$defs", None)
+    elif _lenient_issubclass(annotation, BaseModel):
+        body_schema = {"$ref": f"{REF_PREFIX}{annotation.__name__}"}
     else:
-        request_media_content = {"schema": body_schema}
-    request_body_oai["content"] = {request_media_type: request_media_content}
+        body_schema = body_field._type_adapter.json_schema(
+            ref_template=REF_PREFIX + "{model}"
+        )
+
+    request_body_oai: dict[str, Any] = {}
+    if body_field.required:
+        request_body_oai["required"] = True
+    request_body_oai["content"] = {request_media_type: {"schema": body_schema}}
     return request_body_oai
 
 
 def _get_response_schema(
-    response_field: ModelField | None, model_name_map
+    response_model: type | None,
 ) -> dict[str, Any]:
-    response_schema = {"type": "string"}
-    if response_field:
-        response_schema, _, _ = field_schema(
-            response_field,
-            model_name_map=model_name_map,
-            ref_prefix=REF_PREFIX,
-        )
-    else:
-        response_schema = {}
-    return response_schema
+    if response_model is None:
+        return {}
+    if _lenient_issubclass(response_model, BaseModel):
+        return {"$ref": f"{REF_PREFIX}{response_model.__name__}"}
+    return {}  # pragma: no cover
 
 
 def _add_responses(
     operation,
-    model_name_map,
     jeroboam_view,
 ):
     definitions: dict[str, Any] = {}
@@ -155,8 +164,7 @@ def _add_responses(
             keys=["responses", status_code, "content", route_response_media_type],
             last_key="schema",
             new_value=_get_response_schema(
-                jeroboam_view.outbound_handler.response_field,
-                model_name_map=model_name_map,
+                jeroboam_view.outbound_handler.response_model,
             ),
         )
 
@@ -185,7 +193,6 @@ def _build_openapi_path_item(
     *,
     rule: "JeroboamRule",
     jeroboam_view: "JeroboamView",
-    model_name_map,
     operation_ids: set[str],
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     """Build OpenApi path from our rule Object.
@@ -198,7 +205,7 @@ def _build_openapi_path_item(
 
     # On gère les paramètres
     if parameters := _get_openapi_operation_parameters(
-        all_route_params=jeroboam_view.parameters, model_name_map=model_name_map
+        all_route_params=jeroboam_view.parameters,
     ):
         all_parameters = {(param["in"], param["name"]): param for param in parameters}
         required_parameters = {
@@ -212,14 +219,12 @@ def _build_openapi_path_item(
         operation["parameters"] = list(all_parameters.values())
     # On gère le request Body
     if jeroboam_view.has_request_body:
-        operation["request_body"] = _get_openapi_operation_request_body(
+        operation["requestBody"] = _get_openapi_operation_request_body(
             body_field=jeroboam_view.inbound_handler.body_field(rule.unique_id),
-            model_name_map=model_name_map,
         )
 
     operation, definitions = _add_responses(
         operation,
-        model_name_map,
         jeroboam_view,
     )
     operation.update(rule.openapi_extra or {})
@@ -228,31 +233,35 @@ def _build_openapi_path_item(
 
 def _get_model_definitions(
     *,
-    flat_models: set[type[BaseModel] | type[Enum]],
-    model_name_map: dict[type[BaseModel] | type[Enum], str],
+    flat_models: set,
 ) -> dict[str, Any]:
-    definitions: dict[str, dict[str, Any]] = {}
+    definitions: dict[str, Any] = {}
     for model in flat_models:
-        m_schema, m_definitions, _ = model_process_schema(
-            model, model_name_map=model_name_map, ref_prefix=REF_PREFIX
-        )
-        definitions.update(m_definitions)
-        model_name = model_name_map[model]
+        m_schema = model.model_json_schema(ref_template=REF_PREFIX + "{model}")
+        nested = m_schema.pop("$defs", {})
+        definitions.update(nested)
         if "description" in m_schema:
             m_schema["description"] = m_schema["description"].split("\f")[0]
-        definitions[model_name] = m_schema
+        definitions[model.__name__] = m_schema
     return definitions
 
 
 def _get_flat_models_from_jeroboam_views(
     jeroboam_views: list[Optional["JeroboamView"]], rules: list["JeroboamRule"]
 ):
-    params: list[ModelField | SolvedArgument] = []
+    models: set = set()
     for jeroboam_view, rule in zip(jeroboam_views, rules):
-        if getattr(jeroboam_view, "include_in_openapi", False) is False:
+        if jeroboam_view is None:
             continue
-        assert jeroboam_view is not None  # noqa: S101
-        params.extend(jeroboam_view.inbound_handler.parameters or [])
-        _append_truthy(params, jeroboam_view.outbound_handler.response_field)
-        _append_truthy(params, jeroboam_view.inbound_handler.body_field(rule.unique_id))
-    return get_flat_models_from_fields(params, known_models=set())
+        if not getattr(jeroboam_view, "include_in_openapi", True):
+            continue
+        response_model = jeroboam_view.outbound_handler.response_model
+        if response_model is not None:
+            models.add(response_model)
+        body_field = jeroboam_view.inbound_handler.body_field(rule.unique_id)
+        if body_field is not None and _lenient_issubclass(
+            body_field.annotation, BaseModel
+        ):
+            if not body_field.annotation.__name__.endswith("request_body_as_model"):
+                models.add(body_field.annotation)
+    return models

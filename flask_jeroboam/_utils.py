@@ -4,99 +4,76 @@ Credits: this is essentially a fork of FastAPI's own utils.py
 Original Source Code at https://github.com/tiangolo/fastapi
 """
 
-import dataclasses
 import inspect
 import re
+import types
+import typing
 from collections.abc import Callable
-from typing import Any, ForwardRef
+from typing import Any, Union, get_args, get_origin
 
-from pydantic import BaseConfig, BaseModel
-from pydantic.fields import (
-    SHAPE_FROZENSET,
-    SHAPE_LIST,
-    SHAPE_SEQUENCE,
-    SHAPE_SET,
-    SHAPE_SINGLETON,
-    SHAPE_TUPLE,
-    SHAPE_TUPLE_ELLIPSIS,
-    FieldInfo,
-    ModelField,
-)
-from pydantic.typing import evaluate_forwardref
-from pydantic.utils import lenient_issubclass
 
-from flask_jeroboam.view_arguments.arguments import ArgumentLocation, ViewArgument
-
-sequence_shapes = {
-    SHAPE_LIST,
-    SHAPE_SET,
-    SHAPE_FROZENSET,
-    SHAPE_TUPLE,
-    SHAPE_SEQUENCE,
-    SHAPE_TUPLE_ELLIPSIS,
-}
-sequence_types = (list, set, tuple)
-body_locations = {ArgumentLocation.body, ArgumentLocation.form, ArgumentLocation.file}
+def _lenient_issubclass(cls: Any, class_or_tuple: Any) -> bool:
+    """issubclass that returns False instead of raising TypeError."""
+    try:
+        return issubclass(cls, class_or_tuple)
+    except TypeError:
+        return False
 
 
 def get_typed_signature(call: Callable[..., Any]) -> inspect.Signature:
-    """Return a signature with the annotations evaluated."""
+    """Return a signature with string annotations resolved via get_type_hints."""
     signature = inspect.signature(call)
     globalns = getattr(call, "__globals__", {})
+    try:
+        hints = typing.get_type_hints(call, globalns=globalns, include_extras=True)
+    except Exception:  # pragma: no cover
+        hints = {}
     typed_params = [
         inspect.Parameter(
             name=param.name,
             kind=param.kind,
             default=param.default,
-            annotation=get_typed_annotation(param.annotation, globalns),
+            annotation=hints.get(param.name, param.annotation),
         )
         for param in signature.parameters.values()
     ]
     return inspect.Signature(typed_params)
 
 
-def get_typed_annotation(annotation: Any, globalns: dict[str, Any]) -> Any:
-    """Return a typed annotation."""
-    if isinstance(annotation, str):
-        annotation = ForwardRef(annotation)
-        annotation = evaluate_forwardref(annotation, globalns, globalns)
+def get_typed_return_annotation(call: Callable[..., Any]) -> Any:
+    """Return a typed return annotation."""
+    try:
+        hints = typing.get_type_hints(call, include_extras=True)
+    except Exception:
+        return None
+    return hints.get("return", None)
+
+
+def _unwrap_optional(annotation: Any) -> Any:
+    """Return the inner type if annotation is Optional[X], else return it unchanged.
+
+    Handles both typing.Optional[X] (Union) and the X | None syntax (types.UnionType
+    in Python 3.10+).
+    """
+    origin = get_origin(annotation)
+    is_union = origin is Union
+    if not is_union and hasattr(types, "UnionType"):
+        is_union = isinstance(annotation, types.UnionType)
+    if is_union:
+        non_none = [a for a in get_args(annotation) if a is not type(None)]
+        if len(non_none) == 1:
+            return non_none[0]
     return annotation
 
 
-def get_typed_return_annotation(call: Callable[..., Any]) -> Any:  # pragma: no cover
-    """Return a typed return annotation."""
-    signature = inspect.signature(call)
-    annotation = signature.return_annotation
-
-    if annotation is inspect.Signature.empty:
-        return None
-
-    globalns = getattr(call, "__globals__", {})
-    return get_typed_annotation(annotation, globalns)
-
-
-def is_scalar_field(field: ModelField) -> bool:
-    """Check if a field is a scalar field."""
-    return (
-        False
-        if field.shape != SHAPE_SINGLETON
-        or lenient_issubclass(field.type_, BaseModel)
-        or lenient_issubclass(field.type_, sequence_types + (dict,))
-        or dataclasses.is_dataclass(field.type_)
-        or isinstance(field.field_info, ViewArgument)
-        or getattr(field.field_info, "location", None) in body_locations
-        else not field.sub_fields  # pragma: no cover
-        or all(is_scalar_field(f) for f in field.sub_fields)
-    )
-
-
-def is_sequence_field(field: ModelField) -> bool:
+def is_sequence_field(field) -> bool:
     """Check if a field is a sequence field."""
-    if (field.shape in sequence_shapes) and not lenient_issubclass(
-        field.type_, BaseModel
-    ):
-        return True
-    return bool(lenient_issubclass(field.type_, sequence_types))
+    from typing import get_origin
+
+    annotation = getattr(field, "annotation", None)
+    if annotation is None:
+        return False
+    return get_origin(annotation) in (list, tuple, set, frozenset)
 
 
 def _rename_query_params_keys(self, inbound_dict: dict, pattern: str) -> dict:
@@ -114,37 +91,6 @@ def _rename_query_params_keys(self, inbound_dict: dict, pattern: str) -> dict:
     return inbound_dict
 
 
-def create_field(
-    *,
-    name: str,
-    type_: type[BaseModel],
-    required: bool,
-    alias: str | None = None,
-    field_info: FieldInfo | None = None,
-    class_validators: dict,
-    model_config: type[BaseConfig] | None = None,
-) -> ModelField | None:
-    """Create a pydantic ModelField from a model class.
-
-    Removed the partial-trcatch trick from FastAPI's original implementation.
-    I didn't find a way to reproduce.
-    """
-    class_validators = class_validators or {}
-    field_info = field_info or FieldInfo()
-    model_config = model_config or getattr(type_, "__config__", BaseConfig)
-
-    return ModelField(
-        name=name,
-        type_=type_,
-        class_validators=class_validators,
-        default=None,
-        model_config=model_config,  # type: ignore
-        alias=alias or name,
-        required=required,
-        field_info=field_info,
-    )
-
-
 def _throw_away_falthy_values(
     sparse_dict: dict[str, Any], keep: set | None = None
 ) -> dict[str, Any]:
@@ -155,15 +101,6 @@ def _throw_away_falthy_values(
 def _memoized_update_if_value(key: str, new_value: Any, orginal: dict[str, Any]):
     if new_value:
         orginal.setdefault(key, {}).update(new_value)
-
-
-def _append_truthy(array: list, value: Any) -> None:
-    """Append a value to an array if it's truthy.
-
-    Mutates the orginal array.
-    """
-    if value:
-        array.append(value)
 
 
 def _set_nested_defaults(

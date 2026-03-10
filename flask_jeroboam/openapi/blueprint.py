@@ -28,13 +28,15 @@ def get_swagger_html():
     context = SwaggerContextOut(
         title=current_app.config.get("JEROBOAM_TITLE", "Jeroboam App")
     )
-    return HTMLResponse(render_template("swagger-ui.jinja", **context.dict()))
+    return HTMLResponse(render_template("swagger-ui.jinja", **context.model_dump()))
 
 
 @router.get("/openapi.json", response_model=OpenAPI, include_in_openapi=False)
 def get_openapi_json():
     """Serving OpenAPI JSON."""
-    return JSONResponse(current_app.openapi.json(exclude_none=True, by_alias=True))
+    return JSONResponse(
+        current_app.openapi.model_dump_json(exclude_none=True, by_alias=True)
+    )
 
 
 def register_open_api_blueprint(app: "Jeroboam") -> None:

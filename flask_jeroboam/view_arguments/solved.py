@@ -1,4 +1,4 @@
-"""Solved Specialized Params.
+"""Solved Specialised Params.
 
 Params are solved at registration time. This way we reduce indirections when
 handling requests thus reducing overhead.
@@ -6,16 +6,14 @@ handling requests thus reducing overhead.
 
 import re
 from copy import deepcopy
-from typing import Any
+from typing import Annotated, Any
 
 from flask import request
-from pydantic import BaseConfig
-from pydantic.error_wrappers import ErrorWrapper
-from pydantic.errors import MissingError
-from pydantic.fields import FieldInfo, ModelField
+from pydantic import TypeAdapter, ValidationError
+from pydantic_core import PydanticUndefined
 from werkzeug.datastructures import FileStorage, Headers, MultiDict
 
-from flask_jeroboam._utils import is_sequence_field
+from flask_jeroboam._utils import _unwrap_optional
 from flask_jeroboam.view_arguments._utils import (
     _extract_scalar,
     _extract_sequence,
@@ -23,64 +21,56 @@ from flask_jeroboam.view_arguments._utils import (
 )
 from flask_jeroboam.view_arguments.arguments import ArgumentLocation, ViewArgument
 
-empty_field_info = FieldInfo()
 
+class SolvedArgument:
+    """Generic Solved Parameter.
 
-class SolvedArgument(ModelField):
-    """Generic Solved Parameter."""
+    Created at route-registration time; reused on every request.
+    Validates inbound data using a pydantic v2 TypeAdapter.
+    """
 
     def __init__(
         self,
         *,
         name: str,
-        type_: type,
+        annotation: type,
         required: bool = False,
-        view_param: ViewArgument | None = None,
-        class_validators: dict | None = None,
-        model_config: type[BaseConfig] = BaseConfig,
-        field_info: FieldInfo = empty_field_info,
-        **kwargs,
+        default: Any = PydanticUndefined,
+        location: ArgumentLocation = ArgumentLocation.unknown,
+        alias: str | None = None,
+        embed: bool = False,
+        include_in_schema: bool = True,
+        field_info: ViewArgument | None = None,
     ):
         self.name = name
-        self.location: ArgumentLocation = getattr(
-            view_param, "location", ArgumentLocation.unknown
-        )
-        if self.location == ArgumentLocation.file:
-            model_config.arbitrary_types_allowed = True
+        self.annotation = annotation
         self.required = required
-        self.embed = getattr(view_param, "embed", None)
-        self.in_body = getattr(view_param, "in_body", None)
-        default = getattr(view_param, "default", field_info.default)
-        if default is Ellipsis:
-            default = None
-        class_validators = class_validators or {}
-        kwargs["alias"] = kwargs.get("alias", getattr(view_param, "alias", None))
-        self.include_in_schema = getattr(view_param, "include_in_schema", True)
-        super().__init__(
-            name=name,
-            type_=type_,
-            class_validators={},
-            default=default,
-            required=required,
-            model_config=model_config,
-            field_info=view_param,
-            **kwargs,
-        )
+        self.default = default
+        self.location = location
+        self.alias = alias or name
+        self.embed = embed
+        self.include_in_schema = include_in_schema
+        self.field_info = field_info  # the original ViewArgument
+
+        # Build TypeAdapter once at registration time.
+        # Wrap in Annotated so FieldInfo constraints (gt, lt, …) are applied.
+        if field_info is not None:
+            adapter_type: Any = Annotated[annotation, field_info]
+        else:
+            adapter_type = annotation
+        self._type_adapter: TypeAdapter = TypeAdapter(adapter_type)
 
     @classmethod
     def specialize(
         cls,
         *,
         name: str,
-        type_: type,
+        annotation: type,
         required: bool = False,
         view_param: ViewArgument | None = None,
-        class_validators: dict | None = None,
-        model_config: type[BaseConfig] = BaseConfig,
-        field_info: FieldInfo = empty_field_info,
-        **kwargs,
-    ):
-        """Specialize the Current class to each location."""
+        **_kwargs,
+    ) -> "SolvedArgument":
+        """Dispatch to the location-specific subclass."""
         location = getattr(view_param, "location", ArgumentLocation.unknown)
         target_class = {
             ArgumentLocation.query: SolvedQueryArgument,
@@ -92,43 +82,69 @@ class SolvedArgument(ModelField):
             ArgumentLocation.form: SolvedFormArgument,
         }.get(location, cls)
 
+        default = getattr(view_param, "default", PydanticUndefined)
+        if default is Ellipsis:
+            default = PydanticUndefined
+
         return target_class(
             name=name,
-            type_=type_,
+            annotation=annotation,
             required=required,
-            view_param=view_param,
-            class_validators=class_validators,
-            model_config=model_config,
-            field_info=field_info,
-            **kwargs,
+            default=default,
+            location=location,
+            alias=getattr(view_param, "alias", None),
+            embed=getattr(view_param, "embed", False),
+            include_in_schema=getattr(view_param, "include_in_schema", True),
+            field_info=view_param,
         )
 
-    def validate_request(self):
-        """Validate the request."""
-        values = {}
-        errors = []
-        assert self.location is not None  # noqa: S101
+    def validate_request(self) -> tuple[dict, list[dict]]:
+        """Extract and validate the parameter from the current request."""
+        values: dict = {}
+        errors: list[dict] = []
+
         inbound_values = self._get_values()
+
         if inbound_values is None and self.required:
             errors.append(
-                ErrorWrapper(MissingError(), loc=(self.location.value, self.alias))
+                {
+                    "loc": [self.location.value, self.alias],
+                    "msg": "Field required",
+                    "type": "missing",
+                }
             )
             return values, errors
-        elif inbound_values is None:
-            inbound_values = deepcopy(self.default)
-        values_, errors_ = self.validate(
-            inbound_values, values, loc=(self.location.value, self.alias)
-        )
-        if isinstance(errors_, ErrorWrapper):
-            errors.append(errors_)
-        else:
-            values[self.name] = values_
+
+        if inbound_values is None:
+            if self.default is not PydanticUndefined:  # pragma: no branch
+                values[self.name] = deepcopy(self.default)
+            return values, errors
+
+        try:
+            values[self.name] = self._type_adapter.validate_python(inbound_values)
+        except ValidationError as exc:
+            for err in exc.errors(include_url=False):
+                loc = [self.location.value, self.alias] + [
+                    str(segment) for segment in err.get("loc", ())
+                ]
+                error_dict: dict = {
+                    "loc": loc,
+                    "msg": err["msg"],
+                    "type": err["type"],
+                }
+                if "ctx" in err:
+                    error_dict["ctx"] = {
+                        k: str(v) if isinstance(v, Exception) else v
+                        for k, v in err["ctx"].items()
+                    }
+                errors.append(error_dict)
+
         return values, errors
 
     def _get_values(
         self,
     ) -> FileStorage | MultiDict | dict | str | None | list[Any]:
-        """The Value extraction method is specialized by location."""
+        """The Value extraction method is specialised by location."""
         raise NotImplementedError
 
 
@@ -143,8 +159,10 @@ class SolvedPathArgument(SolvedArgument):
 class SolvedHeaderArgument(SolvedArgument):
     """Solved Header parameter."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Compute the HTTP header name from the Python field name.
+        # e.g. content_type → Content-Type
         self.alias = re.sub(
             r"_(\w)", lambda x: f"-{x.group(1).upper()}", self.name.capitalize()
         )
@@ -165,13 +183,20 @@ class SolvedCookieArgument(SolvedArgument):
 class SolvedQueryArgument(SolvedArgument):
     """Solved Query parameter."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if hasattr(self.type_, "__fields__"):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        from typing import get_origin
+
+        # Unwrap Optional[X] once at registration time; reuse on every request.
+        self._inner = _unwrap_optional(self.annotation)
+        if hasattr(self._inner, "model_fields"):
+            self._fields = self._inner.model_fields
             self.extractor = _extract_subfields
-        elif is_sequence_field(self):
+        elif get_origin(self._inner) in (list, tuple, set, frozenset):
+            self._fields = {}
             self.extractor = _extract_sequence
         else:
+            self._fields = {}
             self.extractor = _extract_scalar
 
     def _get_values(self) -> dict | str | None | list[Any]:
@@ -180,12 +205,12 @@ class SolvedQueryArgument(SolvedArgument):
             source=source,
             alias=self.alias,
             name=self.name,
-            fields=getattr(self.type_, "__fields__", {}),
+            fields=self._fields,
         )
 
 
 class SolvedBodyArgument(SolvedArgument):
-    """Solved Scalar Query parameter."""
+    """Solved Body parameter."""
 
     def _get_values(self) -> dict | str | None | list[Any]:
         source: dict | list = request.json or {}
@@ -207,6 +232,26 @@ class SolvedFileArgument(SolvedArgument):
 class SolvedFormArgument(SolvedArgument):
     """Solved Form parameter."""
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self._inner = _unwrap_optional(self.annotation)
+        if not self.embed and hasattr(self._inner, "model_fields"):
+            self._fields = self._inner.model_fields
+            self._extractor = _extract_subfields
+        else:
+            self._fields = {}
+            self._extractor = None
+
     def _get_values(self) -> dict | str | None | list[Any]:
         source: MultiDict = request.form or MultiDict()
-        return source.get(self.alias or self.name) if self.embed else source
+        if self.embed:
+            return source.get(self.alias or self.name)
+        if self._extractor is not None:
+            return self._extractor(
+                source=source,
+                alias=self.alias,
+                name=self.name,
+                fields=self._fields,
+            )
+        return source  # pragma: no cover

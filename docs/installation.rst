@@ -43,23 +43,29 @@ Installing **Flask-Jeroboam** will automatically install these packages along wi
 * `Flask`_ the web framework heavy lifting is still performed by Flask.
 * `Pydantic`_ to provide data validation using Python type annotations.
 
-These two direct dependencies come with their own dependencies tree. In total, you will have up to 9 new packages installed.
+These two direct dependencies come with their own dependencies tree. In total, you will have around 12 new packages installed.
 You can explore that tree with `uv`_:
 
 .. code-block:: console
 
    $ uv tree --package flask-jeroboam
-   flask-jeroboam v0.1.1
+   flask-jeroboam v0.2.0
    ├── flask v3.1.3
    │   ├── blinker v1.9.0
-   │   ├── click v8.1.8
+   │   ├── click v8.3.1
    │   ├── itsdangerous v2.2.0
    │   ├── jinja2 v3.1.6
-   │   │   └── markupsafe v3.0.2
-   │   └── werkzeug v3.1.3
-   │       └── markupsafe v3.0.2 (*)
-   └── pydantic v1.10.21
-       └── typing-extensions v4.12.2
+   │   │   └── markupsafe v3.0.3
+   │   └── werkzeug v3.1.6
+   │       └── markupsafe v3.0.3 (*)
+   ├── pydantic v2.12.5
+   │   ├── annotated-types v0.7.0
+   │   ├── pydantic-core v2.41.5
+   │   │   └── typing-extensions v4.15.0
+   │   └── typing-extensions v4.15.0
+   └── pydantic-settings v2.13.1
+       ├── pydantic v2.12.5 (*)
+       └── python-dotenv v1.2.2
 
 .. _Flask: https://palletsprojects.com/p/flask/
 .. _Pydantic: https://docs.pydantic.dev/
@@ -96,7 +102,7 @@ If you encounter this error after installation, ensure:
 If you experience version conflicts with Flask or Pydantic:
 
 1. Check your current versions: ``pip show flask pydantic``
-2. Ensure Flask >= 2.1.3 and Pydantic >= 1.10.2, < 2.0.0
+2. Ensure Flask >= 3.0 and Pydantic >= 2.0
 3. Consider using a fresh virtual environment to isolate dependencies
 
 **Virtual Environment Issues**
