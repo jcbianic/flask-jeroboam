@@ -232,6 +232,26 @@ class SolvedFileArgument(SolvedArgument):
 class SolvedFormArgument(SolvedArgument):
     """Solved Form parameter."""
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self._inner = _unwrap_optional(self.annotation)
+        if not self.embed and hasattr(self._inner, "model_fields"):
+            self._fields = self._inner.model_fields
+            self._extractor = _extract_subfields
+        else:
+            self._fields = {}
+            self._extractor = None
+
     def _get_values(self) -> dict | str | None | list[Any]:
         source: MultiDict = request.form or MultiDict()
-        return source.get(self.alias or self.name) if self.embed else source
+        if self.embed:
+            return source.get(self.alias or self.name)
+        if self._extractor is not None:
+            return self._extractor(
+                source=source,
+                alias=self.alias,
+                name=self.name,
+                fields=self._fields,
+            )
+        return source  # pragma: no cover

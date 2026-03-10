@@ -15,6 +15,12 @@ def post_base_model_in_form(form_payload: SimpleModelIn = Form(embed=False)):
     return form_payload.model_dump_json()
 
 
+@router.post("/form/single_primitive")
+def post_single_primitive_in_form(name: str = Form("John")):
+    """POST a single primitive Form parameter."""
+    return {"name": name}
+
+
 @router.post("/form/primitives_in_form")
 def post_primitives_in_form(name: str = Form("John"), age: int = Form(34)):
     """POST Form Parameter as pydantic BaseModel."""

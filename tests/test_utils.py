@@ -11,6 +11,7 @@ from pydantic_core import PydanticUndefined
 from flask_jeroboam import Body
 from flask_jeroboam._outboundhandler import OutboundHandler
 from flask_jeroboam._utils import (
+    _lenient_issubclass,
     _rename_query_params_keys,
     _unwrap_optional,
     get_typed_return_annotation,
@@ -235,3 +236,11 @@ def test_adapt_datastructure_of_list():
     handler = OutboundHandler(view, None, "GET", {})
     result = handler._adapt_datastructure_of([Item(name="a"), Item(name="b")])
     assert result == [{"name": "a"}, {"name": "b"}]
+
+
+# --- _lenient_issubclass ---
+
+
+def test_lenient_issubclass_returns_false_on_non_class():
+    """_lenient_issubclass returns False when issubclass would raise TypeError."""
+    assert _lenient_issubclass(42, int) is False
