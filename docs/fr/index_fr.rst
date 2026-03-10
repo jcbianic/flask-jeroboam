@@ -20,7 +20,7 @@ ou préfèrent la maturité et l'écosystème étendu de Flask.
 
 Commencez par :doc:`l'installation <installation_fr>`, puis plongez-vous directement dans notre :doc:`Guide de démarrage </getting_started_fr>`. Ensuite, la
 :doc:`Visite détaillée des fonctionnalités </features/index_fr>` approfondit comment utiliser l'extension, tandis que le
-:doc:`Tutoriel </tutorial/index_fr>` vous guide à travers un exemple complet. Enfin, la section :doc:`API </api/index>` vous donne les détails sur les internals de l'extension.
+:doc:`Tutoriel </tutorial/index_fr>` vous guide à travers un exemple complet. Enfin, la section :doc:`API </api/index_fr>` vous donne les détails sur les internals de l'extension.
 
 .. note::
    Cette documentation suppose une certaine familiarité avec `Flask`_ et `Pydantic`_. Si vous êtes nouveau dans l'un ou l'autre, veuillez consulter leur documentation respective.
@@ -58,7 +58,7 @@ méthode spécifique, cette partie de la documentation est pour vous.
 .. toctree::
    :maxdepth: 2
 
-   api/index
+   api/index_fr
    reference/index_fr
 
 Notes supplémentaires
