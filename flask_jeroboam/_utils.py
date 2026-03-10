@@ -48,6 +48,26 @@ def get_typed_return_annotation(call: Callable[..., Any]) -> Any:  # pragma: no 
     return hints.get("return", None)
 
 
+def _unwrap_optional(annotation: Any) -> Any:
+    """Return the inner type if annotation is Optional[X], else return it unchanged.
+
+    Handles both typing.Optional[X] (Union) and the X | None syntax (types.UnionType
+    in Python 3.10+).
+    """
+    import types as _types
+    from typing import Union, get_args, get_origin
+
+    origin = get_origin(annotation)
+    is_union = origin is Union
+    if not is_union and hasattr(_types, "UnionType"):
+        is_union = isinstance(annotation, _types.UnionType)
+    if is_union:
+        non_none = [a for a in get_args(annotation) if a is not type(None)]
+        if len(non_none) == 1:
+            return non_none[0]
+    return annotation
+
+
 def is_sequence_field(field) -> bool:
     """Check if a field is a sequence field."""
     from typing import get_origin

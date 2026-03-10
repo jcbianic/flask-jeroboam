@@ -24,6 +24,7 @@ from flask_jeroboam._utils import (
     _lenient_issubclass,
     _set_nested_defaults,
     _throw_away_falthy_values,
+    _unwrap_optional,
 )
 from flask_jeroboam.view_arguments.arguments import BodyArgument, ParameterArgument
 
@@ -33,28 +34,12 @@ if TYPE_CHECKING:  # pragma: no cover
     from flask_jeroboam.view_arguments.solved import SolvedArgument
 
 
-def _unwrap_optional_annotation(annotation: Any) -> Any:
-    """Return the inner type if annotation is Optional[X], else return it unchanged."""
-    import types as _types
-    from typing import Union, get_args, get_origin
-
-    origin = get_origin(annotation)
-    is_union = origin is Union
-    if not is_union and hasattr(_types, "UnionType"):
-        is_union = isinstance(annotation, _types.UnionType)
-    if is_union:
-        non_none = [a for a in get_args(annotation) if a is not type(None)]
-        if len(non_none) == 1:
-            return non_none[0]
-    return annotation
-
-
 def _get_param_schema(param: "SolvedArgument") -> dict[str, Any]:
     from pydantic import TypeAdapter
 
     # For Optional[X] (union with None), use just the inner type for schema generation
     # so that we get {"type": "integer"} rather than {"anyOf": [...]}
-    inner_annotation = _unwrap_optional_annotation(param.annotation)
+    inner_annotation = _unwrap_optional(param.annotation)
     if inner_annotation is not param.annotation:
         schema = TypeAdapter(inner_annotation).json_schema(
             ref_template=REF_PREFIX + "{model}"
@@ -234,7 +219,7 @@ def _build_openapi_path_item(
         operation["parameters"] = list(all_parameters.values())
     # On gère le request Body
     if jeroboam_view.has_request_body:
-        operation["request_body"] = _get_openapi_operation_request_body(
+        operation["requestBody"] = _get_openapi_operation_request_body(
             body_field=jeroboam_view.inbound_handler.body_field(rule.unique_id),
         )
 

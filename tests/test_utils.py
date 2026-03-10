@@ -13,7 +13,7 @@ from flask_jeroboam._outboundhandler import OutboundHandler
 from flask_jeroboam._utils import _rename_query_params_keys, is_sequence_field
 from flask_jeroboam.datastructures import UploadFile
 from flask_jeroboam.jeroboam import Jeroboam
-from flask_jeroboam.openapi._utils import _unwrap_optional_annotation
+from flask_jeroboam._utils import _unwrap_optional as _unwrap_optional_annotation
 from flask_jeroboam.view_arguments.arguments import (
     ArgumentLocation,
     BodyArgument,
@@ -204,7 +204,7 @@ def test_unwrap_optional_non_union():
     assert _unwrap_optional(int) is int
 
 
-# --- _unwrap_optional_annotation in openapi/_utils.py ---
+# --- _unwrap_optional in _utils.py ---
 
 
 def test_unwrap_optional_annotation_with_typing_optional():

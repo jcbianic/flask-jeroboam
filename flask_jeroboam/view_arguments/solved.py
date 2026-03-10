@@ -13,6 +13,7 @@ from pydantic import TypeAdapter, ValidationError
 from pydantic_core import PydanticUndefined
 from werkzeug.datastructures import FileStorage, Headers, MultiDict
 
+from flask_jeroboam._utils import _unwrap_optional
 from flask_jeroboam.view_arguments._utils import (
     _extract_scalar,
     _extract_sequence,
@@ -43,8 +44,6 @@ class SolvedArgument:
     ):
         self.name = name
         self.annotation = annotation
-        # Keep type_ as alias for OpenAPI compatibility until Phase 8
-        self.type_ = annotation
         self.required = required
         self.default = default
         self.location = location
@@ -181,27 +180,6 @@ class SolvedCookieArgument(SolvedArgument):
         return _extract_scalar(source=source, alias=self.alias, name=self.name)
 
 
-def _unwrap_optional(annotation: Any) -> Any:
-    """Return the inner type if annotation is Optional[X], else return it unchanged.
-
-    Handles both typing.Optional[X] (Union) and the X | None syntax (types.UnionType
-    in Python 3.10+).
-    """
-    import types as _types
-    from typing import Union, get_args, get_origin
-
-    origin = get_origin(annotation)
-    is_union = origin is Union
-    if not is_union and hasattr(_types, "UnionType"):
-        is_union = isinstance(annotation, _types.UnionType)
-
-    if is_union:
-        non_none = [a for a in get_args(annotation) if a is not type(None)]
-        if len(non_none) == 1:
-            return non_none[0]
-    return annotation
-
-
 class SolvedQueryArgument(SolvedArgument):
     """Solved Query parameter."""
 
@@ -209,26 +187,28 @@ class SolvedQueryArgument(SolvedArgument):
         super().__init__(**kwargs)
         from typing import get_origin
 
-        # Unwrap Optional[X] to find the inner type for extractor selection.
-        inner = _unwrap_optional(self.annotation)
-        if hasattr(inner, "model_fields") or hasattr(inner, "__fields__"):
+        # Unwrap Optional[X] once at registration time; reuse on every request.
+        self._inner = _unwrap_optional(self.annotation)
+        if hasattr(self._inner, "model_fields"):
+            self._fields = self._inner.model_fields
             self.extractor = _extract_subfields
-        elif get_origin(inner) in (list, tuple, set, frozenset):
+        elif hasattr(self._inner, "__fields__"):
+            self._fields = self._inner.__fields__
+            self.extractor = _extract_subfields
+        elif get_origin(self._inner) in (list, tuple, set, frozenset):
+            self._fields = {}
             self.extractor = _extract_sequence
         else:
+            self._fields = {}
             self.extractor = _extract_scalar
 
     def _get_values(self) -> dict | str | None | list[Any]:
         source: MultiDict = request.args
-        inner = _unwrap_optional(self.annotation)
-        fields = getattr(inner, "model_fields", None) or getattr(
-            inner, "__fields__", {}
-        )
         return self.extractor(
             source=source,
             alias=self.alias,
             name=self.name,
-            fields=fields,
+            fields=self._fields,
         )
 
 
