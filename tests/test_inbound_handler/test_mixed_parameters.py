@@ -30,7 +30,9 @@ from flask_jeroboam.view_arguments.functions import Body, Query
         ("/mixed/99?q=hello", 200, {"item_id": 99, "q": "hello"}),
     ],
 )
-def test_get_with_path_and_optional_query(client: FlaskClient, url, expected_status, expected_body):
+def test_get_with_path_and_optional_query(
+    client: FlaskClient, url, expected_status, expected_body
+):
     """GIVEN a GET endpoint with a path param and an optional query param
     WHEN called with various combinations
     THEN each parameter is resolved from the correct source.
@@ -88,8 +90,10 @@ def test_put_with_missing_required_body_field_returns_400(client: FlaskClient):
         json={"name": "Incomplete"},  # missing price
     )
     assert response.status_code == 400
-    assert "detail" in response.json
-    errors = response.json["detail"]
+    data = response.json
+    assert data is not None
+    assert "detail" in data
+    errors = data["detail"]
     # Error loc: ['body', 'item', 'price'] — body param named 'item', field 'price'
     assert any("price" in e.get("loc", []) for e in errors)
 
@@ -104,6 +108,7 @@ def test_put_with_wrong_body_field_type_returns_400(client: FlaskClient):
         json={"name": "Widget", "price": "not_a_float"},
     )
     assert response.status_code == 400
+    assert response.json is not None
     assert "detail" in response.json
 
 

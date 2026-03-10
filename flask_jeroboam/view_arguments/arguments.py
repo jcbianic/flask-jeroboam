@@ -24,7 +24,7 @@ class ArgumentLocation(Enum):
     unknown = "unknown"
 
 
-class ViewArgument(FieldInfo):
+class ViewArgument(FieldInfo):  # type: ignore[misc]
     """Base class for all View parameters.
 
     Inherits from pydantic v2 FieldInfo so that constraints (gt, lt,
@@ -61,7 +61,7 @@ class ViewArgument(FieldInfo):
         }
 
 
-class ParameterArgument(ViewArgument):
+class ParameterArgument(ViewArgument):  # type: ignore[misc]
     """A Parameter that is not located in the body."""
 
     def __init__(
@@ -76,13 +76,13 @@ class ParameterArgument(ViewArgument):
         )
 
 
-class QueryArgument(ParameterArgument):
+class QueryArgument(ParameterArgument):  # type: ignore[misc]
     """A Parameter found in the Query String."""
 
     location = ArgumentLocation.query
 
 
-class PathArgument(ParameterArgument):
+class PathArgument(ParameterArgument):  # type: ignore[misc]
     """A Parameter found in Path."""
 
     location = ArgumentLocation.path
@@ -99,7 +99,7 @@ class PathArgument(ParameterArgument):
         )
 
 
-class HeaderArgument(ParameterArgument):
+class HeaderArgument(ParameterArgument):  # type: ignore[misc]
     """A Header parameter."""
 
     location = ArgumentLocation.header
@@ -116,13 +116,13 @@ class HeaderArgument(ParameterArgument):
         )
 
 
-class CookieArgument(ParameterArgument):
+class CookieArgument(ParameterArgument):  # type: ignore[misc]
     """A Parameter located in Cookies."""
 
     location = ArgumentLocation.cookie
 
 
-class BodyArgument(ViewArgument):
+class BodyArgument(ViewArgument):  # type: ignore[misc]
     """A Parameter located in Body.
 
     Body Parameters can be embedded. which means that they must
@@ -145,7 +145,7 @@ class BodyArgument(ViewArgument):
         )
 
 
-class FormArgument(BodyArgument):
+class FormArgument(BodyArgument):  # type: ignore[misc]
     """A Parameter located in Body."""
 
     location = ArgumentLocation.form
@@ -164,7 +164,7 @@ class FormArgument(BodyArgument):
         )
 
 
-class FileArgument(FormArgument):
+class FileArgument(FormArgument):  # type: ignore[misc]
     """A Parameter located in Body."""
 
     location = ArgumentLocation.file

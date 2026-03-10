@@ -132,7 +132,7 @@ def _get_openapi_operation_request_body(
         and annotation.__name__.endswith("request_body_as_model")
     )
     if is_synthetic:
-        body_schema = annotation.model_json_schema(ref_template=REF_PREFIX + "{model}")
+        body_schema = cast(type[BaseModel], annotation).model_json_schema(ref_template=REF_PREFIX + "{model}")
         body_schema.pop("$defs", None)
     elif _lenient_issubclass(annotation, BaseModel):
         body_schema = {"$ref": f"{REF_PREFIX}{annotation.__name__}"}

@@ -9,10 +9,10 @@ https://mypy.readthedocs.io/en/stable/stubs.html
 
 from typing import Any
 
-from pydantic.fields import Undefined
+from pydantic_core import PydanticUndefined
 
 def Path(
-    default: Any = Undefined,
+    default: Any = PydanticUndefined,
     *,
     alias: str | None = None,
     title: str | None = None,
@@ -24,14 +24,14 @@ def Path(
     min_length: int | None = None,
     max_length: int | None = None,
     regex: str | None = None,
-    example: Any = Undefined,
+    example: Any = PydanticUndefined,
     examples: dict[str, Any] | None = None,
     deprecated: bool | None = None,
     include_in_schema: bool = True,
     **extra: Any,
 ) -> Any: ...
 def Query(
-    default: Any = Undefined,
+    default: Any = PydanticUndefined,
     *,
     alias: str | None = None,
     title: str | None = None,
@@ -43,14 +43,14 @@ def Query(
     min_length: int | None = None,
     max_length: int | None = None,
     regex: str | None = None,
-    example: Any = Undefined,
+    example: Any = PydanticUndefined,
     examples: dict[str, Any] | None = None,
     deprecated: bool | None = None,
     include_in_schema: bool = True,
     **extra: Any,
 ) -> Any: ...
 def Header(
-    default: Any = Undefined,
+    default: Any = PydanticUndefined,
     *,
     alias: str | None = None,
     title: str | None = None,
@@ -62,7 +62,7 @@ def Header(
     min_length: int | None = None,
     max_length: int | None = None,
     regex: str | None = None,
-    example: Any = Undefined,
+    example: Any = PydanticUndefined,
     examples: dict[str, Any] | None = None,
     deprecated: bool | None = None,
     include_in_schema: bool = True,
@@ -70,7 +70,7 @@ def Header(
     **extra: Any,
 ) -> Any: ...
 def Cookie(
-    default: Any = Undefined,
+    default: Any = PydanticUndefined,
     *,
     alias: str | None = None,
     title: str | None = None,
@@ -82,14 +82,14 @@ def Cookie(
     min_length: int | None = None,
     max_length: int | None = None,
     regex: str | None = None,
-    example: Any = Undefined,
+    example: Any = PydanticUndefined,
     examples: dict[str, Any] | None = None,
     deprecated: bool | None = None,
     include_in_schema: bool = True,
     **extra: Any,
 ) -> Any: ...
 def Body(
-    default: Any = Undefined,
+    default: Any = PydanticUndefined,
     *,
     alias: str | None = None,
     title: str | None = None,
@@ -101,7 +101,7 @@ def Body(
     min_length: int | None = None,
     max_length: int | None = None,
     regex: str | None = None,
-    example: Any = Undefined,
+    example: Any = PydanticUndefined,
     examples: dict[str, Any] | None = None,
     deprecated: bool | None = None,
     include_in_schema: bool = True,
@@ -111,7 +111,7 @@ def Body(
     **extra: Any,
 ) -> Any: ...
 def Form(
-    default: Any = Undefined,
+    default: Any = PydanticUndefined,
     *,
     alias: str | None = None,
     title: str | None = None,
@@ -123,7 +123,7 @@ def Form(
     min_length: int | None = None,
     max_length: int | None = None,
     regex: str | None = None,
-    example: Any = Undefined,
+    example: Any = PydanticUndefined,
     examples: dict[str, Any] | None = None,
     deprecated: bool | None = None,
     include_in_schema: bool = True,
@@ -133,7 +133,7 @@ def Form(
     **extra: Any,
 ) -> Any: ...
 def File(  # noqa: N802
-    default: Any = Undefined,
+    default: Any = PydanticUndefined,
     *,
     alias: str | None = None,
     title: str | None = None,
@@ -145,7 +145,7 @@ def File(  # noqa: N802
     min_length: int | None = None,
     max_length: int | None = None,
     regex: str | None = None,
-    example: Any = Undefined,
+    example: Any = PydanticUndefined,
     examples: dict[str, Any] | None = None,
     deprecated: bool | None = None,
     include_in_schema: bool = True,

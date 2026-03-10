@@ -83,7 +83,9 @@ def test_solved_param_erroring():
     """Test an internal function of SolvedParameter."""
     param = Body("MyDefautValue")
     param.location = None
-    solved_param = SolvedArgument(name="FaultySolvedParam", annotation=str, field_info=param)
+    solved_param = SolvedArgument(
+        name="FaultySolvedParam", annotation=str, field_info=param
+    )
     with pytest.raises(NotImplementedError):
         solved_param._get_values()
 

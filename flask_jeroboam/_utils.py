@@ -16,7 +16,7 @@ def _evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
     """
     try:
         # Python 3.12+: type_params required
-        return ref._evaluate(globalns, localns, type_params=frozenset(), recursive_guard=frozenset())
+        return ref._evaluate(globalns, localns, type_params=frozenset(), recursive_guard=frozenset())  # type: ignore[call-overload]
     except TypeError:
         # Python 3.9–3.11: recursive_guard keyword-only, no type_params
         return ref._evaluate(globalns, localns, recursive_guard=frozenset())  # type: ignore[call-arg]
