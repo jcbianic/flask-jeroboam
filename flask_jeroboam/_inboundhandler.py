@@ -7,7 +7,6 @@ from typing import Any
 
 from pydantic import BaseModel, create_model
 from pydantic_core import PydanticUndefined
-
 from typing_extensions import ParamSpec
 
 from flask_jeroboam._utils import _lenient_issubclass, get_typed_signature
@@ -266,7 +265,10 @@ class InboundHandler:
         ignore_default: bool,
     ) -> Any:
         default_value: Any = getattr(param.default, "default", param.default)
-        if default_value in {param.empty, Ellipsis, PydanticUndefined} or ignore_default:
+        if (
+            default_value in {param.empty, Ellipsis, PydanticUndefined}
+            or ignore_default
+        ):
             default_value = PydanticUndefined
         return default_value
 
@@ -288,9 +290,7 @@ class InboundHandler:
             ArgumentLocation.file: self.file_params,
         }.get(solved_parameter.location, self.other_params).append(solved_parameter)
 
-    def _parse_and_validate_inbound_data(
-        self, **kwargs
-    ) -> tuple[dict, list[dict]]:
+    def _parse_and_validate_inbound_data(self, **kwargs) -> tuple[dict, list[dict]]:
         """Parse and Validate the request Inbound data."""
         errors = []
         values = {}

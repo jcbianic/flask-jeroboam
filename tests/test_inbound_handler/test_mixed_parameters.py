@@ -16,8 +16,6 @@ import pytest
 from flask.testing import FlaskClient
 
 from flask_jeroboam import Jeroboam
-from flask_jeroboam.view_arguments.functions import Body, Query
-
 
 # --- GET: path + optional query ---
 

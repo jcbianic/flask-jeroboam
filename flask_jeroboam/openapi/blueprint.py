@@ -34,7 +34,9 @@ def get_swagger_html():
 @router.get("/openapi.json", response_model=OpenAPI, include_in_openapi=False)
 def get_openapi_json():
     """Serving OpenAPI JSON."""
-    return JSONResponse(current_app.openapi.model_dump_json(exclude_none=True, by_alias=True))
+    return JSONResponse(
+        current_app.openapi.model_dump_json(exclude_none=True, by_alias=True)
+    )
 
 
 def register_open_api_blueprint(app: "Jeroboam") -> None:

@@ -6,7 +6,7 @@ from typing import Any, TypeVar
 
 from flask import Response
 from flask.globals import current_app
-from pydantic import BaseModel, RootModel, ValidationError, create_model
+from pydantic import BaseModel, RootModel, ValidationError
 from typing_extensions import ParamSpec
 
 from flask_jeroboam._constants import METHODS_DEFAULT_STATUS_CODE, NO_BODY_STATUS_CODES

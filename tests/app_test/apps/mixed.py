@@ -5,8 +5,6 @@ when used together in the same endpoint.
 The corresponding tests are in tests/test_inbound_handler/test_mixed_parameters.py
 """
 
-from typing import Optional
-
 from pydantic import BaseModel
 
 from flask_jeroboam import Blueprint, Query
@@ -24,17 +22,17 @@ class ItemOut(BaseModel):
     id: int
     name: str
     price: float
-    q: Optional[str] = None
+    q: str | None = None
 
 
 @router.get("/mixed/<int:item_id>")
-def get_item(item_id: int, q: Optional[str] = None):
+def get_item(item_id: int, q: str | None = None):
     """GET with path param (auto-detected) + optional query param."""
     return {"item_id": item_id, "q": q}
 
 
 @router.put("/mixed/<int:item_id>", response_model=ItemOut)
-def update_item(item_id: int, q: Optional[str] = Query(None), item: ItemIn = Body()):
+def update_item(item_id: int, q: str | None = Query(None), item: ItemIn = Body()):
     """PUT with path param + explicit query param + required body.
 
     NOTE: q must use Query() explicitly — PUT's default location is body.

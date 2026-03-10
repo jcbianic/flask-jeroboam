@@ -18,7 +18,6 @@ from flask.testing import FlaskClient
 from flask_jeroboam import Jeroboam
 from flask_jeroboam.models import InboundModel, OutboundModel
 
-
 # ---------------------------------------------------------------------------
 # InboundModel: camelCase query param acceptance
 # The /query/optional_model route uses OptionalModelIn(InboundModel) which has

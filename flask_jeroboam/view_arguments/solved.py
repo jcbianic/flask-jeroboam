@@ -221,7 +221,9 @@ class SolvedQueryArgument(SolvedArgument):
     def _get_values(self) -> dict | str | None | list[Any]:
         source: MultiDict = request.args
         inner = _unwrap_optional(self.annotation)
-        fields = getattr(inner, "model_fields", None) or getattr(inner, "__fields__", {})
+        fields = getattr(inner, "model_fields", None) or getattr(
+            inner, "__fields__", {}
+        )
         return self.extractor(
             source=source,
             alias=self.alias,

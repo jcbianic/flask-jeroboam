@@ -3,7 +3,6 @@
 Credits: A fork of FASTAPI's openapi/models.py
 """
 
-from collections.abc import Callable, Iterable
 from enum import Enum
 from typing import Any, Optional, Union
 
