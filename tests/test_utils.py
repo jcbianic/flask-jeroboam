@@ -214,7 +214,7 @@ def test_unwrap_optional_non_union():
 def test_get_typed_return_annotation_returns_none_on_unresolvable_annotation():
     """Unresolvable forward reference causes get_type_hints to raise; returns None."""
 
-    def func() -> "NonExistentType":  # type: ignore[name-defined]
+    def func() -> "NonExistentType":  # type: ignore[name-defined]  # noqa: F821
         pass
 
     assert get_typed_return_annotation(func) is None
