@@ -230,7 +230,10 @@ class InboundHandler:
             view_param = param.default
         else:
             param_class = get_argument_class(solved_location)
-            view_param = param_class(param.default)
+            raw_default = param.default
+            if raw_default is param.empty or raw_default is Ellipsis:
+                raw_default = PydanticUndefined
+            view_param = param_class(raw_default)
 
         default_value = self._solve_default_value(param, ignore_default)
         # Solving Required

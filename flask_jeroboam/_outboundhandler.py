@@ -266,9 +266,7 @@ class OutboundHandler:
         elif isinstance(content, BaseModel):
             return content.model_dump()
         elif isinstance(content, list):
-            return {
-                "__root__": [self._adapt_datastructure_of(item) for item in content]
-            }
+            return [self._adapt_datastructure_of(item) for item in content]
         elif dataclasses.is_dataclass(content) and not isinstance(content, type):
             return dataclasses.asdict(content)
 

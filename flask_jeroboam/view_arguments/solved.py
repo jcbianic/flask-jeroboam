@@ -213,7 +213,7 @@ class SolvedQueryArgument(SolvedArgument):
         inner = _unwrap_optional(self.annotation)
         if hasattr(inner, "model_fields") or hasattr(inner, "__fields__"):
             self.extractor = _extract_subfields
-        elif get_origin(self.annotation) in (list, tuple, set, frozenset):
+        elif get_origin(inner) in (list, tuple, set, frozenset):
             self.extractor = _extract_sequence
         else:
             self.extractor = _extract_scalar
