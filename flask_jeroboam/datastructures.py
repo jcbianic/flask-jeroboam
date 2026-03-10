@@ -3,7 +3,6 @@
 Credits: this module is essentially a for of FastAPI's datastructures.py module.
 """
 
-from collections.abc import Callable, Iterable
 from typing import Any
 
 from pydantic import GetCoreSchemaHandler
@@ -16,11 +15,6 @@ class UploadFile(FileStorage):
 
     Credits: Adaptation of FastAPI's UploadFile.
     """
-
-    @classmethod
-    def __get_validators__(cls: type["UploadFile"]) -> Iterable[Callable[..., Any]]:
-        """Pydantic v1 compat validator (used by pydantic.v1 ModelField shim)."""
-        yield cls.validate
 
     @classmethod
     def validate(cls: type["FileStorage"], v: Any) -> Any:

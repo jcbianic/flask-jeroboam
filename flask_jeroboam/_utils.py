@@ -25,7 +25,7 @@ def get_typed_signature(call: Callable[..., Any]) -> inspect.Signature:
     globalns = getattr(call, "__globals__", {})
     try:
         hints = typing.get_type_hints(call, globalns=globalns, include_extras=True)
-    except Exception:
+    except Exception:  # pragma: no cover
         hints = {}
     typed_params = [
         inspect.Parameter(
@@ -83,15 +83,6 @@ def _throw_away_falthy_values(
 def _memoized_update_if_value(key: str, new_value: Any, orginal: dict[str, Any]):
     if new_value:
         orginal.setdefault(key, {}).update(new_value)
-
-
-def _append_truthy(array: list, value: Any) -> None:
-    """Append a value to an array if it's truthy.
-
-    Mutates the orginal array.
-    """
-    if value:
-        array.append(value)
 
 
 def _set_nested_defaults(

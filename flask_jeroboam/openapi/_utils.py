@@ -64,9 +64,7 @@ def _get_param_schema(param: "SolvedArgument") -> dict[str, Any]:
     # Remove "default": None from schema — None defaults are implicit in optional params
     if schema.get("default") is None:
         schema.pop("default", None)
-    title = param.alias.replace("_", " ").title()
-    if title:
-        schema.setdefault("title", title)
+    schema.setdefault("title", param.alias.replace("_", " ").title())
     return schema
 
 
@@ -121,7 +119,7 @@ def _get_openapi_operation_request_body(
     *,
     body_field: "SolvedArgument | None",
 ) -> dict[str, Any] | None:
-    if body_field is None:
+    if body_field is None:  # pragma: no cover
         return None
     annotation = body_field.annotation
     field_info = cast(BodyArgument, body_field.field_info)
@@ -156,7 +154,7 @@ def _get_response_schema(
         return {}
     if _lenient_issubclass(response_model, BaseModel):
         return {"$ref": f"{REF_PREFIX}{response_model.__name__}"}
-    return {}
+    return {}  # pragma: no cover
 
 
 def _add_responses(

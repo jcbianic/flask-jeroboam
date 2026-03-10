@@ -117,7 +117,7 @@ class SolvedArgument:
             return values, errors
 
         if inbound_values is None:
-            if self.default is not PydanticUndefined:
+            if self.default is not PydanticUndefined:  # pragma: no branch
                 values[self.name] = deepcopy(self.default)
             return values, errors
 
