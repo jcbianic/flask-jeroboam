@@ -10,17 +10,21 @@ from pydantic_core import PydanticUndefined
 
 from flask_jeroboam import Body
 from flask_jeroboam._outboundhandler import OutboundHandler
-from flask_jeroboam._utils import _rename_query_params_keys, is_sequence_field
+from flask_jeroboam._utils import (
+    _rename_query_params_keys,
+    _unwrap_optional,
+    get_typed_return_annotation,
+    is_sequence_field,
+)
 from flask_jeroboam.datastructures import UploadFile
 from flask_jeroboam.jeroboam import Jeroboam
-from flask_jeroboam._utils import _unwrap_optional as _unwrap_optional_annotation
 from flask_jeroboam.view_arguments.arguments import (
     ArgumentLocation,
     BodyArgument,
     FormArgument,
     QueryArgument,
 )
-from flask_jeroboam.view_arguments.solved import SolvedArgument, _unwrap_optional
+from flask_jeroboam.view_arguments.solved import SolvedArgument
 from tests.app_test.models.inbound import ModelWithListIn
 from tests.app_test.models.outbound import ModelWithListOut
 
@@ -185,7 +189,7 @@ def test_specialize_normalises_ellipsis_default():
     assert solved.default is PydanticUndefined
 
 
-# --- _unwrap_optional in solved.py ---
+# --- _unwrap_optional in _utils.py ---
 
 
 def test_unwrap_optional_with_typing_optional():
@@ -204,18 +208,16 @@ def test_unwrap_optional_non_union():
     assert _unwrap_optional(int) is int
 
 
-# --- _unwrap_optional in _utils.py ---
+# --- get_typed_return_annotation in _utils.py ---
 
 
-def test_unwrap_optional_annotation_with_typing_optional():
-    """Optional[str] unwraps to str."""
-    assert _unwrap_optional_annotation(Optional[str]) is str  # noqa: UP045
+def test_get_typed_return_annotation_returns_none_on_unresolvable_annotation():
+    """Unresolvable forward reference causes get_type_hints to raise; returns None."""
 
+    def func() -> "NonExistentType":  # type: ignore[name-defined]
+        pass
 
-def test_unwrap_optional_annotation_with_multi_union():
-    """Union[str, int, None] is returned unchanged (two non-None members)."""
-    result = _unwrap_optional_annotation(Union[str, int, None])  # noqa: UP007
-    assert result == Union[str, int, None]  # noqa: UP007
+    assert get_typed_return_annotation(func) is None
 
 
 # --- OutboundHandler._adapt_datastructure_of with list ---

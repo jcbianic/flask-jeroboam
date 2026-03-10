@@ -137,7 +137,6 @@ class BodyArgument(ViewArgument):  # type: ignore[misc]
         default: Any = PydanticUndefined,
         **kwargs: Any,
     ):
-        self.embed = kwargs.get("embed", False)
         self.media_type = kwargs.pop("media_type", "application/json")
         super().__init__(
             default,

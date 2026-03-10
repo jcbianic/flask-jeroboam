@@ -165,8 +165,12 @@ class OutboundHandler:
 
         if getattr(response_model, "__origin__", None) == list:
             field: type = response_model.__args__[0]  # type: ignore[attr-defined]
-            response_model = RootModel[list[field]]  # type: ignore[valid-type]
-            response_model.__name__ = f"{field.__name__}AsList"  # type: ignore[attr-defined]
+
+            class _AsList(RootModel[list[field]]):  # type: ignore[valid-type]
+                pass
+
+            _AsList.__name__ = f"{field.__name__}AsList"
+            response_model = _AsList
         assert response_model is not None  # noqa: S101
         if not issubclass(response_model, BaseModel):
             raise TypeError(

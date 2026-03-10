@@ -6,9 +6,10 @@ Original Source Code at https://github.com/tiangolo/fastapi
 
 import inspect
 import re
+import types
 import typing
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Union, get_args, get_origin
 
 
 def _lenient_issubclass(cls: Any, class_or_tuple: Any) -> bool:
@@ -39,7 +40,7 @@ def get_typed_signature(call: Callable[..., Any]) -> inspect.Signature:
     return inspect.Signature(typed_params)
 
 
-def get_typed_return_annotation(call: Callable[..., Any]) -> Any:  # pragma: no cover
+def get_typed_return_annotation(call: Callable[..., Any]) -> Any:
     """Return a typed return annotation."""
     try:
         hints = typing.get_type_hints(call, include_extras=True)
@@ -54,13 +55,10 @@ def _unwrap_optional(annotation: Any) -> Any:
     Handles both typing.Optional[X] (Union) and the X | None syntax (types.UnionType
     in Python 3.10+).
     """
-    import types as _types
-    from typing import Union, get_args, get_origin
-
     origin = get_origin(annotation)
     is_union = origin is Union
-    if not is_union and hasattr(_types, "UnionType"):
-        is_union = isinstance(annotation, _types.UnionType)
+    if not is_union and hasattr(types, "UnionType"):
+        is_union = isinstance(annotation, types.UnionType)
     if is_union:
         non_none = [a for a in get_args(annotation) if a is not type(None)]
         if len(non_none) == 1:

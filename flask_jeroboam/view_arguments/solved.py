@@ -192,9 +192,6 @@ class SolvedQueryArgument(SolvedArgument):
         if hasattr(self._inner, "model_fields"):
             self._fields = self._inner.model_fields
             self.extractor = _extract_subfields
-        elif hasattr(self._inner, "__fields__"):
-            self._fields = self._inner.__fields__
-            self.extractor = _extract_subfields
         elif get_origin(self._inner) in (list, tuple, set, frozenset):
             self._fields = {}
             self.extractor = _extract_sequence
