@@ -46,6 +46,8 @@ This guide will walk you through how to use Flask-Jeroboam.
    getting_started
    features/index
    tutorial/index
+   guides/index
+   concepts/index
 
 API Reference
 -------------
@@ -57,6 +59,7 @@ method, this part of the documentation is for you.
    :maxdepth: 2
 
    api/index
+   reference/index
 
 Additional Notes
 ----------------

@@ -1,18 +1,16 @@
-Tutoriel (à venir)
-==================
+Tutoriel
+========
 
-Ce tutoriel vous guidera dans la création d'une API de dégustation de vin avec **Flask-Jeroboam**. Nous nous concentrerons sur les spécificités de **Flask-Jeroboam**, et n'aborderons que les aspects généraux de Flask car il existe déjà d'excellentes ressources sur le sujet. Si vous êtes nouveau avec ce dernier, nous ne pouvons que vous recommander de parcourir le `Tutoriel Flask <https://flask.palletsprojects.com/en/2.2.x/tutorial/>`_, qui est excellent et vous mettra sur la bonne voie. Vous serez dans une bien meilleure position pour apprécier ce que **Flask-Jeroboam** apporte réellement et décider si c'est fait pour vous ou non.
+Ce tutoriel vous guide à travers la construction d'une API de catalogue de vin avec **Flask-Jeroboam**. Nous nous concentrons sur Jeroboam et supposons une certaine familiarité avec Flask. Si vous êtes nouveau à Flask, le `Tutoriel Flask <https://flask.palletsprojects.com/en/2.2.x/tutorial/>`_ est excellent.
 
 .. _Flask Tutorial: https://flask.palletsprojects.com/en/2.2.x/tutorial/
 
-(à venir)
-
-
 .. toctree::
-    :caption: Contenu:
+    :caption: Contenu :
     :maxdepth: 1
 
     setting_things_up_fr
+    first_api_fr
 
 
 Autres Ressources
