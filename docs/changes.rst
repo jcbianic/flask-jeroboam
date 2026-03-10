@@ -1,6 +1,23 @@
 Changes
 =======
 
+Version 0.2.0
+-------------
+
+Released March, 10th 2026
+
+**Breaking Changes**
+
+* **Pydantic v2 required** — pydantic v1 is no longer supported. Upgrade your environment to ``pydantic>=2.0`` before updating flask-jeroboam. Pydantic v2 continues to run v1-style ``@validator`` decorators with a deprecation warning, so most model code will work without changes.
+* Error response format updated to match pydantic v2 conventions (e.g. ``"Field required"`` / ``"missing"`` instead of ``"field required"`` / ``"value_error.missing"``).
+
+**Internal changes**
+
+* Removed ``_compat.py`` pydantic v1 shim entirely
+* ``ViewArgument`` now inherits from pydantic v2 ``FieldInfo``
+* ``SolvedArgument`` rebuilt around ``TypeAdapter`` — no more ``ModelField`` dependency
+* OpenAPI schema generation rewritten to use ``model_json_schema()`` and ``TypeAdapter.json_schema()``
+
 beta releases
 *************
 
