@@ -113,7 +113,7 @@ class InboundHandler:
 
         Has unreachable branches. Single Arguments never reach this method.
         """
-        body_field_info_kwargs: dict[str, Any] = {"default": None}
+        body_field_info_kwargs: dict[str, Any] = {"default": None, "embed": False}
         if len(self.file_params) > 0:  # pragma: no cover
             body_field_info: Callable = File
         elif len(self.form_params) > 0:
@@ -190,8 +190,8 @@ class InboundHandler:
             import warnings
 
             warnings.warn(
-                f"You have defined Form or File Parameters on a {self.main_http_verb}"
-                "request. This is not supported by Flask:"
+                f"You have defined Form or File Parameters on a {self.main_http_verb} "
+                "request. This is not supported by Flask: "
                 "https://flask.palletsprojects.com/en/2.2.x/api/#incoming-request-data",
                 UserWarning,
                 stacklevel=2,
@@ -301,5 +301,13 @@ class InboundHandler:
         if body_field := self.body_field(self.rule):
             body_value, body_errors = body_field.validate_request()
             errors.extend(body_errors)
-            values.update(body_value)
+            if len(self.body_arguments) > 1:
+                # Synthetic model wraps multiple params — unpack fields
+                # back into individual kwargs for the view function.
+                for model in body_value.values():
+                    if isinstance(model, BaseModel):  # pragma: no branch
+                        for field_name in type(model).model_fields:
+                            values[field_name] = getattr(model, field_name)
+            else:
+                values.update(body_value)
         return values, errors

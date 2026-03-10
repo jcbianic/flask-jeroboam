@@ -190,9 +190,9 @@ class OutboundHandler:
             import warnings
 
             warnings.warn(
-                f"No sensible default status code for verb {http_verb}."
-                "Maybe it's a exotic one. Make sure to set the status_code"
-                "in the options and if you think we should add it, please fill"
+                f"No sensible default status code for verb {http_verb}. "
+                "Maybe it's an exotic one. Make sure to set the status_code "
+                "in the options and if you think we should add it, please file "
                 "an issue.",
                 UserWarning,
                 stacklevel=2,

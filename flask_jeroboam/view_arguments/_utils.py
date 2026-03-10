@@ -67,13 +67,15 @@ def _extract_subfields(
     has_key_transformer = (
         getattr(current_app, "query_string_key_transformer", False) is not None
     )
-    return {
-        field_name: _undirected_extraction(
+    result = {}
+    for field_name, subfield in fields.items():
+        value = _undirected_extraction(
             field=subfield,
             source=source,
             name=field_name,
             alias=subfield.alias,
             has_key_transformer=has_key_transformer,
         )
-        for field_name, subfield in fields.items()
-    }
+        if value is not None:
+            result[field_name] = value
+    return result

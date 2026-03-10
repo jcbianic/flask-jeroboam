@@ -38,3 +38,31 @@ def test_single_primitive_form_param_uses_default(
 
     assert response.json == {"name": "John"}
     assert response.status_code == 201
+
+
+def test_multiple_primitive_form_params_are_injected(
+    client: FlaskClient,
+):
+    """GIVEN a POST endpoint with multiple primitive Form params
+    WHEN hit with valid form data
+    THEN each value is injected as an individual kwarg.
+    """
+    response = client.post(
+        "/form/primitives_in_form", data={"name": "Alice", "age": 25}
+    )
+
+    assert response.status_code == 201
+    assert response.json == {"name": "Alice", "age": 25}
+
+
+def test_multiple_primitive_form_params_use_defaults(
+    client: FlaskClient,
+):
+    """GIVEN a POST endpoint with multiple primitive Form params with defaults
+    WHEN hit without providing those fields
+    THEN the default values are used.
+    """
+    response = client.post("/form/primitives_in_form", data={})
+
+    assert response.status_code == 201
+    assert response.json == {"name": "John", "age": 34}
