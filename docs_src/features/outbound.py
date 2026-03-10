@@ -35,12 +35,12 @@ def read_task_dictionnary_without_response_mode(task_id: int):
 
 @app.get("/tasks/<int:task_id>/implicit_from_annotation")
 def read_implicit_task(task_id: int) -> Task:
-    return Task.parse_obj({"id": task_id, "name": "Implicit from Annotation"})
+    return Task.model_validate({"id": task_id, "name": "Implicit from Annotation"})
 
 
 @app.get("/tasks/<int:task_id>/implicit_no_annotation")
 def read_implicit_no_annotation(task_id: int):
-    return Task.parse_obj({"id": task_id, "name": "Implicit from Annotation"})
+    return Task.model_validate({"id": task_id, "name": "Implicit from Annotation"})
 
 
 @app.get("/tasks/<int:task_id>/response_model_off", response_model=None)

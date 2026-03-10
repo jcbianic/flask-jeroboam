@@ -120,15 +120,9 @@ def test_outbound_model_serializes_to_camel_case_directly():
         total_count: int
 
     instance = Stats(total_count=42)
-    # v1: .json() / v2: .model_dump_json() — test both forms defensively
     import json
 
-    try:
-        raw = instance.model_dump_json()  # v2
-    except AttributeError:
-        raw = instance.json()  # v1
-
-    data = json.loads(raw)
+    data = json.loads(instance.model_dump_json())
     assert "totalCount" in data
     assert data["totalCount"] == 42
 
