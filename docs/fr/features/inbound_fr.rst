@@ -56,10 +56,10 @@ Outre les paramètres de chemin, **Flask-Jeroboam** dérive l'emplacement implic
 
 Observez les endpoints en surbrillance ci-dessous—le premier utilise ``GET`` (emplacement ``QUERY`` implicite) et le second utilise ``POST`` (emplacement ``BODY`` implicite) :
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/01_implicit_location.py
   :linenos:
   :language: python
-  :lines: 11-13,31-33
+  :lines: 9-11,14-16
   :emphasize-lines: 1,4
 
 Si vous exécutez le fichier ci-dessus, vous pouvez le tester. L'endpoint ``/implicit_location_is_query_string`` attendra un paramètre page dans la chaîne de requête.
@@ -129,8 +129,12 @@ La même équivalence s'applique aux requêtes ``POST`` et ``PUT``. Regardez les
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 5,31-33,36-38
-  :emphasize-lines: 3,6
+  :lines: 5-5
+
+.. literalinclude:: /../docs_src/features/inbound.py
+  :linenos:
+  :language: python
+  :lines: 31-38
 
 Testons-le.
 
@@ -151,8 +155,8 @@ Vous pouvez également mélanger les emplacements implicites et explicites. Rega
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 5,21-23,26-28
-  :emphasize-lines: 3,6
+  :lines: 5-5,26-33
+  :emphasize-lines: 1,4,7
 
 Testons-le.
 
@@ -177,7 +181,7 @@ Ne me croyez pas sur parole, testons-le sur l'endpoint ``/implicit_location_is_q
 .. code-block:: bash
 
   $ curl -w 'Status Code: %{http_code}\n' 'localhost:5000/implicit_location_is_query_string'
-  {"detail":[{"loc":["query","page"],"msg":"field required","type":"value_error.missing"}]}
+  {"detail":[{"loc":["query","page"],"msg":"Field required","type":"missing"}]}
   Status Code: 400
 
 Nous avons reçu une réponse 400 Bad Request car nous n'avons pas fourni le paramètre requis page dans notre chaîne de requête. Et si nous voulions définir une valeur par défaut de 1 pour le paramètre page ? Il y a deux façons de le faire :
@@ -223,16 +227,16 @@ Regardez la définition du modèle ``Item`` en surbrillance ci-dessous :
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 3,5,66-68
-  :emphasize-lines: 3,4,5
+  :lines: 3-13
+  :emphasize-lines: 1,3,6-8
 
 Maintenant voyez comment ce modèle est utilisé. La définition de la fonction surlignée ci-dessous montre différents modèles de type :
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 3,5,66-68,71-79
-  :emphasize-lines: 7
+  :lines: 3-5,70-77
+  :emphasize-lines: 1,3,7-14
 
 Testons-le.
 
@@ -272,7 +276,7 @@ Regardons ce qui se passe quand nous passons une valeur de page de 0. Notez que 
 .. code-block:: bash
 
   $ curl -w 'Status Code: %{http_code}\n' 'localhost:5000/argument_with_validation?page=0'
-  {"detail":[{"ctx":{"limit_value":1},"loc":["query","page"],"msg":"ensure this value is greater than or equal to 1","type":"value_error.number.not_ge"}]}
+  {"detail":[{"ctx":{"ge":1},"loc":["query","page"],"msg":"greater than or equal to 1","type":"greater_than_equal"}]}
   Status Code: 400
 
 Le serveur retourne un code de statut 400 avec un corps vous donnant une direction sur l'erreur : il n'a pas passé la validation ``ge=1``.

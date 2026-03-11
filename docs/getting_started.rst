@@ -16,27 +16,27 @@ Create a Jeroboam App
 
 Let's start with creating the application object.
 
-.. literalinclude:: ../docs_src/getting_started_00.py
+.. literalinclude:: ../docs_src/getting_started/01_create_app.py
     :linenos:
     :language: python
-    :lines: 5-10,32-33
+    :lines: 3-5
     :emphasize-lines: 1,3
 
 Notice the highlighted import and app creation. The app creation is straightforward—the **Jeroboam** class subclasses Flask's `Flask <https://flask.palletsprojects.com/en/2.2.x/api/#application-object>`_ application object, so you can use it as a drop-in replacement.
 
-.. literalinclude:: ../docs_src/getting_started_00.py
+.. literalinclude:: ../docs_src/getting_started/01_create_app.py
     :linenos:
     :language: python
-    :lines: 5-10,32-33
-    :emphasize-lines: 4
+    :lines: 3-6
+    :emphasize-lines: 6
 
 The highlighted ``init_app()`` call is essential. Call this method after loading the configuration to your app—it registers OpenAPI blueprints and generic error handlers. You can always opt-out with appropriate configuration values (see :doc:`here <features/configuration>`).
 
-.. literalinclude:: ../docs_src/getting_started_00.py
+.. literalinclude:: ../docs_src/getting_started/01_create_app.py
     :linenos:
     :language: python
-    :lines: 5-10,32-33
-    :emphasize-lines: 7,8
+    :lines: 9-10
+    :emphasize-lines: 1,2
 
 The highlighted block at the bottom is a convenient way to start the app by running the file directly.
 
@@ -51,11 +51,11 @@ Registering a view function means binding a python function to an URL. Whenever 
 
 You can register a view function in several ways in Flask. The preferred way in **Flask_Jeroboam** is to use method decorators. Notice the highlighted decorator in the code below:
 
-.. literalinclude:: ../docs_src/getting_started_00.py
+.. literalinclude:: ../docs_src/getting_started/02_register_view.py
     :linenos:
     :language: python
-    :lines: 5-15,32-33
-    :emphasize-lines: 8
+    :lines: 9-11
+    :emphasize-lines: 1,2
 
 Here we are telling the app instance that when it receives an incoming GET Request to the URL ``/health``, it should call the ``get_health`` function and return the result to the client. Let's try it. Run your file and start poking.
 
@@ -75,13 +75,13 @@ Let's try something more interesting. So far, our Jeroboam application behaves l
 
 Let's register a view function that takes parameters. Look at the highlighted function definition below—it shows a view function with type hints and default values on its parameters.
 
-.. literalinclude:: ../docs_src/getting_started_00.py
+.. literalinclude:: ../docs_src/getting_started/03_view_arguments.py
     :linenos:
     :language: python
-    :lines: 5-20,32-33
-    :emphasize-lines: 12,13
+    :lines: 9-11
+    :emphasize-lines: 1,2
 
-This view function 's only purpose is to help us inspecting the values the function actually receives when it is called and this is precisely what we will do.
+This view function's only purpose is to help us inspecting the values the function actually receives when it is called and this is precisely what we will do.
 
 .. code-block:: bash
 
@@ -123,31 +123,31 @@ Response Models
 
 We start by defining a Pydantic BaseModel for response validation. Look at the highlighted sections below—the imports at the top and the ``Item`` model definition with its three fields.
 
-.. literalinclude:: ../docs_src/getting_started_00.py
+.. literalinclude:: ../docs_src/getting_started/04_response_models.py
     :linenos:
     :language: python
-    :lines: 3,5,21-24
-    :emphasize-lines: 1,2,3-6
+    :lines: 1-5,11-14
+    :emphasize-lines: 1,3,6-8
 
 Now look at the highlighted endpoint that uses this model. The decorator includes ``response_model=Item``, and the function returns only partial data:
 
-.. literalinclude:: ../docs_src/getting_started_00.py
+.. literalinclude:: ../docs_src/getting_started/04_response_models.py
     :linenos:
     :language: python
-    :lines: 3,5,27-28
-    :emphasize-lines: 3,4
+    :lines: 1-5,17-19
+    :emphasize-lines: 1,3,6,7
 
 Let's try it out.
 
 .. code-block:: bash
 
     $ curl 'http://localhost:5000/item'
-    {"name": "Bottle", "price": 5.0, "count": 1}%
+    {"name": "Bottle", "price": 5.0, "count": 1}
 
 
-What happened is that the return value of the view function has been fed to the ``Item`` model. The price have been casted as a float, and the missing key-value of count has been added with its default value. The values have been validated and finally serialized into a JSON string.
+What happened is that the return value of the view function has been fed to the ``Item`` model. The price has been cast as a float, and the missing key-value of count has been added with its default value. The values have been validated and finally serialized into a JSON string.
 
-Finally, to wrap up this first tour of **Flask-Jeroboam**, let's take a look at the OpenAPI-complaint documentation our app was able to produce.
+Finally, to wrap up this first tour of **Flask-Jeroboam**, let's take a look at the OpenAPI-compliant documentation our app was able to produce.
 
 OpenAPI Documentation
 *********************
