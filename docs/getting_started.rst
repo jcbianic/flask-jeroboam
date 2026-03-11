@@ -54,7 +54,7 @@ You can register a view function in several ways in Flask. The preferred way in 
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 5-15,33-
+    :lines: 5-15,32-33
     :emphasize-lines: 8
 
 Here we are telling the app instance that when it receives an incoming GET Request to the URL ``/health``, it should call the ``get_health`` function and return the result to the client. Let's try it. Run your file and start poking.
@@ -78,7 +78,7 @@ Let's register a view function that takes parameters. Look at the highlighted fu
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 5-21,33-
+    :lines: 5-20,32-33
     :emphasize-lines: 12,13
 
 This view function 's only purpose is to help us inspecting the values the function actually receives when it is called and this is precisely what we will do.
