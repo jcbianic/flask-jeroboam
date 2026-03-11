@@ -119,14 +119,14 @@ Query params are parsed and validated from the type hints. The response is filte
 
 Flask-Jeroboam sits at a specific point in the landscape—closer to FastAPI than to flask-openapi3 or flask-restx, but firmly in the Flask ecosystem.
 
-| Aspect | Jeroboam | flask-openapi3 | FastAPI |
-|--------|----------|---|---------|
-| Per-parameter hints | ✅ | ❌ (groups in models) | ✅ |
-| Response validation | ✅ by default | ⚠️ opt-in | ✅ by default |
-| Pydantic v2 | ✅ | ✅ | ✅ |
-| Decorator composition | ✅ | ❌ | ✅ |
-| Flask compatible | ✅ | ✅ | ❌ (separate framework) |
-| Async/await | ❌ (WSGI) | ❌ (WSGI) | ✅ (ASGI) |
+| Aspect                | Jeroboam      | flask-openapi3        | FastAPI                 |
+| --------------------- | ------------- | --------------------- | ----------------------- |
+| Per-parameter hints   | ✅            | ❌ (groups in models) | ✅                      |
+| Response validation   | ✅ by default | ⚠️ opt-in             | ✅ by default           |
+| Pydantic v2           | ✅            | ✅                    | ✅                      |
+| Decorator composition | ✅            | ❌                    | ✅                      |
+| Flask compatible      | ✅            | ✅                    | ❌ (separate framework) |
+| Async/await           | ❌ (WSGI)     | ❌ (WSGI)             | ✅ (ASGI)               |
 
 See the full [Comparison Guide](https://flask-jeroboam.readthedocs.io/en/latest/alternatives.html) for in-depth analysis.
 

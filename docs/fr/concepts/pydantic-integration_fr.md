@@ -46,6 +46,7 @@ def list_wines(page: int = 1, limit: int = 10):
 ```
 
 Jeroboam comble ce fossé. Il utilise Pydantic pour :
+
 1. Construire un modèle de validation à partir de votre signature de fonction
 2. Extraire et valider les données de la requête
 3. Transmettre les arguments validés à votre fonction
@@ -116,6 +117,7 @@ def list_wines(page: int = 1):
 ```
 
 Jeroboam inspecte votre signature immédiatement. Il :
+
 - Lit l'indice de type (`int`)
 - Lit toutes les métadonnées (`Field(...)`, `Query(...)`, etc.)
 - Construit un `TypeAdapter` Pydantic pour ce paramètre
@@ -126,6 +128,7 @@ C'est du travail coûteux, mais cela se produit une fois.
 ### Heure de requête (quand une requête arrive)
 
 La requête arrive. Jeroboam :
+
 1. Extrait le paramètre de la source appropriée (requête, corps, en-têtes)
 2. Exécute le TypeAdapter pré-construit
 3. Transmet la valeur validée à votre fonction
@@ -149,6 +152,7 @@ def create_wine(wine: WineCreate):
 ```
 
 Jeroboam ne transmet pas le JSON brut de la requête à votre fonction. Il :
+
 1. Extrait le corps JSON
 2. Le transmet à `WineCreate.model_validate(data)` de Pydantic
 3. Pydantic valide et retourne une instance `WineCreate`
@@ -269,6 +273,7 @@ Certaines alternatives :
 - **Logique personnalisée regex/** : Sujette aux erreurs, difficile à maintenir
 
 Pydantic est rapide, complet, et est devenu la norme dans les frameworks web Python modernes. L'utiliser signifie :
+
 - La plupart des développeurs en sont familiers
 - La documentation et les exemples existent
 - La performance est bonne
@@ -279,6 +284,7 @@ Pydantic est rapide, complet, et est devenu la norme dans les frameworks web Pyt
 Jeroboam a été construit sur Pydantic v1. Pydantic v2 a changé considérablement : plus rapide, validation plus précise, meilleure gestion des types.
 
 Jeroboam v0.2.0 cible Pydantic v2. Cela impliquait :
+
 - Mise à jour des validateurs (`@validator` → `@field_validator`)
 - Utilisation de TypeAdapter au lieu de wrappers de validation personnalisés
 - Adoption des motifs FieldInfo de v2

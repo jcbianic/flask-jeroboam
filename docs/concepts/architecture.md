@@ -42,6 +42,7 @@ Here's what happens in more detail when a request arrives.
 ### Gathering Data
 
 Flask has already parsed the URL and extracted path parameters. Jeroboam adds:
+
 - Query parameters (from `request.args`)
 - Request body (from `request.get_json()`, using Pydantic's model validation)
 - Headers (from `request.headers`)
@@ -115,6 +116,7 @@ The separation of registration time from request time gives Jeroboam several pro
 Jeroboam subclasses Flask and Blueprint. When you use `Jeroboam(__name__)` instead of `Flask(__name__)`, you get the same Flask object with request parsing and response validation layered on top.
 
 This means:
+
 - Drop-in compatible with Flask middleware
 - Works with Flask extensions
 - Same `request` and `g` objects

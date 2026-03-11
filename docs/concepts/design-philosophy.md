@@ -93,6 +93,7 @@ def get_wines(
 ```
 
 Jeroboam makes decorators optional. Undecorated parameters follow sensible defaults:
+
 - GET requests: query parameters
 - POST/PUT: body fields
 - Path parameters: auto-detected from the URL
@@ -120,6 +121,7 @@ This is Python, not a DSL. If you know Python, you can read and write it.
 Jeroboam is a Flask app. You use `@app.get()`, `request`, `g`, Flask middleware—all normal Flask. Nothing proprietary.
 
 This means:
+
 - Flask extensions work
 - Your Flask knowledge transfers
 - Migrating to or from Jeroboam is a refactoring, not a rewrite
@@ -141,11 +143,13 @@ Jeroboam trades simplicity in some areas for clarity in others.
 Jeroboam aims to stay focused. We're not trying to be a full framework. We're trying to be the best way to add validation and documentation to Flask without changing Flask itself.
 
 Where we might go:
+
 - Better async support (Flask's story here is still evolving)
 - Streaming response support
 - GraphQL schema generation (maybe)
 
 Where we won't go:
+
 - Authentication/authorization (Flask extensions like Flask-Login exist)
 - Database integration (use SQLAlchemy, Alembic—Flask is framework-agnostic)
 - Full framework features (routing, middleware, templating—Flask does these)

@@ -119,14 +119,14 @@ Les paramètres de requête sont analysés et validés à partir des indices de 
 
 Flask-Jeroboam occupe une place particulière dans le paysage, plus proche de FastAPI que de flask-openapi3 ou flask-restx, mais solidement dans l'écosystème Flask.
 
-| Aspect | Jeroboam | flask-openapi3 | FastAPI |
-|--------|----------|---|---------|
-| Indices par paramètre | ✅ | ❌ (groupés dans les modèles) | ✅ |
-| Validation des réponses | ✅ par défaut | ⚠️ optionnel | ✅ par défaut |
-| Pydantic v2 | ✅ | ✅ | ✅ |
-| Composition de décorateurs | ✅ | ❌ | ✅ |
-| Compatible Flask | ✅ | ✅ | ❌ (framework séparé) |
-| Async/await | ❌ (WSGI) | ❌ (WSGI) | ✅ (ASGI) |
+| Aspect                     | Jeroboam      | flask-openapi3                | FastAPI               |
+| -------------------------- | ------------- | ----------------------------- | --------------------- |
+| Indices par paramètre      | ✅            | ❌ (groupés dans les modèles) | ✅                    |
+| Validation des réponses    | ✅ par défaut | ⚠️ optionnel                  | ✅ par défaut         |
+| Pydantic v2                | ✅            | ✅                            | ✅                    |
+| Composition de décorateurs | ✅            | ❌                            | ✅                    |
+| Compatible Flask           | ✅            | ✅                            | ❌ (framework séparé) |
+| Async/await                | ❌ (WSGI)     | ❌ (WSGI)                     | ✅ (ASGI)             |
 
 Voir le guide complet de [Comparaison](https://flask-jeroboam.readthedocs.io/en/latest/alternatives.html) pour une analyse détaillée.
 

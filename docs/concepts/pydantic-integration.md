@@ -46,6 +46,7 @@ def list_wines(page: int = 1, limit: int = 10):
 ```
 
 Jeroboam bridges this gap. It uses Pydantic to:
+
 1. Build a validation model from your function signature
 2. Extract and validate request data
 3. Pass validated arguments to your function
@@ -116,6 +117,7 @@ def list_wines(page: int = 1):
 ```
 
 Jeroboam inspects your signature immediately. It:
+
 - Reads the type hint (`int`)
 - Reads any metadata (`Field(...)`, `Query(...)`, etc.)
 - Builds a Pydantic `TypeAdapter` for that parameter
@@ -126,6 +128,7 @@ This is expensive work, but it happens once.
 ### Request Time (when a request arrives)
 
 The request comes in. Jeroboam:
+
 1. Extracts the parameter from the appropriate source (query, body, headers)
 2. Runs the pre-built TypeAdapter
 3. Passes the validated value to your function
@@ -149,6 +152,7 @@ def create_wine(wine: WineCreate):
 ```
 
 Jeroboam doesn't pass the raw request JSON to your function. It:
+
 1. Extracts the JSON body
 2. Passes it to Pydantic's `WineCreate.model_validate(data)`
 3. Pydantic validates and returns a `WineCreate` instance
@@ -269,6 +273,7 @@ Some alternatives:
 - **Custom regex/logic**: Error-prone, hard to maintain
 
 Pydantic is fast, thorough, and has become the standard in modern Python web frameworks. Using it means:
+
 - Most developers are familiar with it
 - Documentation and examples exist
 - Performance is good
@@ -279,6 +284,7 @@ Pydantic is fast, thorough, and has become the standard in modern Python web fra
 Jeroboam was built on Pydantic v1. Pydantic v2 changed significantly—faster, more accurate validation, better type handling.
 
 Jeroboam v0.2.0 targets Pydantic v2. This involved:
+
 - Updating validators (`@validator` → `@field_validator`)
 - Using TypeAdapter instead of custom validation wrappers
 - Adopting v2's FieldInfo patterns

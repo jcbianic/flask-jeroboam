@@ -4,14 +4,14 @@ Flask-Jeroboam existe dans un espace avec plusieurs autres bibliothèques. Cette
 
 ## Le paysage
 
-| Bibliothèque   | Téléchargements mensuels | Approche                        | Pydantic       | Validation des réponses |
-| -------------- | ----------------------- | ------------------------------- | -------------- | ----------------------- |
-| flask-restx    | ~2,6M                   | Ressources basées sur les classes, Swagger UI | ❌ Aucun       | ❌                      |
-| flask-smorest  | ~1,3M                   | Basée sur Marshmallow, OpenAPI  | ❌ Marshmallow | ❌                      |
-| flask-openapi3 | ~2,2M                   | Injection de modèles nommés     | ✅ v2          | Optionnelle             |
-| apiflask       | ~227K                   | Remplacement au niveau du cadre | Partielle      | ❌                      |
-| spectree       | ~252K                   | Validation basée sur les décorateurs | ✅ v1+v2       | Optionnelle             |
-| flask-jeroboam | —                       | Style FastAPI par paramètre     | ✅ v2          | ✅ Par défaut          |
+| Bibliothèque   | Téléchargements mensuels | Approche                                      | Pydantic       | Validation des réponses |
+| -------------- | ------------------------ | --------------------------------------------- | -------------- | ----------------------- |
+| flask-restx    | ~2,6M                    | Ressources basées sur les classes, Swagger UI | ❌ Aucun       | ❌                      |
+| flask-smorest  | ~1,3M                    | Basée sur Marshmallow, OpenAPI                | ❌ Marshmallow | ❌                      |
+| flask-openapi3 | ~2,2M                    | Injection de modèles nommés                   | ✅ v2          | Optionnelle             |
+| apiflask       | ~227K                    | Remplacement au niveau du cadre               | Partielle      | ❌                      |
+| spectree       | ~252K                    | Validation basée sur les décorateurs          | ✅ v1+v2       | Optionnelle             |
+| flask-jeroboam | —                        | Style FastAPI par paramètre                   | ✅ v2          | ✅ Par défaut           |
 
 ---
 

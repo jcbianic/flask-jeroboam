@@ -42,6 +42,7 @@ Voici ce qui se passe en détail quand une requête arrive.
 ### Rassembler les données
 
 Flask a déjà analysé l'URL et extrait les paramètres de chemin. Jeroboam ajoute :
+
 - Paramètres de requête (de `request.args`)
 - Corps de la requête (de `request.get_json()`, en utilisant la validation de modèle de Pydantic)
 - En-têtes (de `request.headers`)
@@ -115,6 +116,7 @@ La séparation du temps d'enregistrement du temps de requête donne à Jeroboam 
 Jeroboam est une sous-classe de Flask et Blueprint. Quand vous utilisez `Jeroboam(__name__)` au lieu de `Flask(__name__)`, vous obtenez le même objet Flask avec l'analyse des requêtes et la validation des réponses en couche supérieure.
 
 Cela signifie :
+
 - Compatible avec les intergiciels Flask
 - Fonctionne avec les extensions Flask
 - Les mêmes objets `request` et `g`
