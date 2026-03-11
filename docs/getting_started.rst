@@ -19,7 +19,7 @@ Let's start with creating the application object.
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 5-11,33-
+    :lines: 5-10,33-
     :emphasize-lines: 1,4
 
 Notice the highlighted import and initialization. The app creation is straightforward—the **Jeroboam** class subclasses Flask's `Flask <https://flask.palletsprojects.com/en/2.2.x/api/#application-object>`_ application object, so you can use it as a drop-in replacement.
@@ -27,7 +27,7 @@ Notice the highlighted import and initialization. The app creation is straightfo
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 5-11,33-
+    :lines: 5-10,33-
     :emphasize-lines: 4
 
 The highlighted ``init_app()`` call is essential. Call this method after loading the configuration to your app—it registers OpenAPI blueprints and generic error handlers. You can always opt-out with appropriate configuration values (see :doc:`here <features/configuration>`).
@@ -35,8 +35,8 @@ The highlighted ``init_app()`` call is essential. Call this method after loading
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 5-11,33-
-    :emphasize-lines: 8
+    :lines: 5-10,33-
+    :emphasize-lines: 7
 
 The highlighted block at the bottom is a convenient way to start the app by running the file directly.
 
