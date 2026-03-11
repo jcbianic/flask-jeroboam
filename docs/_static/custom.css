@@ -1,0 +1,60 @@
+/* Bottom prev/next navigation cards */
+.related.bottom {
+    background: none;
+    border: none;
+    padding: 2rem 0 1rem;
+    margin-top: 2rem;
+}
+
+.related.bottom ul {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.related.bottom li {
+    flex: 1;
+}
+
+.related.bottom li a {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.25rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.related.bottom li a:hover {
+    border-color: #e03a3e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+}
+
+.related.bottom li a .nav-direction {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    margin-bottom: 0.25rem;
+}
+
+.related.bottom li a .nav-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #e03a3e;
+}
+
+.related.bottom li.nav-prev a {
+    text-align: left;
+}
+
+.related.bottom li.nav-next a {
+    text-align: right;
+}
