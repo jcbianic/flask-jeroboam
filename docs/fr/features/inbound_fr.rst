@@ -59,8 +59,8 @@ Donc si vous regardez ces fonctions de vue à la ligne 9 et 14, sans aucune déf
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,17-21,37-41
-  :emphasize-lines: 9,14
+  :lines: 8,11-21,36-43
+  :emphasize-lines: 1,4
 
 Si vous exécutez le fichier ci-dessus, vous pouvez le tester. L'endpoint ``/implicit_location_is_query_string`` attendra un paramètre page dans la chaîne de requête.
 
@@ -83,8 +83,8 @@ De plus, **Flask-Jeroboam** détectera automatiquement les paramètres de chemin
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,47-51
-  :emphasize-lines: 8,9
+  :lines: 8,11-16,46-53
+  :emphasize-lines: 1,2
 
 Vous pouvez le tester :
 
@@ -98,7 +98,7 @@ Cela fonctionne également avec d'autres verbes HTTP et remplace l'emplacement b
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,52-56
+  :lines: 8,11-16,51-58
   :emphasize-lines: 8,9
 
 .. code-block:: bash
@@ -121,7 +121,7 @@ Par exemple, ces deux endpoints se comporteront de la même manière, la ligne 1
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,17-26
+  :lines: 8,10,11-16,17-28
   :emphasize-lines: 2,10,15
 
 Et il en va de même pour les fonctions de vue ``POST`` (ou ``PUT``). Les lignes 10 et 15 sont équivalentes.
@@ -129,7 +129,7 @@ Et il en va de même pour les fonctions de vue ``POST`` (ou ``PUT``). Les lignes
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 6,8,11-16,37-46
+  :lines: 6,8,11-16,36-48
   :emphasize-lines: 1,10,15
 
 Testons-le.
@@ -151,7 +151,7 @@ Vous pouvez également pointer vers un emplacement autre que celui par défaut, 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 7,8,10,11-16,27-36
+  :lines: 7,8,10,11-16,27-38
   :emphasize-lines: 1,11,16
 
 Testons-le.

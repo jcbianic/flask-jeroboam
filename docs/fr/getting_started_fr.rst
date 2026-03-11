@@ -19,7 +19,7 @@ Commençons par créer l'objet application.
 .. literalinclude:: ../../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 5-11,33-
+    :lines: 5-10,32-33
     :emphasize-lines: 1,4
 
 Comme vous pouvez le voir, il n'y a rien de spécial dans la création de l'application à la ligne 4. La classe **Jeroboam** de flask_jeroboam sous-classe l'objet application `Flask <https://flask.palletsprojects.com/en/2.2.x/api/#application-object>`_ de Flask, et vous pouvez l'utiliser comme un remplacement direct de ce dernier.
@@ -27,7 +27,7 @@ Comme vous pouvez le voir, il n'y a rien de spécial dans la création de l'appl
 .. literalinclude:: ../../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 5-11,33-
+    :lines: 5-10,32-33
     :emphasize-lines: 5
 
 À la ligne 5, nous appelons la méthode init_app de l'instance de l'application. Vous devez appeler cette méthode après avoir chargé la configuration de votre application: elle enregistrera les blueprints OpenAPI et les gestionnaires d'erreurs génériques. Vous pouvez toujours désactiver ces fonctionnalités avec les valeurs de configuration appropriées (voir :doc:`ici <features/configuration_fr>`).
@@ -35,7 +35,7 @@ Comme vous pouvez le voir, il n'y a rien de spécial dans la création de l'appl
 .. literalinclude:: ../../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 5-11,33-
+    :lines: 5-10,32-33
     :emphasize-lines: 8,9
 
 Enfin, les lignes 8 et 9 sont un moyen pratique de démarrer l'application en exécutant le fichier directement.
@@ -54,7 +54,7 @@ Vous pouvez enregistrer une fonction de vue de plusieurs manières dans Flask. L
 .. literalinclude:: ../../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 5-15,33-
+    :lines: 5-15,32-33
     :emphasize-lines: 8
 
 Ici, nous indiquons à l'instance de l'application que lorsqu'elle reçoit une requête GET entrante vers l'URL ``/health``, elle doit appeler la fonction ``get_health`` et retourner le résultat au client. Essayons. Exécutez votre fichier et commencez à tester.
@@ -78,7 +78,7 @@ Enregistrons une fonction de vue qui prend des paramètres. À la ligne 13, vous
 .. literalinclude:: ../../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 5-21,33-
+    :lines: 5-20,32-33
     :emphasize-lines: 14
 
 Le seul but de cette fonction de vue est de nous aider à inspecter les valeurs que la fonction reçoit réellement lorsqu'elle est appelée, et c'est précisément ce que nous allons faire.
@@ -126,16 +126,16 @@ Nous commençons par définir un BaseModel Pydantic pour notre réponse. Ce mod�
 .. literalinclude:: ../../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 2-11,22-
-    :emphasize-lines: 1,2,11-14
+    :lines: 3,5,21-24
+    :emphasize-lines: 1,2,3-6
 
 Nous passons ensuite le modèle ``Item`` comme argument ``response_model`` du décorateur ``@app.get`` à la ligne 17. Le but de notre fonction de vue est de démontrer que notre valeur de retour sera traitée par le modèle ``Item`` et ne retournera pas simplement le dictionnaire ``{"name": "Bottle", "price": 5}``, en convertissant le prix en float et en ajoutant une valeur par défaut de 1 au champ count.
 
 .. literalinclude:: ../../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 2-11,22-
-    :emphasize-lines: 17
+    :lines: 3,5,27-28
+    :emphasize-lines: 3,4
 
 Essayons.
 

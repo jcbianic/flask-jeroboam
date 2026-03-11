@@ -24,7 +24,7 @@ Disons que vous avez un endpoint ``GET`` qui retourne une ``Task``. Tout d'abord
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,29-33
+  :lines: 2-7,8-13,14-19,26-28
   :emphasize-lines: 3,4,13-16
 
 
@@ -33,7 +33,7 @@ Ensuite à la ligne 19, nous la donnons à l'argument ``response_model`` de notr
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,29-33
+  :lines: 2-7,8-13,14-19,26-28
   :emphasize-lines: 19, 21
 
 **Flask-Jeroboam** prend la valeur retournée par la fonction de vue et la verse dans votre reponse_model, valide les données, les sérialise en JSON, et enfin les enveloppe dans un objet ``Response`` avant de les remettre à Flask.
