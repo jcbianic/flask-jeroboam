@@ -129,7 +129,7 @@ Nous commençons par définir un BaseModel Pydantic pour la validation des répo
     :lines: 1-5,11-14
     :emphasize-lines: 1,3,6-8
 
-Maintenant regardez l'endpoint surlignée qui utilise ce modèle. Le décorateur inclut ``response_model=Item``, et la fonction retourne seulement des données partielles :
+À présent, regardez l'endpoint surlignée qui utilise ce modèle. Le décorateur inclut ``response_model=Item``, et la fonction retourne seulement des données partielles :
 
 .. literalinclude:: ../../docs_src/getting_started/04_response_models.py
     :linenos:
