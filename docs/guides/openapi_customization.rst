@@ -124,7 +124,7 @@ Describe what errors clients might receive:
 
 .. code-block:: python
 
-    from flask_jeroboam import HTTPException
+    from werkzeug.exceptions import NotFound
 
     @app.get("/items/<int:item_id>")
     def get_item(item_id: int):
@@ -136,7 +136,7 @@ Describe what errors clients might receive:
         """
         item = fetch_item(item_id)
         if not item:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise NotFound("Item not found")
         return item
 
 Document your error cases so clients know what to expect.

@@ -11,7 +11,7 @@ If you don't want Jeroboam to generate API documentation:
 .. code-block:: python
 
     app = Jeroboam(__name__)
-    app.config["JEROBOAM_OPENAPI_ENABLED"] = False
+    app.config["JEROBOAM_REGISTER_OPENAPI"] = False
 
 The ``/docs`` and ``/openapi.json`` endpoints won't be registered.
 
@@ -49,22 +49,22 @@ Jeroboam registers generic error handlers for validation errors. To disable:
 .. code-block:: python
 
     app = Jeroboam(__name__)
-    app.config["JEROBOAM_ERROR_HANDLERS_ENABLED"] = False
+    app.config["JEROBOAM_REGISTER_ERROR_HANDLERS"] = False
 
 You'll need to handle validation errors yourself.
 
-Response validation in production
----------------------------------
+Response validation
+-------------------
 
-By default, response validation is always active. If you want to disable it in production for performance:
+Response validation is always active when a ``response_model`` is specified. You can disable it per-endpoint:
 
 .. code-block:: python
 
-    app = Jeroboam(__name__)
-    if app.config["ENV"] == "production":
-        app.config["JEROBOAM_RESPONSE_VALIDATION_ENABLED"] = False
+    @app.get("/items", response_model=ItemOut, validate_response=False)
+    def list_items():
+        return fetch_items()
 
-Disable this only if you're confident your code doesn't have bugs. Validation helps catch issues early.
+There is no global switch to disable response validation. Control it on each endpoint where needed.
 
 Using with application factory pattern
 --------------------------------------
@@ -73,7 +73,6 @@ If you use Flask's application factory pattern:
 
 .. code-block:: python
 
-    from flask import Flask
     from flask_jeroboam import Jeroboam
 
     def create_app(config_name="development"):
@@ -85,7 +84,7 @@ If you use Flask's application factory pattern:
         app.init_app()
         return app
 
-Call ``init_app()`` after registering your views to initialize Jeroboam features.
+Call ``init_app()`` after registering your views to register error handlers and OpenAPI endpoints.
 
 Configuration with environment variables
 ----------------------------------------
@@ -95,12 +94,11 @@ Load configuration from the environment:
 .. code-block:: python
 
     import os
-    from flask import Flask
     from flask_jeroboam import Jeroboam
 
     app = Jeroboam(__name__)
     app.config["JEROBOAM_TITLE"] = os.getenv("API_TITLE", "My API")
-    app.config["JEROBOAM_OPENAPI_ENABLED"] = os.getenv("OPENAPI_ENABLED", "true").lower() == "true"
+    app.config["JEROBOAM_REGISTER_OPENAPI"] = os.getenv("OPENAPI_ENABLED", "true").lower() == "true"
 
 Then set environment variables when running:
 
@@ -207,10 +205,6 @@ For high-traffic APIs, consider these optimizations:
 
     # Disable verbose logging
     app.logger.setLevel("WARNING")
-
-    # Disable response validation in production if needed
-    if not app.debug:
-        app.config["JEROBOAM_RESPONSE_VALIDATION_ENABLED"] = False
 
     # Use a production WSGI server
     app.run()

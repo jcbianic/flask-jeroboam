@@ -82,6 +82,29 @@ $ pip install flask-jeroboam
 
 Guide d'installation complet avec gestion des dépendances : [Installation](https://flask-jeroboam.readthedocs.io/en/latest/installation.html)
 
+## Un avant-goût
+
+```python
+from flask_jeroboam import Jeroboam, InboundModel, OutboundModel
+from typing import Optional
+
+app = Jeroboam(__name__)
+
+class WineQuery(InboundModel):
+    page: int = 1
+    search: Optional[str] = None
+
+class WineOut(OutboundModel):
+    name: str
+    appellation: str
+
+@app.get("/wines", response_model=list[WineOut])
+def list_wines(query: WineQuery):
+    return get_wines(query.page, query.search)
+```
+
+Les paramètres de requête sont analysés et validés à partir des indices de type. La réponse est filtrée et sérialisée selon `WineOut`. Accédez à `/docs` pour l'interface OpenAPI interactive.
+
 ## Prochaines étapes
 
 **Nouveau chez Jeroboam ?** Commencez par le guide [Bien démarrer](https://flask-jeroboam.readthedocs.io/en/latest/getting_started.html).

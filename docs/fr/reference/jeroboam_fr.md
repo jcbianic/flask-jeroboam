@@ -13,31 +13,19 @@ Une sous-classe Flask qui ajoute l'analyse des requêtes, la validation des rép
 ### Constructeur
 
 ```python
-Jeroboam(
-    import_name: str,
-    static_url_path: str = "/static",
-    static_folder: str = "static",
-    static_host: str = None,
-    host_matching: bool = False,
-    subdomain_matching: bool = False,
-    template_folder: str = "templates",
-    instance_path: str = None,
-    instance_relative_config: bool = False,
-    root_path: str = None,
-    openapi_enabled: bool = True,
-    openapi_url_prefix: str = "/",
-    docs_url: str = "/docs"
-)
+Jeroboam(*args, **kwargs)
 ```
 
-**Paramètres :**
+Prend les mêmes paramètres que `Flask`. Voir la [documentation Flask](https://flask.palletsprojects.com/en/stable/api/#flask.Flask) pour plus de détails.
 
-- `import_name` (str) : Le nom du module pour l'application
-- `openapi_enabled` (bool) : Si les documents OpenAPI doivent être générés. Défaut : `True`
-- `openapi_url_prefix` (str) : Préfixe d'URL pour les endpoints OpenAPI. Défaut : `/`
-- `docs_url` (str) : Chemin vers la documentation interactive. Défaut : `/docs`
+À l'initialisation, Jeroboam charge sa configuration depuis `JeroboamConfig` (qui lit les variables d'environnement) et la fusionne dans `app.config`. Les paramètres spécifiques à Jeroboam se configurent via `app.config` après la construction :
 
-Tous les autres paramètres sont hérités de Flask.
+- `JEROBOAM_REGISTER_OPENAPI` (bool) : Enregistrer les endpoints OpenAPI. Défaut : `True`
+- `JEROBOAM_REGISTER_ERROR_HANDLERS` (bool) : Enregistrer les gestionnaires d'erreurs de validation. Défaut : `True`
+- `JEROBOAM_OPENAPI_URL` (str) : Chemin vers la documentation interactive. Défaut : `/docs`
+- `JEROBOAM_TITLE` (str) : Titre de l'API dans le schéma OpenAPI. Défaut : `None`
+- `JEROBOAM_VERSION` (str) : Version de l'API. Défaut : `0.1.0`
+- `JEROBOAM_DESCRIPTION` (str) : Description de l'API. Défaut : `None`
 
 ### Méthodes
 

@@ -11,7 +11,7 @@ Si vous ne voulez pas que Jeroboam génère la documentation d'API :
 .. code-block:: python
 
     app = Jeroboam(__name__)
-    app.config["JEROBOAM_OPENAPI_ENABLED"] = False
+    app.config["JEROBOAM_REGISTER_OPENAPI"] = False
 
 Les endpoints ``/docs`` et ``/openapi.json`` ne seront pas enregistrés.
 
@@ -49,22 +49,22 @@ Jeroboam enregistre les gestionnaires d'erreurs génériques pour les erreurs de
 .. code-block:: python
 
     app = Jeroboam(__name__)
-    app.config["JEROBOAM_ERROR_HANDLERS_ENABLED"] = False
+    app.config["JEROBOAM_REGISTER_ERROR_HANDLERS"] = False
 
 Vous devrez gérer vous-même les erreurs de validation.
 
-Validation des réponses en production
--------------------------------------
+Validation des réponses
+-----------------------
 
-Par défaut, la validation des réponses est toujours active. Si vous voulez la désactiver en production pour les performances :
+La validation des réponses est toujours active quand un ``response_model`` est spécifié. Vous pouvez la désactiver par endpoint :
 
 .. code-block:: python
 
-    app = Jeroboam(__name__)
-    if app.config["ENV"] == "production":
-        app.config["JEROBOAM_RESPONSE_VALIDATION_ENABLED"] = False
+    @app.get("/items", response_model=ItemOut, validate_response=False)
+    def list_items():
+        return fetch_items()
 
-Désactivez-la uniquement si vous êtes confiant que votre code n'a pas de bugs. La validation aide à détecter les problèmes tôt.
+Il n'y a pas de commutateur global pour désactiver la validation des réponses. Contrôlez-la sur chaque endpoint selon vos besoins.
 
 Utiliser avec le modèle application factory
 -------------------------------------------
@@ -73,7 +73,6 @@ Si vous utilisez le modèle application factory de Flask :
 
 .. code-block:: python
 
-    from flask import Flask
     from flask_jeroboam import Jeroboam
 
     def create_app(config_name="development"):
@@ -85,7 +84,7 @@ Si vous utilisez le modèle application factory de Flask :
         app.init_app()
         return app
 
-Appelez ``init_app()`` après l'enregistrement de vos vues pour initialiser les fonctionnalités Jeroboam.
+Appelez ``init_app()`` après l'enregistrement de vos vues pour enregistrer les gestionnaires d'erreurs et les endpoints OpenAPI.
 
 Configuration avec des variables d'environnement
 -----------------------------------------------
@@ -95,12 +94,11 @@ Chargez la configuration depuis l'environnement :
 .. code-block:: python
 
     import os
-    from flask import Flask
     from flask_jeroboam import Jeroboam
 
     app = Jeroboam(__name__)
     app.config["JEROBOAM_TITLE"] = os.getenv("API_TITLE", "My API")
-    app.config["JEROBOAM_OPENAPI_ENABLED"] = os.getenv("OPENAPI_ENABLED", "true").lower() == "true"
+    app.config["JEROBOAM_REGISTER_OPENAPI"] = os.getenv("OPENAPI_ENABLED", "true").lower() == "true"
 
 Puis définissez les variables d'environnement lors de l'exécution :
 
@@ -207,10 +205,6 @@ Pour les APIs à fort trafic, considérez ces optimisations :
 
     # Désactiver la journalisation détaillée
     app.logger.setLevel("WARNING")
-
-    # Désactiver la validation des réponses en production si nécessaire
-    if not app.debug:
-        app.config["JEROBOAM_RESPONSE_VALIDATION_ENABLED"] = False
 
     # Utiliser un serveur WSGI de production
     app.run()

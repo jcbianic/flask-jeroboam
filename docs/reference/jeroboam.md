@@ -13,31 +13,19 @@ A Flask subclass that adds request parsing, response validation, and OpenAPI doc
 ### Constructor
 
 ```python
-Jeroboam(
-    import_name: str,
-    static_url_path: str = "/static",
-    static_folder: str = "static",
-    static_host: str = None,
-    host_matching: bool = False,
-    subdomain_matching: bool = False,
-    template_folder: str = "templates",
-    instance_path: str = None,
-    instance_relative_config: bool = False,
-    root_path: str = None,
-    openapi_enabled: bool = True,
-    openapi_url_prefix: str = "/",
-    docs_url: str = "/docs"
-)
+Jeroboam(*args, **kwargs)
 ```
 
-**Parameters:**
+Takes the same parameters as `Flask`. See [Flask documentation](https://flask.palletsprojects.com/en/stable/api/#flask.Flask) for details.
 
-- `import_name` (str): The module name for the application
-- `openapi_enabled` (bool): Whether to generate OpenAPI docs. Default: `True`
-- `openapi_url_prefix` (str): URL prefix for OpenAPI endpoints. Default: `/`
-- `docs_url` (str): Path to interactive docs. Default: `/docs`
+On initialization, Jeroboam loads its configuration from `JeroboamConfig` (which reads environment variables) and merges it into `app.config`. Jeroboam-specific settings are configured via `app.config` after construction:
 
-All other parameters are inherited from Flask.
+- `JEROBOAM_REGISTER_OPENAPI` (bool): Register OpenAPI endpoints. Default: `True`
+- `JEROBOAM_REGISTER_ERROR_HANDLERS` (bool): Register validation error handlers. Default: `True`
+- `JEROBOAM_OPENAPI_URL` (str): Path to interactive docs. Default: `/docs`
+- `JEROBOAM_TITLE` (str): API title in OpenAPI schema. Default: `None`
+- `JEROBOAM_VERSION` (str): API version. Default: `0.1.0`
+- `JEROBOAM_DESCRIPTION` (str): API description. Default: `None`
 
 ### Methods
 
