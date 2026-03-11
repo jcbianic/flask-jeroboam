@@ -80,10 +80,10 @@ Bien que les deux fonctions de vue aient reçu les mêmes valeurs de paramètre,
 
 De plus, **Flask-Jeroboam** détectera automatiquement les paramètres de chemin. Notez la route surlignée et la fonction ci-dessous—la ``<int:id>`` dans la règle d'URL et le paramètre ``id`` dans la signature de la fonction correspondent automatiquement.
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/02_path_parameters.py
   :linenos:
   :language: python
-  :lines: 41-43
+  :lines: 9-11
   :emphasize-lines: 1,2
 
 Vous pouvez le tester :
@@ -95,11 +95,11 @@ Vous pouvez le tester :
 
 Cela fonctionne également avec d'autres verbes HTTP. Notez l'endpoint ``POST`` en surbrillance ci-dessous—il a la même gestion des paramètres de chemin malgré l'utilisation d'un verbe HTTP différent :
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/02_path_parameters.py
   :linenos:
   :language: python
-  :lines: 41-43,46-48
-  :emphasize-lines: 4,5
+  :lines: 14-16
+  :emphasize-lines: 1,2
 
 .. code-block:: bash
 
@@ -118,23 +118,19 @@ Pour définir des emplacements explicites, vous devez utiliser l'une des fonctio
 
 Notez les sections surlignées ci-dessous—l'endpoint ``GET`` implicite utilise un paramètre ordinaire, tandis que la version explicite utilise ``Query()``. Les deux se comportent de manière identique :
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/03_explicit_locations.py
   :linenos:
   :language: python
-  :lines: 11-13,16-18
-  :emphasize-lines: 2,5
+  :lines: 9-17
+  :emphasize-lines: 1,6
 
 La même équivalence s'applique aux requêtes ``POST`` et ``PUT``. Regardez les exemples en surbrillance ci-dessous—les emplacements implicites et explicites produisent le même comportement :
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/03_explicit_locations.py
   :linenos:
   :language: python
-  :lines: 5-5
-
-.. literalinclude:: /../docs_src/features/inbound.py
-  :linenos:
-  :language: python
-  :lines: 31-38
+  :lines: 19-26
+  :emphasize-lines: 1,5
 
 Testons-le.
 
@@ -152,11 +148,11 @@ Testons-le.
 
 Vous pouvez également mélanger les emplacements implicites et explicites. Regardez le code surligné ci-dessous—le premier endpoint utilise ``Query()`` et ``Cookie()`` explicites, tandis que le second utilise des emplacements implicites :
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/04_mixed_locations.py
   :linenos:
   :language: python
-  :lines: 5-5,26-33
-  :emphasize-lines: 1,4,7
+  :lines: 9-16
+  :emphasize-lines: 1,5
 
 Testons-le.
 
@@ -191,11 +187,11 @@ Nous avons reçu une réponse 400 Bad Request car nous n'avons pas fourni le par
 
 Regardez les exemples surlignés ci-dessous :
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/05_default_values.py
   :linenos:
   :language: python
-  :lines: 56-58,61-63
-  :emphasize-lines: 2,5
+  :lines: 9-15
+  :emphasize-lines: 1,6
 
 Testons-le.
 
@@ -224,18 +220,18 @@ En plus d'utiliser des hints de type, vous pouvez également utiliser le premier
 
 Regardez la définition du modèle ``Item`` en surbrillance ci-dessous :
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/06_type_patterns.py
   :linenos:
   :language: python
-  :lines: 3-13
+  :lines: 1-5,11-13
   :emphasize-lines: 1,3,6-8
 
 Maintenant voyez comment ce modèle est utilisé. La définition de la fonction surlignée ci-dessous montre différents modèles de type :
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/06_type_patterns.py
   :linenos:
   :language: python
-  :lines: 3-5,70-77
+  :lines: 1-5,16-24
   :emphasize-lines: 1,3,7-14
 
 Testons-le.
@@ -265,10 +261,10 @@ Pour les types de nombres par exemple, vous pouvez ajouter des valeurs ``ge`` (s
 
 Regardez l'exemple surligné ci-dessous—remarquez la contrainte ``ge=1`` :
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/07_validation_options.py
   :linenos:
   :language: python
-  :lines: 82-84
+  :lines: 9-10
   :emphasize-lines: 2
 
 Regardons ce qui se passe quand nous passons une valeur de page de 0. Notez que 0 est un int valide, mais il n'est pas supérieur ou égal à 1.

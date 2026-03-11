@@ -21,20 +21,20 @@ La façon la plus directe de définir l'interface sortante de votre endpoint est
 
 Disons que vous avez un endpoint ``GET`` qui retourne une ``Task``. Regardez la définition surlignée du modèle ``Task`` ci-dessous :
 
-.. literalinclude:: /../docs_src/features/outbound.py
+.. literalinclude:: /../docs_src/features/outbound_examples/01_response_model.py
   :linenos:
   :language: python
-  :lines: 3,5,7,8,11-14
-  :emphasize-lines: 5,6,7,8
+  :lines: 1-5,11-16
+  :emphasize-lines: 1,3,6-10
 
 
 Maintenant regardez l'endpoint surlignée qui utilise ce modèle. Le décorateur inclut ``response_model=Task``, et la fonction retourne seulement des données partielles :
 
-.. literalinclude:: /../docs_src/features/outbound.py
+.. literalinclude:: /../docs_src/features/outbound_examples/01_response_model.py
   :linenos:
   :language: python
-  :lines: 3,5,7,8,11-14,26-28
-  :emphasize-lines: 9,10,11
+  :lines: 1-5,11-24
+  :emphasize-lines: 1,3,6,18
 
 **Flask-Jeroboam** prend la valeur retournée par la fonction de vue et la verse dans votre reponse_model, valide les données, les sérialise en JSON, et enfin les enveloppe dans un objet ``Response`` avant de les remettre à Flask.
 
@@ -47,13 +47,13 @@ Testons-le :
 
 Comme vous pouvez le voir, l'endpoint utilise les données retournées par cette fonction de vue mais ajoute également la valeur par défaut du champ ``description``. C'est parce que **Flask-Jeroboam** utilise le modèle ``Task`` pour valider les données retournées par la fonction de vue. Elle ajoutera tous les champs manquants et les remplira avec leurs valeurs par défaut.
 
-Pour contraster, regardez l'endpoint surlignée sans ``response_model`` :
+Pour contraster, regardez un simple endpoint sans ``response_model``:
 
-.. literalinclude:: /../docs_src/features/outbound.py
+.. literalinclude:: /../docs_src/features/outbound_examples/02_list_response.py
   :linenos:
   :language: python
-  :lines: 7,8,31-33
-  :emphasize-lines: 3
+  :lines: 1-5,21-23
+  :emphasize-lines: 1,3,6
 
 et testons-le :
 
@@ -71,13 +71,14 @@ Alternativement aux déclarations explicites, vous pouvez également laisser **F
 Modèle de réponse implicite
 ---------------------------
 
-**Flask-Jeroboam** peut également dériver votre modèle de réponse à partir du type de retour de la fonction de vue, mais il doit provenir d'une annotation. Dans les exemples suivants, le premier endpoint fonctionnera de manière similaire à celui de la section précédente, mais le second lèvera une erreur car Flask ne sait pas quoi faire avec l'objet ``Task``.
+**Flask-Jeroboam** peut également dériver votre modèle de réponse à partir du type de retour de la fonction de vue, mais il doit provenir d'une annotation. Voici un exemple avec modèle de réponse implicite :
 
-.. literalinclude:: /../docs_src/features/outbound.py
+.. code-block:: python
   :linenos:
-  :language: python
-  :lines: 36-38,41-43
-  :emphasize-lines: 2,5
+
+  @app.get("/tasks/<int:task_id>")
+  def get_task(task_id: int) -> Task:
+      return Task(id=task_id, title="My Task")
 
 Testons-le.
 
@@ -109,11 +110,11 @@ L'éteindre
 
 Si vous ne voulez pas utiliser les fonctionnalités sortantes de **Flask-Jeroboam**, éteignez-la en définissant l'argument ``response_model`` à ``None``. Cela fera en sorte que **Flask-Jeroboam** ignore l'interface sortante de votre endpoint.
 
-.. literalinclude:: /../docs_src/features/outbound.py
+.. literalinclude:: /../docs_src/features/outbound_examples/03_status_code.py
   :linenos:
   :language: python
-  :lines: 7,8,46-48
-  :emphasize-lines: 3
+  :lines: 1-5,16-18
+  :emphasize-lines: 1,3,6
 
 L'endpoint fonctionne toujours.
 

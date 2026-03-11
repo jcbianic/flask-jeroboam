@@ -2,10 +2,15 @@
 
 from pydantic import BaseModel
 
-from flask_jeroboam import Body, Cookie, Jeroboam, Path, Query
+from flask_jeroboam import Jeroboam, Body, Cookie, Path, Query
 
 app = Jeroboam("Jeroboam Inbound Features App")
 app.init_app()
+
+
+class Item(BaseModel):
+    name: str
+    count: int
 
 
 @app.get("/implicit_location_is_query_string")
@@ -61,11 +66,6 @@ def get_implicit_argument_with_default(page: int = 1):
 @app.get("/explicit_location_with_default_value")
 def get_explicit_argument_with_default(page: int = Query(1)):
     return f"Received Page Argument is : {page}"
-
-
-class Item(BaseModel):
-    name: str
-    count: int
 
 
 @app.get("/defining_type_with_type_hints")
