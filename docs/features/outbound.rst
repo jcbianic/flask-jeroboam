@@ -24,16 +24,16 @@ Let's say you have a ``GET`` endpoint that returns a ``Task``. Look at the highl
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,26-28
-  :emphasize-lines: 3,4,13-16
+  :lines: 3,5,7,8,11-14
+  :emphasize-lines: 5,6,7,8
 
 Now look at the highlighted endpoint that uses this model. The decorator includes ``response_model=Task``, and the function returns only partial data:
 
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,26-28
-  :emphasize-lines: 19,20,21
+  :lines: 3,5,7,8,11-14,26-28
+  :emphasize-lines: 9,10,11
 
 **Flask-Jeroboam** takes the view function returned value and feeds it into your reponse_model, validates the data, serialize it into JSON, and finally wraps it into a ``Response`` object before handling it back to Flask.
 
@@ -51,8 +51,8 @@ To contrast, look at the highlighted endpoint without ``response_model``:
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 7,8-13,34-38
-  :emphasize-lines: 8
+  :lines: 7,8,31-33
+  :emphasize-lines: 3
 
 Test it:
 
@@ -75,8 +75,8 @@ Implicit Response Model
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,39-48
-  :emphasize-lines: 20,25
+  :lines: 36-38,41-43
+  :emphasize-lines: 2,5
 
 Let's test it out.
 
@@ -111,8 +111,8 @@ If you don't want to use **Flask-Jeroboam**'s outbound features, turn it off by 
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 7,8-13,49-53
-  :emphasize-lines: 8
+  :lines: 7,8,46-48
+  :emphasize-lines: 3
 
 The endpoint still works.
 

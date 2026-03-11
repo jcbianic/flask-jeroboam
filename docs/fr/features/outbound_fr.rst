@@ -19,22 +19,22 @@ Modèle de réponse explicite
 
 La façon la plus directe de définir l'interface sortante de votre endpoint est d'utiliser l'argument ``response_model`` de votre décorateur de route comme ceci ``@app.get("/tasks/<int:task_id>", response_model=Task)``. Cet argument prend un modèle pydantic comme valeur et l'utilisera pour valider et sérialiser les données renvoyées par votre fonction de vue.
 
-Disons que vous avez un endpoint ``GET`` qui retourne une ``Task``. Tout d'abord, nous définissons un modèle ``Task``, héritant de ``BaseModel`` pydantic. Notre modèle ``Task`` a trois champs : ``id``, ``name``, et ``description``. Le champ ``description`` est optionnel et a une valeur par défaut de ``Just here to make a point.`` qui nous aidera à comprendre la mécanique plus tard.
+Disons que vous avez un endpoint ``GET`` qui retourne une ``Task``. Regardez la définition surlignée du modèle ``Task`` ci-dessous :
 
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,26-28
-  :emphasize-lines: 3,4,13-16
+  :lines: 3,5,7,8,11-14
+  :emphasize-lines: 5,6,7,8
 
 
-Ensuite à la ligne 19, nous la donnons à l'argument ``response_model`` de notre décorateur de route à la ligne 19. Notez qu'à la ligne 21 nous retournons seulement un dictionnaire avec les champs ``id`` et ``name``. Le champ ``description`` manque, mais c'est d'accord. **Flask-Jeroboam** l'ajoutera pour nous via le modèle ``Task``.
+Maintenant regardez l'endpoint surlignée qui utilise ce modèle. Le décorateur inclut ``response_model=Task``, et la fonction retourne seulement des données partielles :
 
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,26-28
-  :emphasize-lines: 19, 21
+  :lines: 3,5,7,8,11-14,26-28
+  :emphasize-lines: 9,10,11
 
 **Flask-Jeroboam** prend la valeur retournée par la fonction de vue et la verse dans votre reponse_model, valide les données, les sérialise en JSON, et enfin les enveloppe dans un objet ``Response`` avant de les remettre à Flask.
 
@@ -47,13 +47,13 @@ Testons-le :
 
 Comme vous pouvez le voir, l'endpoint utilise les données retournées par cette fonction de vue mais ajoute également la valeur par défaut du champ ``description``. C'est parce que **Flask-Jeroboam** utilise le modèle ``Task`` pour valider les données retournées par la fonction de vue. Elle ajoutera tous les champs manquants et les remplira avec leurs valeurs par défaut.
 
-Pour le démontrer, définissons un autre endpoint qui retourne le même dictionnaire sans l'argument ``response_model``.
+Pour contraster, regardez l'endpoint surlignée sans ``response_model`` :
 
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 7,8-13,34-38
-  :emphasize-lines: 8
+  :lines: 7,8,31-33
+  :emphasize-lines: 3
 
 et testons-le :
 
@@ -76,8 +76,8 @@ Modèle de réponse implicite
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,39-48
-  :emphasize-lines: 20,25
+  :lines: 36-38,41-43
+  :emphasize-lines: 2,5
 
 Testons-le.
 
@@ -112,8 +112,8 @@ Si vous ne voulez pas utiliser les fonctionnalités sortantes de **Flask-Jeroboa
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 7,8-13,49-53
-  :emphasize-lines: 8
+  :lines: 7,8,46-48
+  :emphasize-lines: 3
 
 L'endpoint fonctionne toujours.
 

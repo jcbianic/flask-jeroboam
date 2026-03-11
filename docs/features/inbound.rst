@@ -59,7 +59,7 @@ Look at the highlighted endpoints below—the first uses ``GET`` (implicit ``QUE
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-21,36-43
+  :lines: 11-13,31-33
   :emphasize-lines: 1,4
 
 You can test them with curl. The highlighted ``GET`` endpoint expects a query string parameter:
@@ -83,7 +83,7 @@ In addition to this verb-based mechanism, **Flask-Jeroboam** automatically detec
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,46-53
+  :lines: 41-43
   :emphasize-lines: 1,2
 
 Test it:
@@ -98,8 +98,8 @@ This also works with other HTTP verbs. Notice the highlighted ``POST`` endpoint 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,51-58
-  :emphasize-lines: 8,9
+  :lines: 41-43,46-48
+  :emphasize-lines: 4,5
 
 .. code-block:: bash
 
@@ -121,16 +121,16 @@ Notice the highlighted sections below—the implicit ``GET`` endpoint uses a pla
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,17-28
-  :emphasize-lines: 2,10,15
+  :lines: 11-13,16-18
+  :emphasize-lines: 2,5
 
 The same equivalence applies to ``POST`` and ``PUT`` requests. Look at the highlighted examples below—implicit and explicit locations produce the same behavior:
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 6,8,11-16,36-48
-  :emphasize-lines: 1,10,15
+  :lines: 5,31-33,36-38
+  :emphasize-lines: 3,6
 
 Test both approaches:
 
@@ -151,8 +151,8 @@ You can also mix implicit and explicit locations. Look at the highlighted code b
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 7,8,10,11-16,27-38
-  :emphasize-lines: 1,11,16
+  :lines: 5,21-23,26-28
+  :emphasize-lines: 3,6
 
 Test both:
 
@@ -190,8 +190,8 @@ Look at the highlighted examples below:
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,62-71
-  :emphasize-lines: 10,15
+  :lines: 56-58,61-63
+  :emphasize-lines: 2,5
 
 Test both approaches:
 
@@ -223,16 +223,16 @@ Look at the highlighted ``Item`` model definition below:
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 2,3,4,8,10,11-16,72-87
-  :emphasize-lines: 3, 12-14
+  :lines: 3,5,66-68
+  :emphasize-lines: 3,4,5
 
 Now see how this model is used. The highlighted function definition below shows different type patterns:
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 2,3,4,8,10,11-16,72-87
-  :emphasize-lines: 18
+  :lines: 3,5,66-68,71-79
+  :emphasize-lines: 7
 
 Test it:
 
@@ -264,8 +264,8 @@ Look at the highlighted example below—notice the ``ge=1`` constraint:
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,88
-  :emphasize-lines: 4
+  :lines: 82-84
+  :emphasize-lines: 2
 
 See what happens when we pass an invalid value (0 is a valid int, but violates the ``ge=1`` constraint):
 

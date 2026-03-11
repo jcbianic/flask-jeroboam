@@ -54,12 +54,12 @@ Nous pouvons réduire l'heuristique de **Flask-Jeroboam** pour déterminer l'emp
 
 Outre les paramètres de chemin, **Flask-Jeroboam** dérive l'emplacement implicite d'un argument du verbe HTTP de votre fonction de vue, basé sur l'hypothèse que pour une requête ``GET``, le client transmet généralement les paramètres via la chaîne de requête et que pour les requêtes ``PUT`` et ``POST`` le client utilisera principalement le corps de la requête.
 
-Donc si vous regardez ces fonctions de vue à la ligne 9 et 14, sans aucune définition d'emplacement explicite, **Flask-Jeroboam** supposera un emplacement ``QUERY`` pour l'endpoint ``GET`` et ``BODY`` pour l'endpoint ``POST``.
+Observez les endpoints en surbrillance ci-dessous—le premier utilise ``GET`` (emplacement ``QUERY`` implicite) et le second utilise ``POST`` (emplacement ``BODY`` implicite) :
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-21,36-43
+  :lines: 11-13,31-33
   :emphasize-lines: 1,4
 
 Si vous exécutez le fichier ci-dessus, vous pouvez le tester. L'endpoint ``/implicit_location_is_query_string`` attendra un paramètre page dans la chaîne de requête.
@@ -78,12 +78,12 @@ tandis que l'endpoint ``/implicit_location_is_body`` attendra un champ page dans
 
 Bien que les deux fonctions de vue aient reçu les mêmes valeurs de paramètre, remarquez que nous construisons notre requête différemment en hébergeant les paramètres à deux emplacements différents.
 
-De plus, **Flask-Jeroboam** détectera automatiquement les paramètres de chemin. Dans l'exemple suivant, **Flask-Jeroboam** reconnaîtra l'argument ``id`` comme un paramètre de chemin. En effet, il est d'abord déclaré à la ligne 8 avec la partie ``<int:id>`` de la règle, donc quand **Flask-Jeroboam** rencontre un argument dans la fonction décorée avec le même nom mais sans aucune définition d'emplacement explicite, il supposera en toute sécurité que c'est un paramètre de chemin.
+De plus, **Flask-Jeroboam** détectera automatiquement les paramètres de chemin. Notez la route surlignée et la fonction ci-dessous—la ``<int:id>`` dans la règle d'URL et le paramètre ``id`` dans la signature de la fonction correspondent automatiquement.
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,46-53
+  :lines: 41-43
   :emphasize-lines: 1,2
 
 Vous pouvez le tester :
@@ -93,13 +93,13 @@ Vous pouvez le tester :
   $ curl 'localhost:5000/item/42/implicit'
   Received id Argument is : 42
 
-Cela fonctionne également avec d'autres verbes HTTP et remplace l'emplacement basé sur le verbe. **Flask-Jeroboam** reconnaîtra également l'argument ``id`` comme un paramètre de chemin dans l'exemple suivant.
+Cela fonctionne également avec d'autres verbes HTTP. Notez l'endpoint ``POST`` en surbrillance ci-dessous—il a la même gestion des paramètres de chemin malgré l'utilisation d'un verbe HTTP différent :
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,51-58
-  :emphasize-lines: 8,9
+  :lines: 41-43,46-48
+  :emphasize-lines: 4,5
 
 .. code-block:: bash
 
@@ -116,21 +116,21 @@ Emplacements explicites
 
 Pour définir des emplacements explicites, vous devez utiliser l'une des fonctions spéciales de **Flask-Jeroboam** (``Path``, ``Query``, ``Cookie``, ``Header``, ``Body``, ``Form`` ou ``File``) pour assigner des valeurs par défaut à vos arguments.
 
-Par exemple, ces deux endpoints se comporteront de la même manière, la ligne 10 (implicite) et 15 (explicite) sont équivalentes :
+Notez les sections surlignées ci-dessous—l'endpoint ``GET`` implicite utilise un paramètre ordinaire, tandis que la version explicite utilise ``Query()``. Les deux se comportent de manière identique :
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,17-28
-  :emphasize-lines: 2,10,15
+  :lines: 11-13,16-18
+  :emphasize-lines: 2,5
 
-Et il en va de même pour les fonctions de vue ``POST`` (ou ``PUT``). Les lignes 10 et 15 sont équivalentes.
+La même équivalence s'applique aux requêtes ``POST`` et ``PUT``. Regardez les exemples en surbrillance ci-dessous—les emplacements implicites et explicites produisent le même comportement :
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 6,8,11-16,36-48
-  :emphasize-lines: 1,10,15
+  :lines: 5,31-33,36-38
+  :emphasize-lines: 3,6
 
 Testons-le.
 
@@ -146,13 +146,13 @@ Testons-le.
   $ curl -X POST 'localhost:5000/explicit_location_is_body' -d '{"page": 42}' -H "Content-Type: application/json"
   Received Page Argument is : 42
 
-Vous pouvez également pointer vers un emplacement autre que celui par défaut, et définir différents emplacements pour chaque argument et mélanger des emplacements implicites avec des emplacements explicites. Dans l'exemple suivant, nous définissons un emplacement ``Cookie`` explicite pour l'argument ``username``. À la ligne 11, il partage la signature avec un autre argument de page situé explicitement en requête, mais à la ligne 16, nous définissons une fonction de vue similaire dans laquelle page est implicitement localisée.
+Vous pouvez également mélanger les emplacements implicites et explicites. Regardez le code surligné ci-dessous—le premier endpoint utilise ``Query()`` et ``Cookie()`` explicites, tandis que le second utilise des emplacements implicites :
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 7,8,10,11-16,27-38
-  :emphasize-lines: 1,11,16
+  :lines: 5,21-23,26-28
+  :emphasize-lines: 3,6
 
 Testons-le.
 
@@ -180,17 +180,18 @@ Ne me croyez pas sur parole, testons-le sur l'endpoint ``/implicit_location_is_q
   {"detail":[{"loc":["query","page"],"msg":"field required","type":"value_error.missing"}]}
   Status Code: 400
 
-Nous avons reçu une réponse 400 Bad Request car nous n'avons pas fourni le paramètre requis page dans notre chaîne de requête. Et si nous voulions définir notre valeur par défaut pour le paramètre page à 1 ? Il y a deux façons de le faire :
+Nous avons reçu une réponse 400 Bad Request car nous n'avons pas fourni le paramètre requis page dans notre chaîne de requête. Et si nous voulions définir une valeur par défaut de 1 pour le paramètre page ? Il y a deux façons de le faire :
 
--  Si vous optez pour l'emplacement implicite, vous pouvez définir une valeur par défaut comme vous le feriez normalement, comme indiqué à la ligne 10.
--  Si vous utilisez une définition explicite, vous devez passer la valeur par défaut comme premier argument de votre appel de fonction, comme à la ligne 15.
+-  Avec l'emplacement implicite, définissez la valeur par défaut normalement dans la signature de la fonction (par ex., ``page: int = 1``).
+-  Avec l'emplacement explicite, passez la valeur par défaut comme premier argument à la fonction d'emplacement (par ex., ``page: int = Query(1)``).
 
+Regardez les exemples surlignés ci-dessous :
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,62-71
-  :emphasize-lines: 10,15
+  :lines: 56-58,61-63
+  :emphasize-lines: 2,5
 
 Testons-le.
 
@@ -206,7 +207,7 @@ Testons-le.
   $ curl 'localhost:5000/explicit_location_with_default_value?page=42'
   Received Page Argument is : 42
 
-La valeur par défaut est correctement insérée quand vous ne fournissez pas le paramètre dans la chaîne de requête pour l'un ou l'autre endpoint. Le serveur retourne une réponse valide ce qui signifie que le paramètre page n'est plus requis. Nous vérifions également que le mécanisme d'analyse-validation-injection fonctionne toujours aux lignes 3 et 7.
+La valeur par défaut est correctement insérée quand vous ne fournissez pas le paramètre dans la chaîne de requête pour l'un ou l'autre endpoint. Le serveur retourne une réponse valide ce qui signifie que le paramètre page n'est plus requis.
 
 Les fonctions spéciales fournissent également un moyen de définir des options de validation supplémentaires, mais d'abord, examinons de plus près la définition de la deuxième partie de nos arguments d'entrée : le type.
 
@@ -217,21 +218,21 @@ Le type fait référence à la forme ou au schéma des données que vous attende
 
 En plus d'utiliser des hints de type, vous pouvez également utiliser le premier argument de fonctions spéciales comme ``Query``.
 
-Regardons un exemple. Tout d'abord, aux lignes 12 à 14, nous définissons la classe ``Item`` héritant de ``BaseModel`` pydantic.
+Regardez la définition du modèle ``Item`` en surbrillance ci-dessous :
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 2,3,4,8,10,11-16,72-87
-  :emphasize-lines: 3, 12-14
+  :lines: 3,5,66-68
+  :emphasize-lines: 3,4,5
 
-Ensuite à la ligne 18, nous démontrons toute l'étendue de la façon de définir les types d'arguments. Nous définissons les types des arguments ``page``, ``search`` et ``item`` avec un hint de type. Pour l'argument ``price``, en revanche, nous passons ``float`` comme premier argument de l'appel de la fonction ``Query`` assignée comme valeur par défaut. ``page`` et ``price`` sont des types Python intégrés, ``int`` et ``float`` respectivement. ``search`` est une liste de chaînes et ``item`` est un ``BaseModel`` pydantic.
+Maintenant voyez comment ce modèle est utilisé. La définition de la fonction surlignée ci-dessous montre différents modèles de type :
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 2,3,4,8,10,11-16,72-87
-  :emphasize-lines: 18
+  :lines: 3,5,66-68,71-79
+  :emphasize-lines: 7
 
 Testons-le.
 
@@ -258,12 +259,12 @@ Les arguments de fonction de vue sont essentiellement des champs de modèle pyda
 
 Pour les types de nombres par exemple, vous pouvez ajouter des valeurs ``ge`` (signifiant supérieur ou égal à) ou ``lt`` (inférieur à) pour définir des conditions de validation sur vos paramètres.
 
-Regardons un exemple simple dans lequel nous voulons nous assurer que l'argument ``page`` est supérieur ou égal à 1 (``Query(ge=1)``)
+Regardez l'exemple surligné ci-dessous—remarquez la contrainte ``ge=1`` :
 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,88
+  :lines: 82-84
   :emphasize-lines: 2
 
 Regardons ce qui se passe quand nous passons une valeur de page de 0. Notez que 0 est un int valide, mais il n'est pas supérieur ou égal à 1.
