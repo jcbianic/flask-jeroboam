@@ -21,19 +21,19 @@ The most straightforward way of defining the outbound interface of your endpoint
 
 Let's say you have a ``GET`` endpoint that returns a ``Task``. Look at the highlighted ``Task`` model definition below:
 
-.. literalinclude:: /../docs_src/features/outbound.py
+.. literalinclude:: /../docs_src/features/outbound_examples/01_response_model.py
   :linenos:
   :language: python
-  :lines: 3,5,7,8,11-14
-  :emphasize-lines: 5,6,7,8
+  :lines: 1-5,11-16
+  :emphasize-lines: 1,3,6-10
 
 Now look at the highlighted endpoint that uses this model. The decorator includes ``response_model=Task``, and the function returns only partial data:
 
-.. literalinclude:: /../docs_src/features/outbound.py
+.. literalinclude:: /../docs_src/features/outbound_examples/01_response_model.py
   :linenos:
   :language: python
-  :lines: 3,5,7,8,11-14,26-28
-  :emphasize-lines: 9,10,11
+  :lines: 1-5,11-24
+  :emphasize-lines: 1,3,6,18
 
 **Flask-Jeroboam** takes the view function returned value and feeds it into your reponse_model, validates the data, serialize it into JSON, and finally wraps it into a ``Response`` object before handling it back to Flask.
 
@@ -46,13 +46,14 @@ Let's test it out:
 
 As you can see, the endpoint uses the data returned by this view function but also adds the default value of the ``description`` field. This is because **Flask-Jeroboam** uses the ``Task`` model to validate the data returned by the view function. It will add any missing fields and fill them with their default values.
 
-To contrast, look at the highlighted endpoint without ``response_model``:
+To contrast, look at a simple endpoint without ``response_model``:
 
-.. literalinclude:: /../docs_src/features/outbound.py
+.. code-block:: python
   :linenos:
-  :language: python
-  :lines: 7,8,31-33
-  :emphasize-lines: 3
+
+  @app.get("/tasks/<int:task_id>")
+  def get_task_simple(task_id: int):
+      return {"id": task_id, "title": "Simple task"}
 
 Test it:
 
@@ -70,13 +71,14 @@ Alternatively to explicit declarations, you can also let **Flask-Jeroboam** infe
 Implicit Response Model
 -----------------------
 
-**Flask-Jeroboam** can also derive your response model from the view function return type, but it has to be from annotation. In the following examples, the first endpoint will work similarly to the one from the previous section, but the second one will raise an error because Flask doesn’t know what to do with the ``Task`` object.
+**Flask-Jeroboam** can also derive your response model from the view function return type, but it has to be from annotation. Here’s an example with implicit response model:
 
-.. literalinclude:: /../docs_src/features/outbound.py
+.. code-block:: python
   :linenos:
-  :language: python
-  :lines: 36-38,41-43
-  :emphasize-lines: 2,5
+
+  @app.get("/tasks/<int:task_id>")
+  def get_task(task_id: int) -> Task:
+      return Task(id=task_id, title="My Task")
 
 Let's test it out.
 
@@ -108,11 +110,12 @@ Turning it off
 
 If you don't want to use **Flask-Jeroboam**'s outbound features, turn it off by setting the ``response_model`` argument to ``None``. It will make **Flask-Jeroboam** ignore the outbound interface of your endpoint.
 
-.. literalinclude:: /../docs_src/features/outbound.py
+.. code-block:: python
   :linenos:
-  :language: python
-  :lines: 7,8,46-48
-  :emphasize-lines: 3
+
+  @app.get("/tasks", response_model=None)
+  def get_tasks_raw():
+      return {"data": [{"id": 1, "title": "Task"}]}
 
 The endpoint still works.
 
