@@ -73,3 +73,11 @@ Additional Notes
    codeofconduct
    license
    changes
+
+Language / Langue
+-----------------
+
+.. toctree::
+   :maxdepth: 1
+
+   Français <fr/index_fr>
