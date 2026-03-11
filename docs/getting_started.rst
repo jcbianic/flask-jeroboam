@@ -22,23 +22,23 @@ Let's start with creating the application object.
     :lines: 5-11,33-
     :emphasize-lines: 1,4
 
-As you can see, there is nothing special about the app creation on line 4. The **Jeroboam** class from flask_jeroboam subclasses flask's `Flask <https://flask.palletsprojects.com/en/2.2.x/api/#application-object>`_ application object, and you can use it as a drop-in replacement of the former.
+Notice the highlighted import and initialization. The app creation is straightforward—the **Jeroboam** class subclasses Flask's `Flask <https://flask.palletsprojects.com/en/2.2.x/api/#application-object>`_ application object, so you can use it as a drop-in replacement.
 
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
     :language: python
     :lines: 5-11,33-
-    :emphasize-lines: 5
+    :emphasize-lines: 4
 
-On line 5, we are calling the init_app method of the app instance. You should call this method after loading the configuration to your app: it will register OpenAPI blueprints and generic error handlers. You can always opt-out of these with appropriate configuration values (see :doc:`here <features/configuration>`).
+The highlighted ``init_app()`` call is essential. Call this method after loading the configuration to your app—it registers OpenAPI blueprints and generic error handlers. You can always opt-out with appropriate configuration values (see :doc:`here <features/configuration>`).
 
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
     :language: python
     :lines: 5-11,33-
-    :emphasize-lines: 8,9
+    :emphasize-lines: 8
 
-Finally, lines 8 and 9 are a convenient way to start the app by running the file directly.
+The highlighted block at the bottom is a convenient way to start the app by running the file directly.
 
 .. note::
     The application factory pattern is usually a good practice `[1] <https://flask.palletsprojects.com/en/2.2.x/patterns/appfactories/>`_ and should be followed when you start an actual project.
@@ -49,7 +49,7 @@ Register a view function
 
 Registering a view function means binding a python function to an URL. Whenever a request sent to your server matches the rule you defined, the registered function, called a view function, will be run.
 
-You can register a view function in several ways in Flask. The preferred way to do it in **Flask_Jeroboam** is to use method decorators, like on line 8 in the example below:
+You can register a view function in several ways in Flask. The preferred way in **Flask_Jeroboam** is to use method decorators. Notice the highlighted decorator in the code below:
 
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
@@ -73,13 +73,13 @@ Adding View Arguments
 
 Let's try something more interesting. So far, our Jeroboam application behaves like a regular Flask application.
 
-Let's register a view function that takes parameters. On line 13, you will find the method decorator we saw in the previous section. But on line 14, the view function takes two parameters with type hints and default values. It then returns them without modifying them.
+Let's register a view function that takes parameters. Look at the highlighted function definition below—it shows a view function with type hints and default values on its parameters.
 
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
     :language: python
     :lines: 5-21,33-
-    :emphasize-lines: 14
+    :emphasize-lines: 12,13
 
 This view function 's only purpose is to help us inspecting the values the function actually receives when it is called and this is precisely what we will do.
 
@@ -121,7 +121,7 @@ Now that we have covered the basics of inbound handling, let's look at the outbo
 Response Models
 ***************
 
-We start by defining a Pydantic BaseModel for our response. This model will be used to validate the outbound data of our view function. We first import BaseModel and Field from pydantic on line 1 and 2. On line 11-14, we define a subclass of pydnatic's BaseModel named ``Item`` with three fields: ``name``, ``price`` and ``count``. The ``name`` field is a string, the ``price`` field is a float and the ``count`` field is an int with a default value of 1.
+We start by defining a Pydantic BaseModel for response validation. Look at the highlighted sections below—the imports at the top and the ``Item`` model definition with its three fields.
 
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
@@ -129,7 +129,7 @@ We start by defining a Pydantic BaseModel for our response. This model will be u
     :lines: 2-11,22-
     :emphasize-lines: 1,2,11-14
 
-We then pass the ``Item`` model as the ``response_model`` argument of the ``@app.get`` decorator on line 17. Our view function's purpose is to demonstrate that our return value will be processed through the ``Item`` model and not simply returning the ``{"name": "Bottle", "price": 5}`` dictionnary, casting the price into a float, and adding a default value of 1 to the count field.
+Now look at the highlighted decorator—it passes the ``Item`` model as the ``response_model`` argument. The view function demonstrates that the return value is processed through the model, which adds missing fields and casts types as needed.
 
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:

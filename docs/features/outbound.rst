@@ -19,22 +19,21 @@ Explicit Response Model
 
 The most straightforward way of defining the outbound interface of your endpoint is to use the ``response_model`` argument of your route decorator like this ``@app.get("/tasks/<int:task_id>", response_model=Task)``. This argument takes a Pydantic model as a value and will use it to validate and serialize the data returned by your view function.
 
-Let's say that you have a ``GET`` endpoint that returns a ``Task``. First, we define a ``Task`` model, inheriting from pydantic's ``BaseModel``. Our ``Task`` model has three fields: ``id``, ``name``, and ``description``. The ``description`` field is optional and has a default value of ``Just here to make a point.`` that will help us understand the mechanics later on.
+Let's say you have a ``GET`` endpoint that returns a ``Task``. Look at the highlighted ``Task`` model definition below:
 
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,29-33
+  :lines: 2-7,8-13,14-19,26-28
   :emphasize-lines: 3,4,13-16
 
-
-Then on line 19, we feed it to the ``response_model`` argument of our route decorator on line 19. Note that on line 21 we only return a dictionary with an ``id`` and a ``name`` field. The ``description`` field is missing, but that's okay. **Flask-Jeroboam** will add it for us through the ``Task`` model.
+Now look at the highlighted endpoint that uses this model. The decorator includes ``response_model=Task``, and the function returns only partial data:
 
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,29-33
-  :emphasize-lines: 19, 21
+  :lines: 2-7,8-13,14-19,26-28
+  :emphasize-lines: 19,20,21
 
 **Flask-Jeroboam** takes the view function returned value and feeds it into your reponse_model, validates the data, serialize it into JSON, and finally wraps it into a ``Response`` object before handling it back to Flask.
 
@@ -47,7 +46,7 @@ Let's test it out:
 
 As you can see, the endpoint uses the data returned by this view function but also adds the default value of the ``description`` field. This is because **Flask-Jeroboam** uses the ``Task`` model to validate the data returned by the view function. It will add any missing fields and fill them with their default values.
 
-To demonstrate this, let's define another endpoint that returns the same dictionary without the ``response_model`` argument.
+To contrast, look at the highlighted endpoint without ``response_model``:
 
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
@@ -55,7 +54,7 @@ To demonstrate this, let's define another endpoint that returns the same diction
   :lines: 7,8-13,34-38
   :emphasize-lines: 8
 
-and test it out:
+Test it:
 
 .. code-block:: bash
 
