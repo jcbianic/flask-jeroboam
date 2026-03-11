@@ -32,8 +32,8 @@ Now look at the highlighted endpoint that uses this model. The decorator include
 .. literalinclude:: /../docs_src/features/outbound_examples/01_response_model.py
   :linenos:
   :language: python
-  :lines: 1-5,11-24
-  :emphasize-lines: 1,3,6,18
+  :lines: 1-5,17-25
+  :emphasize-lines: 1,3,7
 
 **Flask-Jeroboam** takes the view function returned value and feeds it into your reponse_model, validates the data, serialize it into JSON, and finally wraps it into a ``Response`` object before handling it back to Flask.
 

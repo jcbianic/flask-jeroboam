@@ -33,8 +33,8 @@ Maintenant regardez l'endpoint surlignée qui utilise ce modèle. Le décorateur
 .. literalinclude:: /../docs_src/features/outbound_examples/01_response_model.py
   :linenos:
   :language: python
-  :lines: 1-5,11-24
-  :emphasize-lines: 1,3,6,18
+  :lines: 1-5,17-25
+  :emphasize-lines: 1,3,7
 
 **Flask-Jeroboam** prend la valeur retournée par la fonction de vue et la verse dans votre reponse_model, valide les données, les sérialise en JSON, et enfin les enveloppe dans un objet ``Response`` avant de les remettre à Flask.
 
