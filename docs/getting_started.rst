@@ -126,16 +126,16 @@ We start by defining a Pydantic BaseModel for response validation. Look at the h
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 2-11,22-
-    :emphasize-lines: 1,2,11-14
+    :lines: 3,5,21-24
+    :emphasize-lines: 1,2,3-6
 
-Now look at the highlighted decorator—it passes the ``Item`` model as the ``response_model`` argument. The view function demonstrates that the return value is processed through the model, which adds missing fields and casts types as needed.
+Now look at the highlighted endpoint that uses this model. The decorator includes ``response_model=Item``, and the function returns only partial data:
 
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
     :language: python
-    :lines: 2-11,22-
-    :emphasize-lines: 17
+    :lines: 3,5,27-28
+    :emphasize-lines: 3,4
 
 Let's try it out.
 
