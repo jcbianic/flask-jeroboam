@@ -24,7 +24,7 @@ Let's say that you have a ``GET`` endpoint that returns a ``Task``. First, we de
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,29-33,59-
+  :lines: 2-7,8-13,14-19,29-33
   :emphasize-lines: 3,4,13-16
 
 
@@ -33,7 +33,7 @@ Then on line 19, we feed it to the ``response_model`` argument of our route deco
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,29-33,59-
+  :lines: 2-7,8-13,14-19,29-33
   :emphasize-lines: 19, 21
 
 **Flask-Jeroboam** takes the view function returned value and feeds it into your reponse_model, validates the data, serialize it into JSON, and finally wraps it into a ``Response`` object before handling it back to Flask.
@@ -52,7 +52,7 @@ To demonstrate this, let's define another endpoint that returns the same diction
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 7,8-13,34-38,59-
+  :lines: 7,8-13,34-38
   :emphasize-lines: 8
 
 and test it out:
@@ -76,7 +76,7 @@ Implicit Response Model
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,39-48,59-
+  :lines: 2-7,8-13,14-19,39-48
   :emphasize-lines: 20,25
 
 Let's test it out.
@@ -112,7 +112,7 @@ If you don't want to use **Flask-Jeroboam**'s outbound features, turn it off by 
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 7,8-13,49-53,59-
+  :lines: 7,8-13,49-53
   :emphasize-lines: 8
 
 The endpoint still works.

@@ -59,8 +59,8 @@ So if you look at these view functions on line 9 and 14, without any explicit lo
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,17-21,37-41,93-
-  :emphasize-lines: 9,14
+  :lines: 8,11-21,37-41
+  :emphasize-lines: 1,4
 
 If you run the above file, you can test it out. The ``/implicit_location_is_query_string`` endpoint will expect a page parameter in the query string.
 
@@ -83,8 +83,8 @@ In addition to this verb-based mechanism, **Flask-Jeroboam** will automatically 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,47-51,93-
-  :emphasize-lines: 8,9
+  :lines: 8,11-16,47-51
+  :emphasize-lines: 1,2
 
 You can test it out:
 
@@ -98,7 +98,7 @@ It also works with other HTTP verbs and overrides the verb-based location. **Fla
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,52-56,93-
+  :lines: 8,11-16,52-56
   :emphasize-lines: 8,9
 
 .. code-block:: bash
@@ -121,7 +121,7 @@ For example, these two endpoints will behave the same way, line 10 (implicit) an
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,17-26,93-
+  :lines: 8,10,11-16,17-26
   :emphasize-lines: 2,10,15
 
 And same goes for ``POST`` (or ``PUT``) view functions. Line 10 and 15 are equivalent.
@@ -129,7 +129,7 @@ And same goes for ``POST`` (or ``PUT``) view functions. Line 10 and 15 are equiv
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 6,8,11-16,37-46,93-
+  :lines: 6,8,11-16,37-46
   :emphasize-lines: 1,10,15
 
 Let's test it out.
@@ -151,7 +151,7 @@ You can also point to another location than the default one, and define differen
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 7,8,10,11-16,27-36,93-
+  :lines: 7,8,10,11-16,27-36
   :emphasize-lines: 1,11,16
 
 Let's test it out.
@@ -189,7 +189,7 @@ We received a 400 Bad Request response because we did not provide the required p
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,62-71,93-
+  :lines: 8,10,11-16,62-71
   :emphasize-lines: 10,15
 
 Let's test it out.
@@ -222,7 +222,7 @@ Let's look at an example. First, on lines 12 to 14, we define the ``Item`` class
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 2,3,4,8,10,11-16,72-87,93-
+  :lines: 2,3,4,8,10,11-16,72-87
   :emphasize-lines: 3, 12-14
 
 Then on line 18, we demonstrate the full extent of how to define types of arguments. We define the ``page``, ``search`` and ``item`` arguments' types with a type hint. For the ``price`` argument type, on the other hand, we pass ``float`` as the first argument of the ``Query`` function call assigned as a default value. ``page`` and ``price`` are built-in python types, ``int`` and ``float`` respectively. ``search`` is a list of strings and ``item`` is a pydantic ``BaseModel``.
@@ -230,7 +230,7 @@ Then on line 18, we demonstrate the full extent of how to define types of argume
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 2,3,4,8,10,11-16,72-87,93-
+  :lines: 2,3,4,8,10,11-16,72-87
   :emphasize-lines: 18
 
 Let's test it out.
@@ -263,8 +263,8 @@ Let's see a simple example in which we want to make sure that the ``page`` argum
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,88-92,93-
-  :emphasize-lines: 10
+  :lines: 8,10,11-16,88
+  :emphasize-lines: 4
 
 Let's see what happens when we pass a page value of 0. Note that 0 is a valid int, but it is not greater or equal to 1.
 

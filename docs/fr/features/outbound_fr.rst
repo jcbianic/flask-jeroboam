@@ -24,7 +24,7 @@ Disons que vous avez un endpoint ``GET`` qui retourne une ``Task``. Tout d'abord
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,29-33,59-
+  :lines: 2-7,8-13,14-19,29-33
   :emphasize-lines: 3,4,13-16
 
 
@@ -33,7 +33,7 @@ Ensuite à la ligne 19, nous la donnons à l'argument ``response_model`` de notr
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,29-33,59-
+  :lines: 2-7,8-13,14-19,29-33
   :emphasize-lines: 19, 21
 
 **Flask-Jeroboam** prend la valeur retournée par la fonction de vue et la verse dans votre reponse_model, valide les données, les sérialise en JSON, et enfin les enveloppe dans un objet ``Response`` avant de les remettre à Flask.
@@ -52,7 +52,7 @@ Pour le démontrer, définissons un autre endpoint qui retourne le même diction
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 7,8-13,34-38,59-
+  :lines: 7,8-13,34-38
   :emphasize-lines: 8
 
 et testons-le :
@@ -76,7 +76,7 @@ Modèle de réponse implicite
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 2-7,8-13,14-19,39-48,59-
+  :lines: 2-7,8-13,14-19,39-48
   :emphasize-lines: 20,25
 
 Testons-le.
@@ -112,7 +112,7 @@ Si vous ne voulez pas utiliser les fonctionnalités sortantes de **Flask-Jeroboa
 .. literalinclude:: /../docs_src/features/outbound.py
   :linenos:
   :language: python
-  :lines: 7,8-13,49-53,59-
+  :lines: 7,8-13,49-53
   :emphasize-lines: 8
 
 L'endpoint fonctionne toujours.

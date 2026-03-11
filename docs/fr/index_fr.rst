@@ -18,9 +18,9 @@ la génération automatique de la documentation conforme à OpenAPI.
 C'est parfait pour les développeurs qui adorent l'approche type-safe de FastAPI mais doivent travailler avec des applications Flask existantes
 ou préfèrent la maturité et l'écosystème étendu de Flask.
 
-Commencez par :doc:`l'installation <installation_fr>`, puis plongez-vous directement dans notre :doc:`Guide de démarrage </getting_started_fr>`. Ensuite, la
-:doc:`Visite détaillée des fonctionnalités </features/index_fr>` approfondit comment utiliser l'extension, tandis que le
-:doc:`Tutoriel </tutorial/index_fr>` vous guide à travers un exemple complet. Enfin, la section :doc:`API </api/index_fr>` vous donne les détails sur les internals de l'extension.
+Commencez par :doc:`l'installation <installation_fr>`, puis plongez-vous directement dans notre :doc:`Guide de démarrage <getting_started_fr>`. Ensuite, la
+:doc:`Visite détaillée des fonctionnalités <features/index_fr>` approfondit comment utiliser l'extension, tandis que le
+:doc:`Tutoriel <tutorial/index_fr>` vous guide à travers un exemple complet. Enfin, la section :doc:`API <api/index_fr>` vous donne les détails sur les internals de l'extension.
 
 .. note::
    Cette documentation suppose une certaine familiarité avec `Flask`_ et `Pydantic`_. Si vous êtes nouveau dans l'un ou l'autre, veuillez consulter leur documentation respective.
