@@ -20,9 +20,9 @@ Let's start with creating the application object.
     :linenos:
     :language: python
     :lines: 5-10,33-
-    :emphasize-lines: 1,4
+    :emphasize-lines: 1,3
 
-Notice the highlighted import and initialization. The app creation is straightforward—the **Jeroboam** class subclasses Flask's `Flask <https://flask.palletsprojects.com/en/2.2.x/api/#application-object>`_ application object, so you can use it as a drop-in replacement.
+Notice the highlighted import and app creation. The app creation is straightforward—the **Jeroboam** class subclasses Flask's `Flask <https://flask.palletsprojects.com/en/2.2.x/api/#application-object>`_ application object, so you can use it as a drop-in replacement.
 
 .. literalinclude:: ../docs_src/getting_started_00.py
     :linenos:
