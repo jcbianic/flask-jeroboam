@@ -48,6 +48,7 @@ Ce guide vous montrera comment utiliser Flask-Jeroboam.
    tutorial/index_fr
    guides/index_fr
    concepts/index_fr
+   ../alternatives_fr
 
 Référence API
 -------------
@@ -70,5 +71,5 @@ Notes supplémentaires
 
    contributing_fr
    codeofconduct_fr
-   license
-   changes
+   license_fr
+   changes_fr

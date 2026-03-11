@@ -48,6 +48,7 @@ This guide will walk you through how to use Flask-Jeroboam.
    tutorial/index
    guides/index
    concepts/index
+   alternatives
 
 API Reference
 -------------
