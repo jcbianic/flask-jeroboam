@@ -59,7 +59,7 @@ Look at the highlighted endpoints below—the first uses ``GET`` (implicit ``QUE
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-21,37-41
+  :lines: 8,11-21,36-43
   :emphasize-lines: 1,4
 
 You can test them with curl. The highlighted ``GET`` endpoint expects a query string parameter:
@@ -83,7 +83,7 @@ In addition to this verb-based mechanism, **Flask-Jeroboam** automatically detec
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,47-51
+  :lines: 8,11-16,46-53
   :emphasize-lines: 1,2
 
 Test it:
@@ -98,7 +98,7 @@ This also works with other HTTP verbs. Notice the highlighted ``POST`` endpoint 
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,11-16,52-56
+  :lines: 8,11-16,51-58
   :emphasize-lines: 8,9
 
 .. code-block:: bash
@@ -121,7 +121,7 @@ Notice the highlighted sections below—the implicit ``GET`` endpoint uses a pla
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,17-26
+  :lines: 8,10,11-16,17-28
   :emphasize-lines: 2,10,15
 
 The same equivalence applies to ``POST`` and ``PUT`` requests. Look at the highlighted examples below—implicit and explicit locations produce the same behavior:
@@ -129,7 +129,7 @@ The same equivalence applies to ``POST`` and ``PUT`` requests. Look at the highl
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 6,8,11-16,37-46
+  :lines: 6,8,11-16,36-48
   :emphasize-lines: 1,10,15
 
 Test both approaches:
@@ -151,7 +151,7 @@ You can also mix implicit and explicit locations. Look at the highlighted code b
 .. literalinclude:: /../docs_src/features/inbound.py
   :linenos:
   :language: python
-  :lines: 7,8,10,11-16,27-36
+  :lines: 7,8,10,11-16,27-38
   :emphasize-lines: 1,11,16
 
 Test both:
