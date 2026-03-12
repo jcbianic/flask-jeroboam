@@ -84,10 +84,12 @@ tests = ["tests", "*/tests"]
 branch = true
 relative_files = true
 source = ["flask_jeroboam"]
+omit = ["flask_jeroboam/_version.py"]
 
 [tool.coverage.report]
 fail_under = 100
 show_missing = true
+exclude_lines = ["pragma: no cover"]
 
 [tool.ruff]
 target-version = "py310"
