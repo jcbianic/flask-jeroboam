@@ -1,6 +1,6 @@
 [project]
 name = "flask-jeroboam"
-version = "0.2.0"
+dynamic = ["version"]
 authors = [
   { name="Jean-Christophe Bianic", email="jc.bianic@gmail.com" },
 ]
@@ -123,4 +123,10 @@ disable_error_code = ["union-attr", "index", "operator"]
 
 [build-system]
 build-backend = "hatchling.build"
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "flask_jeroboam/_version.py"

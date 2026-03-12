@@ -7,6 +7,7 @@
 /dist/
 /docs/_build/
 /flask_jeroboam/*.egg-info/
+/flask_jeroboam/_version.py
 __pycache__/
 .vscode
 .venv
