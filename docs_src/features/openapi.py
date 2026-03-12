@@ -26,7 +26,7 @@ blueprint = Blueprint("tasks", __name__, tags=["tasks"])
 
 
 @blueprint.get("/tasks", response_model=list[TaskOut])
-def get_tasks(page: int = 1, per_page: int = Path(10), search: str | None = None):
+def get_tasks(page: int = 1, per_page: int = 10, search: str | None = None):
     return [{"id": 1, "name": "Task 1"}, {"id": 2, "name": "Task 2"}]
 
 

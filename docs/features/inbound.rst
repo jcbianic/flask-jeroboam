@@ -23,13 +23,13 @@ There are seven possible locations for view functions arguments.
 - Four parameters:
 
   * ``PATH``: Path parameters are the dynamic parts of an URL found before any ``?`` separator (e.g. ``/items/12``). They are typically used to pass ids. Flask already injects them into your view function.
-  * ``QUERY``: Query Strings are equal-sign-separated key-value pairs found in the part of an URL after the ``?`` separator (e.g. ``?page=1``). They serve a variety of purposes. We retrived them from Flask's ``request.args``
-  * ``HEADER``: Header parameters are fields destined to pass additional context or metadata about the request to the server. They are colon-separated key-value pair like this ``X-My-Header: 42``. We retrived them ffrom Flask's ``request.headers``
-  * ``COOKIE``: Cookies are stored on the client side to keep track of a state in a stateless protocol. They look like this ``Cookie: username=john``, and we retrived them from Flask's ``request.cookies``
+  * ``QUERY``: Query Strings are equal-sign-separated key-value pairs found in the part of an URL after the ``?`` separator (e.g. ``?page=1``). They serve a variety of purposes. We retrieve them from Flask's ``request.args``
+  * ``HEADER``: Header parameters are fields destined to pass additional context or metadata about the request to the server. They are colon-separated key-value pair like this ``X-My-Header: 42``. We retrieve them from Flask's ``request.headers``
+  * ``COOKIE``: Cookies are stored on the client side to keep track of a state in a stateless protocol. They look like this ``Cookie: username=john``, and we retrieve them from Flask's ``request.cookies``
 
 - Three variations of the request body:
 
-  * ``BODY``: The request body of an HTTP request is the optional content of the request. Request fetching resources [#3]_ usually don't have one. The request body has a content-type property (like: ``application/json``) that gives the server indication on how to parse them. We retrieve the reuqest body from Flask's ``request.data`` (or ``request.json`` when its mimetype is ``application/json``).
+  * ``BODY``: The request body of an HTTP request is the optional content of the request. Request fetching resources [#3]_ usually don't have one. The request body has a content-type property (like: ``application/json``) that gives the server indication on how to parse them. We retrieve the request body from Flask's ``request.data`` (or ``request.json`` when its mimetype is ``application/json``).
   * ``FORM``: A Request Body with a content-type value of ``application/x-www-form-urlencoded``. We retrieved data from Flask's ``request.form``
   * ``FILE``: Request Body with a enctype of ``multipart/form-data`` and We retrieved data from Flask's ``request.files``
 
@@ -43,26 +43,26 @@ Most of the time, you won't have to explicitly define your arguments' location, 
 Implicit Location
 *****************
 
-We can boiled down **Flask-Jeroboam**'s heuristic to determine the location of an argument to a few simple rules:
+We can boil down **Flask-Jeroboam**'s heuristic to determine the location of an argument to a few simple rules:
 
 - the argument's name will be checked against the the path parameters' names from the endpoint's rule
-- arguments of ressource fetching verbs are assumed to be ``QUERY`` parameters
-- arguments of ressource creation verbs are assumed to be ``BODY`` parameters
+- arguments of resource fetching verbs are assumed to be ``QUERY`` parameters
+- arguments of resource creation verbs are assumed to be ``BODY`` parameters
 
 .. warning::
-  This is slighly different from **FastAPI**'s heuristic, where singular values are assumed to be ``QUERY`` parameters no matter the verb, and pydantic Models are assumed to be ``BODY`` parameters.
+  This is slightly different from **FastAPI**'s heuristic, where singular values are assumed to be ``QUERY`` parameters no matter the verb, and pydantic Models are assumed to be ``BODY`` parameters.
 
-Apart from Path parameters, **Flask-Jeroboam** derives the implicit location of an argument from the HTTP verb of your view function, based on the assumption that for a ``GET`` request, the client typically pass parameters through the query string and that for ``PUT`` and ``POST`` requests the client will mainly use the request body.
+Apart from Path parameters, **Flask-Jeroboam** derives the implicit location of an argument from the HTTP verb of your view function, based on the assumption that for a ``GET`` request, the client typically passes parameters through the query string and that for ``PUT`` and ``POST`` requests the client will mainly use the request body.
 
-So if you look at these view functions on line 9 and 14, without any explicit location definition, **Flask-Jeroboam** will assume a ``QUERY`` location for the ``GET`` endpoint and ``BODY`` for the ``POST`` endpoint.
+Look at the highlighted endpoints below—the first uses ``GET`` (implicit ``QUERY`` location) and the second uses ``POST`` (implicit ``BODY`` location):
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/01_implicit_location.py
   :linenos:
   :language: python
-  :lines: 8,11-16,17-21,37-41,93-
-  :emphasize-lines: 9,14
+  :lines: 9-11,14-16
+  :emphasize-lines: 1,4
 
-If you run the above file, you can test it out. The ``/implicit_location_is_query_string`` endpoint will expect a page parameter in the query string.
+You can test them with curl. The highlighted ``GET`` endpoint expects a query string parameter:
 
 .. code-block:: bash
 
@@ -78,28 +78,28 @@ while the ``/implicit_location_is_body`` endpoint will expect a page field in th
 
 Although the two view functions received the same parameter values, notice that we build our request differently by hosting the parameters in two different locations.
 
-In addition to this verb-based mechanism, **Flask-Jeroboam** will automatically detect Path parameters. In the following example, **Flask-Jeroboam** will be recognized the argument ``id`` as a Path Parameter. Indeed, it is first declared on line 8 with the ``<int:id>`` part of the rule, so when **Flask-Jeroboam** comes across an argument in the decorated function with the same name but without any explicit location definition, it will safely assume that this is a Path Parameter.
+In addition to this verb-based mechanism, **Flask-Jeroboam** automatically detects Path parameters. Notice the highlighted route and function below—the ``<int:id>`` in the URL rule and the ``id`` parameter in the function signature match automatically.
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/02_path_parameters.py
   :linenos:
   :language: python
-  :lines: 8,11-16,47-51,93-
-  :emphasize-lines: 8,9
+  :lines: 9-11
+  :emphasize-lines: 1,2
 
-You can test it out:
+Test it:
 
 .. code-block:: bash
 
   $ curl 'localhost:5000/item/42/implicit'
   Received id Argument is : 42
 
-It also works with other HTTP verbs and overrides the verb-based location. **Flask-Jeroboam** will also recognized the argument ``id`` as a Path Parameter in the following example.
+This also works with other HTTP verbs. Notice the highlighted ``POST`` endpoint below—it has the same path parameter handling despite using a different HTTP verb:
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/02_path_parameters.py
   :linenos:
   :language: python
-  :lines: 8,11-16,52-56,93-
-  :emphasize-lines: 8,9
+  :lines: 14-16
+  :emphasize-lines: 1,2
 
 .. code-block:: bash
 
@@ -116,23 +116,23 @@ Explicit Locations
 
 To define explicit locations, you must use one of **Flask-Jeroboam**'s special functions (``Path``, ``Query``, ``Cookie``, ``Header``, ``Body``, ``Form`` or ``File``) to assign default values to your arguments.
 
-For example, these two endpoints will behave the same way, line 10 (implicit) and 15 (explicit) are equivalent:
+Notice the highlighted sections below—the implicit ``GET`` endpoint uses a plain parameter, while the explicit version uses ``Query()``. Both behave identically:
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/03_explicit_locations.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,17-26,93-
-  :emphasize-lines: 2,10,15
+  :lines: 9-17
+  :emphasize-lines: 1,6
 
-And same goes for ``POST`` (or ``PUT``) view functions. Line 10 and 15 are equivalent.
+The same equivalence applies to ``POST`` and ``PUT`` requests. Look at the highlighted examples below—implicit and explicit locations produce the same behavior:
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/03_explicit_locations.py
   :linenos:
   :language: python
-  :lines: 6,8,11-16,37-46,93-
-  :emphasize-lines: 1,10,15
+  :lines: 19-26
+  :emphasize-lines: 1,5
 
-Let's test it out.
+Test both approaches:
 
 .. code-block:: bash
   :linenos:
@@ -146,15 +146,15 @@ Let's test it out.
   $ curl -X POST 'localhost:5000/explicit_location_is_body' -d '{"page": 42}' -H "Content-Type: application/json"
   Received Page Argument is : 42
 
-You can also point to another location than the default one, and define different locations for each argument and mix implicit locations with explicit locations. In the following example, we define an explicit ``Cookie`` location for the argument ``username``. On line 11, it shares the signature with another explicitly-query-located page argument, but on line 16 we define a similar view function in which page is implicitly located.
+You can also mix implicit and explicit locations. Look at the highlighted code below—the first endpoint uses explicit ``Query()`` and ``Cookie()``, while the second uses implicit locations:
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/04_mixed_locations.py
   :linenos:
   :language: python
-  :lines: 7,8,10,11-16,27-36,93-
-  :emphasize-lines: 1,11,16
+  :lines: 9-16
+  :emphasize-lines: 1,5
 
-Let's test it out.
+Test both:
 
 .. code-block:: bash
   :linenos:
@@ -177,22 +177,23 @@ Don't take my word for it, let's try it out on the previously defined ``/implici
 .. code-block:: bash
 
   $ curl -w 'Status Code: %{http_code}\n' 'localhost:5000/implicit_location_is_query_string'
-  {"detail":[{"loc":["query","page"],"msg":"field required","type":"value_error.missing"}]}
+  {"detail":[{"loc":["query","page"],"msg":"Field required","type":"missing"}]}
   Status Code: 400
 
-We received a 400 Bad Request response because we did not provide the required parameter page in our query string. What if we want to define our default value for the page parameter to 1 ? They are two ways to go about it:
+We received a 400 Bad Request response because we did not provide the required parameter page in our query string. What if we want to set a default value of 1 for the page parameter? There are two ways:
 
--  If you go with the implicit location, you can define a default value as you normally would, as shown on line 10.
--  If you use an explicit definition, you must pass the default value as the first argument of your function call, like in line 15.
+-  With implicit location, define the default value normally in the function signature (e.g., ``page: int = 1``).
+-  With explicit location, pass the default value as the first argument to the location function (e.g., ``page: int = Query(1)``).
 
+Look at the highlighted examples below:
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/05_default_values.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,62-71,93-
-  :emphasize-lines: 10,15
+  :lines: 9-15
+  :emphasize-lines: 1,6
 
-Let's test it out.
+Test both approaches:
 
 .. code-block:: bash
   :linenos:
@@ -206,7 +207,7 @@ Let's test it out.
   $ curl 'localhost:5000/explicit_location_with_default_value?page=42'
   Received Page Argument is : 42
 
-The default value is correctly inserted when you don't provide the parameter in the query string for either endpoint. The server returns a valid response meaning the page parameter is no longer required. We also check that the parsing-validation-injection mechanism is still working on lines 3 and 7.
+The default value is correctly inserted when you don't provide the parameter in the query string for either endpoint. The server returns a valid response, meaning the page parameter is no longer required. Both test cases show that the parsing-validation-injection mechanism is working correctly.
 
 The special functions also provide a way to define additional validation options, but first, let's take a closer look at defining the second part of our inbound arguments: the type.
 
@@ -217,23 +218,23 @@ The type refers to the shape or schema of the data you expect. You can assign a 
 
 In addition to using type hints, you can also use the first argument of special functions like ``Query``.
 
-Let's look at an example. First, on lines 12 to 14, we define the ``Item`` class inheriting from pydantic's ``BaseModel``.
+Look at the highlighted ``Item`` model definition below:
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/06_type_patterns.py
   :linenos:
   :language: python
-  :lines: 2,3,4,8,10,11-16,72-87,93-
-  :emphasize-lines: 3, 12-14
+  :lines: 1-5,11-13
+  :emphasize-lines: 1,3,6-8
 
-Then on line 18, we demonstrate the full extent of how to define types of arguments. We define the ``page``, ``search`` and ``item`` arguments' types with a type hint. For the ``price`` argument type, on the other hand, we pass ``float`` as the first argument of the ``Query`` function call assigned as a default value. ``page`` and ``price`` are built-in python types, ``int`` and ``float`` respectively. ``search`` is a list of strings and ``item`` is a pydantic ``BaseModel``.
+Now see how this model is used. The highlighted function definition below shows different type patterns:
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/06_type_patterns.py
   :linenos:
   :language: python
-  :lines: 2,3,4,8,10,11-16,72-87,93-
-  :emphasize-lines: 18
+  :lines: 1-5,16-24
+  :emphasize-lines: 1,3,7-14
 
-Let's test it out.
+Test it:
 
 .. code-block:: bash
 
@@ -246,7 +247,7 @@ Let's test it out.
 
 You'll notice we didn't attempt to pass a dictionary to an ``item`` field to the query string. Instead, we passed two arguments, ``name`` and ``count``, corresponding to the inner fields of Item. Query Strings are usually not a good way to pass nested data structures. If you need to pass a complex data structure, use a different location like a JSON body or a form.
 
-With request bodies, you can choose between embeded or flat arguments.
+With request bodies, you can choose between embedded or flat arguments.
 
 .. note::
   Type hints are not initially supposed to provide run-time functionality. But this principle was spearheaded by pydantic and later picked up by FastAPI. So we are in good company.
@@ -258,20 +259,20 @@ View function arguments are essentially pydantic model fields, meaning that when
 
 For number types for instance, you can add ``ge`` (meaning greater or equal to) or ``lt`` (less than) values to define validation conditions on your parameters.
 
-Let's see a simple example in which we want to make sure that the ``page`` argument is greater or equal to 1 (``Query(ge=1)``)
+Look at the highlighted example below—notice the ``ge=1`` constraint:
 
-.. literalinclude:: /../docs_src/features/inbound.py
+.. literalinclude:: /../docs_src/features/inbound_examples/07_validation_options.py
   :linenos:
   :language: python
-  :lines: 8,10,11-16,88-92,93-
-  :emphasize-lines: 10
+  :lines: 9-10
+  :emphasize-lines: 2
 
-Let's see what happens when we pass a page value of 0. Note that 0 is a valid int, but it is not greater or equal to 1.
+See what happens when we pass an invalid value (0 is a valid int, but violates the ``ge=1`` constraint):
 
 .. code-block:: bash
 
   $ curl -w 'Status Code: %{http_code}\n' 'localhost:5000/argument_with_validation?page=0'
-  {"detail":[{"ctx":{"limit_value":1},"loc":["query","page"],"msg":"ensure this value is greater than or equal to 1","type":"value_error.number.not_ge"}]}
+  {"detail":[{"ctx":{"ge":1},"loc":["query","page"],"msg":"greater than or equal to 1","type":"greater_than_equal"}]}
   Status Code: 400
 
 The server returns a 400 status code with a body giving you direction about the error: it didn't pass the ``ge=1`` validation.

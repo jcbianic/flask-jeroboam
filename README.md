@@ -5,6 +5,7 @@
         alt="jeroboam-logo">
     </img>
 </div>
+
 <h1 align="center">Flask-Jeroboam</h1>
 
 <p align="center">
@@ -13,7 +14,7 @@
 
 <div align="center">
 
-<i>Flask-Jeroboam is a Flask extension modelled after FastAPI. It uses Pydantic to provide easy-to-configure data validation in request parsing and response serialization.</i>
+<i>Use FastAPI's elegant parameter syntax in your Flask applications.</i>
 
 [![PyPI](https://img.shields.io/pypi/v/flask-jeroboam.svg)][pypi_]
 [![Python Version](https://img.shields.io/pypi/pyversions/flask-jeroboam)][python version]
@@ -43,163 +44,110 @@
 
 **Documentation**: [https://flask-jeroboam.readthedocs.io/](https://flask-jeroboam.readthedocs.io/)
 
-**Documentation (Français)**: [docs/fr/](docs/fr/)
-
 **Source Code**: [https://github.com/jcbianic/flask-jeroboam](https://github.com/jcbianic/flask-jeroboam)
 
 ---
 
-Flask-Jeroboam is a thin layer on top of Flask to make request parsing, response serialization and auto-documentation as smooth and easy as in FastAPI.
+## What is Flask-Jeroboam?
+
+Flask-Jeroboam brings FastAPI's approach to Flask. If you like how FastAPI handles request parsing, response validation, and automatic docs—but you need Flask instead—this is for you.
+
+It inspects your endpoint function signatures and handles validation, serialization, and OpenAPI docs automatically. It's just a thin layer connecting Flask to Pydantic the way FastAPI does.
+
+## Why Flask-Jeroboam?
+
+**You have existing Flask code** — Refactoring to FastAPI isn't an option. Jeroboam is a drop-in extension.
+
+**You rely on Flask's ecosystem** — Flask-SQLAlchemy, Flask-Login, Flask-Admin, and dozens of other extensions just work. FastAPI doesn't integrate with them.
+
+**You serve both HTML and APIs** — Some apps need to render templates alongside JSON endpoints. Flask handles both naturally.
+
+**You prefer WSGI** — Whether for infrastructure reasons or team preference, WSGI is your deployment model.
+
+**You want FastAPI's development experience** — Type-safe endpoints with automatic documentation, without switching frameworks.
 
 ## Key Features
 
-- **Automatic Request Parsing**: Parse and validate request data using typed annotations of endpoint arguments
-- **Response Serialization**: Effortlessly serialize responses with Pydantic models
-- **OpenAPI Auto-Documentation**: Generate interactive API documentation automatically
-- **Type Safety**: Leverage Python type hints for robust, self-documenting code
-- **Flask Compatible**: Drop-in replacement for Flask applications with full backward compatibility
+- **Per-Parameter Validation** — Type hints on endpoint arguments automatically validate and parse request data
+- **Response Validation** — Define response models; Jeroboam validates outgoing data matches the schema
+- **Automatic OpenAPI Docs** — Interactive API documentation generated automatically
+- **Type Safety** — Use Python type hints to make code clearer and catch bugs earlier
+- **Drop-In Compatible** — Works with existing Flask applications and extensions
 
-## Installation
-
-You can install _flask-jeroboam_ via [pip] or any other tool wired to [PyPI]:
+## Quick Install
 
 ```console
 $ pip install flask-jeroboam
 ```
 
-## Quick Start
+Full setup guide with dependency management: [Installation](https://flask-jeroboam.readthedocs.io/en/latest/installation.html)
 
-### A toy example
-
-_Flask-Jeroboam_ subclasses both Flask and Blueprint classes. This means that the **Jeroboam** and **Blueprint** will behave exactly like their Flask counterparts unless you activate their specific behaviours.
-
-```python
-from flask_jeroboam import Jeroboam
-
-app = Jeroboam()
-
-@app.get("/ping")
-def ping():
-    return "pong"
-
-if __name__ == "__main__":
-    app.run()
-```
-
-This toy example would work exactly like a regular Flask app. If you run this file, then hitting the endpoint with `curl localhost:5000/ping` would return the text response `pong`.
-
-Let's try a more significant and relevant example and build a simplified endpoint to retrieve a list of wines. We are wine-themed, after all.
-
-### Searching for wines
-
-Let's consider an endpoint that provides search capability onto a wine repository. It parses and validates three arguments from the query string and feeds them into a CRUD function `get_wines` that return a list of wines as dictionnaries.
-Additionally, this endpoint only needs to return the name of the cuvee and the appellation, and discard any other informations. Let's take a look at what it might look like:
+## A Taste
 
 ```python
 from flask_jeroboam import Jeroboam, InboundModel, OutboundModel
-from pydantic.fields import Field
-from typing import List, Optional
-from docs_src.readme.crud import get_wines
+from typing import Optional
 
 app = Jeroboam(__name__)
 
-
-class GenericPagination(InboundModel):
-    page: int = Field(1, ge=1)
-    per_page: int = Field(10, ge=1, le=100)
-
-    @property
-    def offset(self) -> int:
-        return (self.page - 1) * self.per_page
-
+class WineQuery(InboundModel):
+    page: int = 1
+    search: Optional[str] = None
 
 class WineOut(OutboundModel):
-    cuvee: str
+    name: str
     appellation: str
 
-
-@app.get("/wines", response_model=List[WineOut])
-def read_wine_list(pagination: GenericPagination, search: Optional[str]):
-    wines = get_wines(pagination, search)
-    return wines
-
-
-if __name__ == "__main__":
-    app.run()
+@app.get("/wines", response_model=list[WineOut])
+def list_wines(query: WineQuery):
+    return get_wines(query.page, query.search)
 ```
 
-Once you've started your server, then hitting the endpoint with `curl "localhost:5000/wines?page=1&perPage=2&search=Champagne"` would return:
+Query params are parsed and validated from the type hints. The response is filtered and serialized against `WineOut`. Hit `/docs` for the interactive OpenAPI interface.
 
-```json
-[
-  {
-    "cuvee": "Brut - Blanc de Blancs",
-    "appellation": "Champagne"
-  },
-  {
-    "cuvee": "Grande Cuvée - 170ème Edition",
-    "appellation": "Champagne"
-  }
-]
-```
+## Next Steps
 
-All examples in the documentation can be found in `docs_src/X` folder and should run as is. Their corresponding tests can be found in `tests/test_docs/X`.
+**New to Jeroboam?** Start with the [Getting Started](https://flask-jeroboam.readthedocs.io/en/latest/getting_started.html) guide.
 
-See the documentation on more advanced usage: [https://flask-jeroboam.readthedocs.io/](https://flask-jeroboam.readthedocs.io/)
+**Ready to build?** Follow the [Tutorial](https://flask-jeroboam.readthedocs.io/en/latest/tutorial/index.html) for a complete example.
 
-## Why Flask-Jeroboam?
+**Need specifics?** Check the [How-to Guides](https://flask-jeroboam.readthedocs.io/en/latest/guides/index.html) for common tasks.
 
-I just wanted to use **FastAPI's way** of defining view arguments and response models without leaving Flask.
+**Want deeper understanding?** Read the [Concepts](https://flask-jeroboam.readthedocs.io/en/latest/concepts/index.html) section.
 
-## A word on performance
+## How Does It Compare?
 
-One thing **Flask-Jeroboam** won't give you is performance improvement. Underneath Flask, werkzeug still handles the heavy lifting of a wsgi, so transitioning to **Flask-Jeroboam** won't speed up your app. Please remember that FastAPI's performance comes from Starlette, not FastAPI itself.
+Flask-Jeroboam sits at a specific point in the landscape—closer to FastAPI than to flask-openapi3 or flask-restx, but firmly in the Flask ecosystem.
 
-## Intended audience
+| Aspect                | Jeroboam      | flask-openapi3        | FastAPI                 |
+| --------------------- | ------------- | --------------------- | ----------------------- |
+| Per-parameter hints   | ✅            | ❌ (groups in models) | ✅                      |
+| Response validation   | ✅ by default | ⚠️ opt-in             | ✅ by default           |
+| Pydantic v2           | ✅            | ✅                    | ✅                      |
+| Decorator composition | ✅            | ❌                    | ✅                      |
+| Flask compatible      | ✅            | ✅                    | ❌ (separate framework) |
+| Async/await           | ❌ (WSGI)     | ❌ (WSGI)             | ✅ (ASGI)               |
 
-The intended audience of **Flask-Jeroboam** is Flask developers who find FastAPI very convincing but also have excellent reasons to stick to Flask.
+See the full [Comparison Guide](https://flask-jeroboam.readthedocs.io/en/latest/alternatives.html) for in-depth analysis.
 
-## About the name of the project
+## About the Name
 
-A **Jeroboam** is a large bottle, or flask, containing 5 litres of wine[^1], instead of 0,75. Winemakers use this format for fine wines destined for ageing because it provides better ageing conditions. First, the ratio between the volume of wine it contains and the surface of exchange between the wine and the air is more favourable and slows down the oxidation reaction. These larger containers also take longer to cool down or warm up, leading to less thermal violence to the wine during conservation.
+A Jeroboam is a large wine bottle (5 litres in Bordeaux, 3 litres elsewhere) designed for fine wines that age well. The larger surface-area-to-volume ratio slows oxidation. Temperature stays more stable. They're built to last without degrading your wine.
 
-In other words, they are more durable flasks for fine wines. The intention is to hold this promise for APIs.
-
-The wine-themed name is a tribute to the Bordeaux-based wine tech startup where the development of this package started.
-
-[^1]: Outside of the Bordeaux region Jeroboam bottle contain 3 litres, like in Burgundy or Champagne.
+The project aims for the same durability: an API that stays solid and reliable as it ages.
 
 ## License
 
-Distributed under the terms of the [MIT license][license], **Flask-Jeroboam** is free and open-source software.
+Distributed under the [MIT License][license]. Flask-Jeroboam is free and open source.
 
 ## Issues
 
-If you encounter any problems, please [file an issue] following available templates. Templates are available for feature requests, bug reports, documentation updates and implementation betterments.
+Found a bug or want to suggest a feature? Please [file an issue](https://github.com/jcbianic/flask-jeroboam/issues) using the available templates.
 
 ## Credits
 
-The main inspiration for this project comes from [@tiangolo]'s [FastAPI].
-Starting from v0.1.0 it also includes forked code from [FastAPI].
-Appropriate credits are added to the module or functions docstrings.
+Inspired by [@tiangolo](https://github.com/tiangolo)'s [FastAPI](https://fastapi.tiangolo.com/).
 
-[Flask] and [pydantic] are the two direct dependencies and do most of the work.
-
-I used [@cjolowicz]'s [Hypermodern Python Cookiecutter] template to generate this project.
-
-[@cjolowicz]: https://github.com/cjolowicz
-[@tiangolo]: https://github.com/tiangolo
-[fastapi]: https://fastapi.tiangolo.com/
-[starlette]: https://www.starlette.io/
-[flask]: https://flask.palletsprojects.com/
-[pydantic]: https://pydantic-docs.helpmanual.io/
-[pypi]: https://pypi.org/
-[hypermodern python cookiecutter]: https://github.com/cjolowicz/cookiecutter-hypermodern-python
-[file an issue]: https://github.com/jcbianic/flask-jeroboam/issues
-[pip]: https://pip.pypa.io/
-
-<!-- github-only -->
+Built on [Flask](https://flask.palletsprojects.com/) and [Pydantic](https://docs.pydantic.dev/)—both excellent projects.
 
 [license]: https://github.com/jcbianic/flask-jeroboam/blob/main/LICENSE
-[contributor guide]: https://github.com/jcbianic/flask-jeroboam/blob/main/CONTRIBUTING.md
-[command-line reference]: https://flask-jeroboam.readthedocs.io/en/latest/usage.html
