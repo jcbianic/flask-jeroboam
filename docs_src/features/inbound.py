@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel
 
-from flask_jeroboam import Jeroboam, Body, Cookie, Path, Query
+from flask_jeroboam import Body, Cookie, Jeroboam, Path, Query
 
 app = Jeroboam("Jeroboam Inbound Features App")
 app.init_app()

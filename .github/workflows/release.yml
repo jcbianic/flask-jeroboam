@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
 
 jobs:
   release:
@@ -13,12 +13,11 @@ jobs:
     permissions:
       id-token: write
       contents: write
-      actions: write
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -28,49 +27,20 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Check if there is a parent commit
-        id: check-parent-commit
-        run: |
-          echo "sha=$(git rev-parse --verify --quiet HEAD^)" >> $GITHUB_OUTPUT
-
-      - name: Detect and tag new version
-        id: check-version
-        if: ${{ steps.check-parent-commit.outputs.sha }}
-        uses: salsify/action-detect-and-tag-new-version@v2.0.3
-        with:
-          version-command: |
-            python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])"
-
-      - name: Bump version for developmental release
-        if: "! steps.check-version.outputs.tag"
-        run: |
-          version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-          IFS='.' read -r major minor patch <<< "$version"
-          dev_version="${major}.${minor}.$((patch + 1)).dev.$(date +%s)"
-          sed -i "s/^version = \"${version}\"/version = \"${dev_version}\"/" pyproject.toml
-
       - name: Build package
         run: |
           uv build
 
       - name: Publish package on PyPI
-        if: steps.check-version.outputs.tag
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
 
-      - name: Publish package on TestPyPI
-        if: "! steps.check-version.outputs.tag"
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository_url: https://test.pypi.org/legacy/
-          verify-metadata: false
-
       - name: Publish the release notes
         uses: release-drafter/release-drafter@v6
         with:
-          publish: ${{ steps.check-version.outputs.tag != '' }}
-          tag: ${{ steps.check-version.outputs.tag }}
+          publish: true
+          tag: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

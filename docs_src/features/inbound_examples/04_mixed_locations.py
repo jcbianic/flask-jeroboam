@@ -1,6 +1,6 @@
 """Mixing implicit and explicit locations."""
 
-from flask_jeroboam import Jeroboam, Cookie, Query
+from flask_jeroboam import Cookie, Jeroboam, Query
 
 app = Jeroboam("Jeroboam Inbound Features App")
 app.init_app()

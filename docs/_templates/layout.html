@@ -1,29 +1,24 @@
-{% extends "!layout.html" %}
-
-{# Replace bottom navigation bar with styled prev/next cards. #}
-{% block relbar2 %}
-  {%- if prev or next %}
-  <div class="related bottom" role="navigation" aria-label="Page navigation">
-    <ul>
-      {%- if prev %}
-      <li class="nav-prev">
-        <a href="{{ prev.link|e }}" rel="prev" accesskey="p">
-          <span class="nav-direction">&#171; Previous</span>
-          <span class="nav-title">{{ prev.title }}</span>
-        </a>
-      </li>
-      {%- else %}
-      <li class="nav-prev"></li>
-      {%- endif %}
-      {%- if next %}
-      <li class="nav-next">
-        <a href="{{ next.link|e }}" rel="next" accesskey="n">
-          <span class="nav-direction">Next &#187;</span>
-          <span class="nav-title">{{ next.title }}</span>
-        </a>
-      </li>
-      {%- endif %}
-    </ul>
-  </div>
-  {%- endif %}
-{% endblock %}
+{% extends "!layout.html" %} {# Replace bottom navigation bar with styled
+prev/next cards. #} {% block relbar2 %} {%- if prev or next %}
+<div class="related bottom" role="navigation" aria-label="Page navigation">
+  <ul>
+    {%- if prev %}
+    <li class="nav-prev">
+      <a href="{{ prev.link|e }}" rel="prev" accesskey="p">
+        <span class="nav-direction">&#171; Previous</span>
+        <span class="nav-title">{{ prev.title }}</span>
+      </a>
+    </li>
+    {%- else %}
+    <li class="nav-prev"></li>
+    {%- endif %} {%- if next %}
+    <li class="nav-next">
+      <a href="{{ next.link|e }}" rel="next" accesskey="n">
+        <span class="nav-direction">Next &#187;</span>
+        <span class="nav-title">{{ next.title }}</span>
+      </a>
+    </li>
+    {%- endif %}
+  </ul>
+</div>
+{%- endif %} {% endblock %}
