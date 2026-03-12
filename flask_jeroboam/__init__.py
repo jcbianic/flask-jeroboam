@@ -1,6 +1,6 @@
 try:
     from flask_jeroboam._version import __version__ as __version__
-except ImportError:
+except ImportError:  # pragma: no cover
     __version__ = "0.0.dev0"
 
 from flask_jeroboam.blueprint import Blueprint as Blueprint
