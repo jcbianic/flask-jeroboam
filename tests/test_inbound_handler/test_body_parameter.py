@@ -93,3 +93,19 @@ def test_put_body_with_empty_string_rule(
     response = one_shot_client.put("/wines", json={"payload": 42})
     assert response.status_code == 201
     assert response.json == {"payload": 42}
+
+
+def test_put_multi_body_with_empty_string_rule(
+    one_shot_app: Jeroboam, one_shot_client: FlaskClient
+):
+    """Regression test for #110: multi-arg body (create_model path) with empty string rule."""
+    bp = Blueprint("spirits", __name__, url_prefix="/spirits")
+
+    @bp.put("")
+    def put_empty_rule_multi(qty: int, name: str):
+        return {"qty": qty, "name": name}
+
+    one_shot_app.register_blueprint(bp)
+    response = one_shot_client.put("/spirits", json={"qty": 5, "name": "cognac"})
+    assert response.status_code == 201
+    assert response.json == {"qty": 5, "name": "cognac"}
