@@ -118,25 +118,23 @@ class OutboundHandler:
         if isinstance(initial_return_value, tuple):
             if len(initial_return_value) == 3:
                 return initial_return_value  # type: ignore
-            elif len(initial_return_value) == 2:
+            if len(initial_return_value) == 2:
                 if isinstance(initial_return_value[1], int):
                     return (
                         initial_return_value[0],
                         initial_return_value[1],  # type:ignore
                         {},
                     )
-                else:
-                    return (
-                        initial_return_value[0],
-                        None,
-                        initial_return_value[1],  # type:ignore
-                    )
-            else:
-                raise TypeError(
-                    "The view function did not return a valid response tuple."
-                    " The tuple must have the form (body, status, headers),"
-                    " (body, status), or (body, headers)."
+                return (
+                    initial_return_value[0],
+                    None,
+                    initial_return_value[1],  # type:ignore
                 )
+            raise TypeError(
+                "The view function did not return a valid response tuple."
+                " The tuple must have the form (body, status, headers),"
+                " (body, status), or (body, headers)."
+            )
         return initial_return_value, None, None  # type: ignore
 
     def _solve_response_model(
@@ -267,11 +265,11 @@ class OutboundHandler:
         """
         if isinstance(content, dict):
             return content
-        elif isinstance(content, BaseModel):
+        if isinstance(content, BaseModel):
             return content.model_dump()
-        elif isinstance(content, list):
+        if isinstance(content, list):
             return [self._adapt_datastructure_of(item) for item in content]
-        elif dataclasses.is_dataclass(content) and not isinstance(content, type):
+        if dataclasses.is_dataclass(content) and not isinstance(content, type):
             return dataclasses.asdict(content)
 
         raise ValueError("Content must be a list, a dict, a dataclass, or a BaseModel.")
