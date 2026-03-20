@@ -175,6 +175,19 @@ def xdoctest(session: nox.Session) -> None:
     session.run("python", "-m", "xdoctest", *args)
 
 
+@nox.session(python=python_versions[0])
+def xenon(session: nox.Session) -> None:
+    """Enforce code complexity thresholds with xenon."""
+    session.install("xenon")
+    session.run(
+        "xenon",
+        "--max-absolute", "B",
+        "--max-modules", "B",
+        "--max-average", "A",
+        "flask_jeroboam/",
+    )
+
+
 @nox.session(name="docs-build", python=python_versions[0])
 def docs_build(session: nox.Session) -> None:
     """Build the documentation."""

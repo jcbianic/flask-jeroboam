@@ -116,6 +116,12 @@ jobs:
           - {
               python: "3.13",
               os: "ubuntu-latest",
+              session: "xenon",
+              upload: false,
+            }
+          - {
+              python: "3.13",
+              os: "ubuntu-latest",
               session: "docs-build",
               upload: false,
             }

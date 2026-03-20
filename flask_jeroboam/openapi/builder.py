@@ -16,6 +16,25 @@ if TYPE_CHECKING:  # pragma: no cover
     from flask_jeroboam.view import JeroboamView
 
 
+def _collect_jeroboam_views(
+    app: "Jeroboam", rules: list["JeroboamRule"]
+) -> "list[JeroboamView | None]":
+    """Return the JeroboamView attached to each rule's endpoint, or None."""
+    return [
+        getattr(app.view_functions[rule.endpoint], "__jeroboam_view__", None)
+        for rule in rules
+    ]
+
+
+def _filter_definitions(definitions: dict[str, Any]) -> dict[str, Any]:
+    """Sort and strip synthetic request-body wrapper models from definitions."""
+    return {
+        k: definitions[k]
+        for k in sorted(definitions)
+        if not k.endswith("request_body_as_model")
+    }
+
+
 def build_openapi(
     *,
     app: "Jeroboam",
@@ -47,10 +66,7 @@ def build_openapi(
     operation_ids: set[str] = set()
 
     # Les jerobomas views, probablement à déléguer à l'app
-    jeroboam_views: list[JeroboamView | None] = [
-        getattr(app.view_functions[rule.endpoint], "__jeroboam_view__", None)
-        for rule in rules
-    ]
+    jeroboam_views = _collect_jeroboam_views(app, rules)
 
     # On créer des objects intermédiaires
     flat_models = _get_flat_models_from_jeroboam_views(jeroboam_views, rules)
@@ -72,11 +88,7 @@ def build_openapi(
         _memoized_update_if_value("security_schemes", security_schemes, components)
         definitions.update(path_definitions or {})
 
-    definitions = {
-        k: definitions[k]
-        for k in sorted(definitions)
-        if not k.endswith("request_body_as_model")
-    }
+    definitions = _filter_definitions(definitions)
     # On package le tout.
     return OpenAPI(
         openapi=openapi_version,
