@@ -85,7 +85,6 @@ class JeroboamError(Exception):
     """Base Exception for Flask-Jeroboam."""
 
 
-
 def handle_404(e):
     """Simple Hanlder for 404 errors."""
     return {"message": "Not Found"}, 404
