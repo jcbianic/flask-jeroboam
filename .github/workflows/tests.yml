@@ -20,12 +20,6 @@ jobs:
           - {
               python: "3.13",
               os: "ubuntu-latest",
-              session: "pre-commit",
-              upload: false,
-            }
-          - {
-              python: "3.13",
-              os: "ubuntu-latest",
               session: "mypy",
               upload: false,
             }
