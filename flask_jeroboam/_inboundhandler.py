@@ -30,6 +30,16 @@ T = t.TypeVar("T", bound=t.Any)
 pattern = r"(.*)\[(.+)\]$"
 
 
+def _unpack_body_values(body_value: dict) -> dict:
+    """Unpack a synthetic body model's fields back into individual view kwargs."""
+    values: dict = {}
+    for model in body_value.values():
+        if isinstance(model, BaseModel):  # pragma: no branch
+            for field_name in type(model).model_fields:
+                values[field_name] = getattr(model, field_name)
+    return values
+
+
 class InboundHandler:
     """The InboundHandler handles inbound data of a request.
 
@@ -302,12 +312,7 @@ class InboundHandler:
             body_value, body_errors = body_field.validate_request()
             errors.extend(body_errors)
             if len(self.body_arguments) > 1:
-                # Synthetic model wraps multiple params — unpack fields
-                # back into individual kwargs for the view function.
-                for model in body_value.values():
-                    if isinstance(model, BaseModel):  # pragma: no branch
-                        for field_name in type(model).model_fields:
-                            values[field_name] = getattr(model, field_name)
+                values.update(_unpack_body_values(body_value))
             else:
                 values.update(body_value)
         return values, errors
