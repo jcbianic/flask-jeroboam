@@ -29,8 +29,7 @@ def ping():
 
 @app.get("/wines", response_model=list[WineOut])
 def read_wine_list(pagination: GenericPagination, search: str | None):
-    wines = get_wines(pagination, search)
-    return wines
+    return get_wines(pagination, search)
 
 
 if __name__ == "__main__":

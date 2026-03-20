@@ -4,7 +4,6 @@ Credits: This is a Fork of FastAPI's openapi/utils.py
 """
 
 import warnings
-from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -26,11 +25,13 @@ from flask_jeroboam._utils import (
     _throw_away_falthy_values,
     _unwrap_optional,
 )
-from flask_jeroboam.view_arguments.arguments import BodyArgument, ParameterArgument
 
 if TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Sequence
+
     from flask_jeroboam.rule import JeroboamRule
     from flask_jeroboam.view import JeroboamView
+    from flask_jeroboam.view_arguments.arguments import BodyArgument, ParameterArgument
     from flask_jeroboam.view_arguments.solved import SolvedArgument
 
 
@@ -60,7 +61,7 @@ def _get_openapi_operation_parameters(
     parameters = []
     for param in all_route_params:
         field_info = param.field_info
-        field_info = cast(ParameterArgument, field_info)
+        field_info = cast("ParameterArgument", field_info)
         if getattr(param, "include_in_schema", True) is False:
             continue
         parameter = _throw_away_falthy_values(

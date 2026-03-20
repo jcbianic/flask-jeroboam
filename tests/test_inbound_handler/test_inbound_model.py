@@ -92,7 +92,7 @@ def test_inbound_model_parses_camel_case_directly():
     class Pagination(InboundModel):
         per_page: int = 10
 
-    instance = Pagination(**{"perPage": 25})
+    instance = Pagination(perPage=25)
     assert instance.per_page == 25
 
 
@@ -105,7 +105,7 @@ def test_inbound_model_parses_snake_case_directly():
     class Pagination(InboundModel):
         per_page: int = 10
 
-    instance = Pagination(**{"per_page": 30})
+    instance = Pagination(per_page=30)
     assert instance.per_page == 30
 
 

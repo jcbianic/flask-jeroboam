@@ -131,4 +131,4 @@ def test_query_optionnal_base_model(
     """
     response = client.get("/query/optional_model")
     assert response.status_code == 200
-    assert response.json == OptionalModelIn(**{}).model_dump()
+    assert response.json == OptionalModelIn().model_dump()
