@@ -104,7 +104,7 @@ class InboundHandler:
 
     def body_field(self, name: str | None = None) -> SolvedArgument | None:
         """The Body Arguments are combined into a single Body Field."""
-        if self._body_field is None and self.body_arguments and name:
+        if self._body_field is None and self.body_arguments and name is not None:
             self._body_field = self._build_body_field(name)
         return self._body_field
 

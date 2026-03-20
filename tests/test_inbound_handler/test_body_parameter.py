@@ -1,7 +1,7 @@
 import pytest
 from flask.testing import FlaskClient
 
-from flask_jeroboam import Jeroboam
+from flask_jeroboam import Blueprint, Jeroboam
 from flask_jeroboam.models import InboundModel
 from flask_jeroboam.view_arguments.functions import Body
 
@@ -77,3 +77,35 @@ def test_post_body_list_of_base_model(
         {"item": "bar", "count": 3},
     ]
     assert response.status_code == 201
+
+
+def test_put_body_with_empty_string_rule(
+    one_shot_app: Jeroboam, one_shot_client: FlaskClient
+):
+    """Regression test for #110: body field fails to build when URL rule is empty string."""
+    bp = Blueprint("wines", __name__, url_prefix="/wines")
+
+    @bp.put("")
+    def put_empty_rule(payload: int):
+        return {"payload": payload}
+
+    one_shot_app.register_blueprint(bp)
+    response = one_shot_client.put("/wines", json={"payload": 42})
+    assert response.status_code == 201
+    assert response.json == {"payload": 42}
+
+
+def test_put_multi_body_with_empty_string_rule(
+    one_shot_app: Jeroboam, one_shot_client: FlaskClient
+):
+    """Regression test for #110: multi-arg body (create_model path) with empty string rule."""
+    bp = Blueprint("spirits", __name__, url_prefix="/spirits")
+
+    @bp.put("")
+    def put_empty_rule_multi(qty: int, name: str):
+        return {"qty": qty, "name": name}
+
+    one_shot_app.register_blueprint(bp)
+    response = one_shot_client.put("/spirits", json={"qty": 5, "name": "cognac"})
+    assert response.status_code == 201
+    assert response.json == {"qty": 5, "name": "cognac"}
