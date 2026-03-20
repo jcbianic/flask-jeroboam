@@ -1198,7 +1198,7 @@ def test_paths_item(client: FlaskClient):
     assert response.status_code == 200
     return_shema = response.json
     assert return_shema
-    for path in openapi_schema["paths"].keys():  # type: ignore
+    for path in openapi_schema["paths"]:  # type: ignore
         assert (
             return_shema["paths"][path] == openapi_schema["paths"][path]  # type: ignore
         ), f"{path} don't match"

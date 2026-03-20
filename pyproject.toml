@@ -96,13 +96,16 @@ target-version = "py310"
 line-length = 88
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "S"]
+select = ["E", "F", "W", "I", "N", "UP", "B", "S", "C4", "C90", "RET", "PIE", "TC", "SIM", "FURB", "PERF", "RSE"]
 ignore = [
   "B008",  # Function calls in default args — intentional FastAPI-style API design
   "B905",  # zip() strict= — not enforced
   "E721",  # Type comparison with == — intentional in generic type introspection
   "N818",  # Exception name suffix — InvalidRequest is a public API name
 ]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106", "B018", "E402", "E501"]

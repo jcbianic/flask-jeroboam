@@ -34,8 +34,7 @@ class RessourceNotFound(NotFound):
         """Either format message or pass the msg property."""
         if self.msg is None:
             return f"{self.ressource_name} not found : {self.context}."
-        else:
-            return self.msg
+        return self.msg
 
     def handle(self) -> tuple[str, int]:
         """Handle the exception and return a message to the user."""
@@ -85,7 +84,6 @@ class ResponseValidationError(ServerError):
 class JeroboamError(Exception):
     """Base Exception for Flask-Jeroboam."""
 
-    pass
 
 
 def handle_404(e):
