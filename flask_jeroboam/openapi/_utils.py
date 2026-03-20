@@ -100,8 +100,9 @@ def _get_openapi_operation_metadata(
     return operation
 
 
-def _get_body_schema(annotation: Any, body_field: "SolvedArgument") -> dict[str, Any]:
+def _get_body_schema(body_field: "SolvedArgument") -> dict[str, Any]:
     """Select the correct JSON schema representation for a request body annotation."""
+    annotation = body_field.annotation
     is_synthetic = _lenient_issubclass(
         annotation, BaseModel
     ) and annotation.__name__.endswith("request_body_as_model")
@@ -123,7 +124,7 @@ def _get_openapi_operation_request_body(
     if body_field is None:  # pragma: no cover
         return None
     field_info = cast("BodyArgument", body_field.field_info)
-    body_schema = _get_body_schema(body_field.annotation, body_field)
+    body_schema = _get_body_schema(body_field)
     request_body_oai: dict[str, Any] = {}
     if body_field.required:
         request_body_oai["required"] = True
