@@ -144,7 +144,7 @@ def test_endpoint_can_turn_off_return_annocation(
     "type_,expected_response",
     [
         ("dict", valid_response_body),
-        ("list", [unsorted_reponse_body, unsorted_reponse_body]),
+        ("list", [valid_response_body, valid_response_body]),
         ("base_model", valid_response_body),
         ("response", valid_response_body),
         ("dataclass", valid_response_body),
@@ -157,8 +157,7 @@ def test_view_function_with_response_model_return_type(
 ):
     """GIVEN an endpoint with a response_model defined and dict return value
     WHEN hit
-    THEN it serialize the dict using the response_model
-    #TODO: find a case where it wouldn't pass without the response_model !!
+    THEN it serializes the response using the response_model, applying field aliases
     """
     response = client.get(f"/return_type/{type_}")
 
