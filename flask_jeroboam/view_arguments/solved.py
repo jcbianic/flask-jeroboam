@@ -123,23 +123,24 @@ class SolvedArgument:
         try:
             values[self.name] = self._type_adapter.validate_python(inbound_values)
         except ValidationError as exc:
-            for err in exc.errors(include_url=False):
-                loc = [self.location.value, self.alias] + [
-                    str(segment) for segment in err.get("loc", ())
-                ]
-                error_dict: dict = {
-                    "loc": loc,
-                    "msg": err["msg"],
-                    "type": err["type"],
-                }
-                if "ctx" in err:
-                    error_dict["ctx"] = {
-                        k: str(v) if isinstance(v, Exception) else v
-                        for k, v in err["ctx"].items()
-                    }
-                errors.append(error_dict)
+            errors.extend(
+                self._format_error(err) for err in exc.errors(include_url=False)
+            )
 
         return values, errors
+
+    def _format_error(self, err: dict) -> dict:
+        """Format a single pydantic ValidationError entry into the Jeroboam error shape."""
+        loc = [self.location.value, self.alias] + [
+            str(segment) for segment in err.get("loc", ())
+        ]
+        error_dict: dict = {"loc": loc, "msg": err["msg"], "type": err["type"]}
+        if "ctx" in err:
+            error_dict["ctx"] = {
+                k: str(v) if isinstance(v, Exception) else v
+                for k, v in err["ctx"].items()
+            }
+        return error_dict
 
     def _get_values(
         self,

@@ -177,18 +177,13 @@ def xdoctest(session: nox.Session) -> None:
 
 @nox.session(python=python_versions[0])
 def xenon(session: nox.Session) -> None:
-    """Enforce code complexity thresholds with xenon.
-
-    Thresholds reflect the current baseline (two C-ranked blocks exist:
-    validate_request in solved.py and build_openapi in builder.py).
-    Reducing --max-absolute to B is a future goal tracked in #134.
-    """
+    """Enforce code complexity thresholds with xenon."""
     session.install("xenon")
     session.run(
         "xenon",
-        "--max-absolute", "C",
-        "--max-modules", "C",
-        "--max-average", "B",
+        "--max-absolute", "B",
+        "--max-modules", "B",
+        "--max-average", "A",
         "flask_jeroboam/",
     )
 
