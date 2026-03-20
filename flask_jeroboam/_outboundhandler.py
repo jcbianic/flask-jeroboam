@@ -250,7 +250,7 @@ class OutboundHandler:
             raise ResponseValidationError(
                 "A validation", error, traceback.format_exc()
             ) from error
-        return validated.model_dump_json()
+        return validated.model_dump_json(by_alias=True)
 
     def _adapt_datastructure_of(
         self, content: JeroboamBodyType
