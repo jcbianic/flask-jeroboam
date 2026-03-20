@@ -23,7 +23,7 @@
 [![Commit](https://img.shields.io/github/last-commit/jcbianic/flask-jeroboam?color=green)][commit]
 
 [![Read the documentation at https://flask-jeroboam.readthedocs.io/](https://img.shields.io/readthedocs/flask-jeroboam/latest.svg?label=Read%20the%20Docs)][read the docs]
-[![Coverage](https://codecov.io/gh/jcbianic/flask-jeroboam/graph/badge.svg)][codecov]
+[![Coverage](https://codecov.io/gh/jcbianic/flask-jeroboam/branch/main/graph/badge.svg)][codecov]
 [![Tests](https://github.com/jcbianic/flask-jeroboam/workflows/Tests/badge.svg)][tests]
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)][ruff]
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/jcbianic/flask-jeroboam/badge)][scorecard]
