@@ -181,9 +181,12 @@ def xenon(session: nox.Session) -> None:
     session.install("xenon")
     session.run(
         "xenon",
-        "--max-absolute", "B",
-        "--max-modules", "B",
-        "--max-average", "A",
+        "--max-absolute",
+        "B",
+        "--max-modules",
+        "B",
+        "--max-average",
+        "A",
         "flask_jeroboam/",
     )
 
