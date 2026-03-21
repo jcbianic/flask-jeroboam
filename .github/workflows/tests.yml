@@ -145,33 +145,6 @@ jobs:
       - name: Install Nox
         run: uv tool install nox
 
-      - name: Compute pre-commit cache key
-        if: matrix.session == 'pre-commit'
-        id: pre-commit-cache
-        shell: python
-        run: |
-          import hashlib
-          import sys
-          import os
-
-          python = "py{}.{}".format(*sys.version_info[:2])
-          payload = sys.version.encode() + sys.executable.encode()
-          digest = hashlib.sha256(payload).hexdigest()
-          result = "${{ runner.os }}-{}-{}-pre-commit".format(python, digest[:8])
-
-          if "GITHUB_OUTPUT" in os.environ:
-            with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-                print(f"result={result}", file=f)
-
-      - name: Restore pre-commit cache
-        uses: actions/cache@v4
-        if: matrix.session == 'pre-commit'
-        with:
-          path: ~/.cache/pre-commit
-          key: ${{ steps.pre-commit-cache.outputs.result }}-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: |
-            ${{ steps.pre-commit-cache.outputs.result }}-
-
       - name: Run Nox
         run: nox --python=${{ matrix.python }}
 
