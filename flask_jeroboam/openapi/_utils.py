@@ -4,7 +4,6 @@ Credits: This is a Fork of FastAPI's openapi/utils.py
 """
 
 import warnings
-from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -26,11 +25,13 @@ from flask_jeroboam._utils import (
     _throw_away_falthy_values,
     _unwrap_optional,
 )
-from flask_jeroboam.view_arguments.arguments import BodyArgument, ParameterArgument
 
 if TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Sequence
+
     from flask_jeroboam.rule import JeroboamRule
     from flask_jeroboam.view import JeroboamView
+    from flask_jeroboam.view_arguments.arguments import BodyArgument, ParameterArgument
     from flask_jeroboam.view_arguments.solved import SolvedArgument
 
 
@@ -60,7 +61,7 @@ def _get_openapi_operation_parameters(
     parameters = []
     for param in all_route_params:
         field_info = param.field_info
-        field_info = cast(ParameterArgument, field_info)
+        field_info = cast("ParameterArgument", field_info)
         if getattr(param, "include_in_schema", True) is False:
             continue
         parameter = _throw_away_falthy_values(
@@ -100,35 +101,35 @@ def _get_openapi_operation_metadata(
     return operation
 
 
+def _get_body_schema(body_field: "SolvedArgument") -> dict[str, Any]:
+    """Select the correct JSON schema representation for a request body annotation."""
+    annotation = body_field.annotation
+    is_synthetic = _lenient_issubclass(
+        annotation, BaseModel
+    ) and annotation.__name__.endswith("request_body_as_model")
+    if is_synthetic:
+        body_schema = cast("type[BaseModel]", annotation).model_json_schema(
+            ref_template=REF_PREFIX + "{model}"
+        )
+        body_schema.pop("$defs", None)
+        return body_schema
+    if _lenient_issubclass(annotation, BaseModel):
+        return {"$ref": f"{REF_PREFIX}{annotation.__name__}"}
+    return body_field._type_adapter.json_schema(ref_template=REF_PREFIX + "{model}")
+
+
 def _get_openapi_operation_request_body(
     *,
     body_field: "SolvedArgument | None",
 ) -> dict[str, Any] | None:
     if body_field is None:  # pragma: no cover
         return None
-    annotation = body_field.annotation
-    field_info = cast(BodyArgument, body_field.field_info)
-    request_media_type = field_info.media_type
-
-    is_synthetic = _lenient_issubclass(
-        annotation, BaseModel
-    ) and annotation.__name__.endswith("request_body_as_model")
-    if is_synthetic:
-        body_schema = cast(type[BaseModel], annotation).model_json_schema(
-            ref_template=REF_PREFIX + "{model}"
-        )
-        body_schema.pop("$defs", None)
-    elif _lenient_issubclass(annotation, BaseModel):
-        body_schema = {"$ref": f"{REF_PREFIX}{annotation.__name__}"}
-    else:
-        body_schema = body_field._type_adapter.json_schema(
-            ref_template=REF_PREFIX + "{model}"
-        )
-
+    field_info = cast("BodyArgument", body_field.field_info)
+    body_schema = _get_body_schema(body_field)
     request_body_oai: dict[str, Any] = {}
     if body_field.required:
         request_body_oai["required"] = True
-    request_body_oai["content"] = {request_media_type: {"schema": body_schema}}
+    request_body_oai["content"] = {field_info.media_type: {"schema": body_schema}}
     return request_body_oai
 
 
@@ -246,6 +247,22 @@ def _get_model_definitions(
     return definitions
 
 
+def _collect_models_from_view(
+    jeroboam_view: "JeroboamView", rule: "JeroboamRule", models: set
+) -> None:
+    """Add response and body models from a single view to the models set."""
+    response_model = jeroboam_view.outbound_handler.response_model
+    if response_model is not None:
+        models.add(response_model)
+    body_field = jeroboam_view.inbound_handler.body_field(rule.unique_id)
+    if (
+        body_field is not None
+        and _lenient_issubclass(body_field.annotation, BaseModel)
+        and not body_field.annotation.__name__.endswith("request_body_as_model")
+    ):
+        models.add(body_field.annotation)
+
+
 def _get_flat_models_from_jeroboam_views(
     jeroboam_views: list[Optional["JeroboamView"]], rules: list["JeroboamRule"]
 ):
@@ -255,13 +272,5 @@ def _get_flat_models_from_jeroboam_views(
             continue
         if not getattr(jeroboam_view, "include_in_openapi", True):
             continue
-        response_model = jeroboam_view.outbound_handler.response_model
-        if response_model is not None:
-            models.add(response_model)
-        body_field = jeroboam_view.inbound_handler.body_field(rule.unique_id)
-        if body_field is not None and _lenient_issubclass(
-            body_field.annotation, BaseModel
-        ):
-            if not body_field.annotation.__name__.endswith("request_body_as_model"):
-                models.add(body_field.annotation)
+        _collect_models_from_view(jeroboam_view, rule, models)
     return models

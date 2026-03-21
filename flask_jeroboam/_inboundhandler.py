@@ -30,6 +30,16 @@ T = t.TypeVar("T", bound=t.Any)
 pattern = r"(.*)\[(.+)\]$"
 
 
+def _unpack_body_values(body_value: dict) -> dict:
+    """Unpack a synthetic body model's fields back into individual view kwargs."""
+    values: dict = {}
+    for model in body_value.values():
+        if isinstance(model, BaseModel):  # pragma: no branch
+            for field_name in type(model).model_fields:
+                values[field_name] = getattr(model, field_name)
+    return values
+
+
 class InboundHandler:
     """The InboundHandler handles inbound data of a request.
 
@@ -72,10 +82,9 @@ class InboundHandler:
         """Return the default FieldInfo for the InboundHandler."""
         if main_http_verb in {"POST", "PUT"}:
             return ArgumentLocation.body
-        elif main_http_verb == "GET":
+        if main_http_verb == "GET":
             return ArgumentLocation.query
-        else:
-            return ArgumentLocation.path
+        return ArgumentLocation.path
 
     @property
     def parameters(self) -> list[SolvedArgument]:
@@ -254,10 +263,9 @@ class InboundHandler:
     ) -> ArgumentLocation:
         if param_name in self.path_param_names:
             return ArgumentLocation.path
-        else:
-            return getattr(
-                param.default, "location", force_location or self.default_param_location
-            )
+        return getattr(
+            param.default, "location", force_location or self.default_param_location
+        )
 
     def _solve_default_value(
         self,
@@ -302,12 +310,7 @@ class InboundHandler:
             body_value, body_errors = body_field.validate_request()
             errors.extend(body_errors)
             if len(self.body_arguments) > 1:
-                # Synthetic model wraps multiple params — unpack fields
-                # back into individual kwargs for the view function.
-                for model in body_value.values():
-                    if isinstance(model, BaseModel):  # pragma: no branch
-                        for field_name in type(model).model_fields:
-                            values[field_name] = getattr(model, field_name)
+                values.update(_unpack_body_values(body_value))
             else:
                 values.update(body_value)
         return values, errors

@@ -23,9 +23,11 @@
 [![Commit](https://img.shields.io/github/last-commit/jcbianic/flask-jeroboam?color=green)][commit]
 
 [![Read the documentation at https://flask-jeroboam.readthedocs.io/](https://img.shields.io/readthedocs/flask-jeroboam/latest.svg?label=Read%20the%20Docs)][read the docs]
-[![Coverage](https://codecov.io/gh/jcbianic/flask-jeroboam/graph/badge.svg)][codecov]
+[![Coverage](https://codecov.io/gh/jcbianic/flask-jeroboam/branch/main/graph/badge.svg)][codecov]
 [![Tests](https://github.com/jcbianic/flask-jeroboam/workflows/Tests/badge.svg)][tests]
+[![pre-commit](https://github.com/jcbianic/flask-jeroboam/workflows/pre-commit/badge.svg)][pre-commit-ci]
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)][ruff]
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/jcbianic/flask-jeroboam/badge)][scorecard]
 
 [pypi_]: https://pypi.org/project/flask-jeroboam/
 [status]: https://pypi.org/project/flask-jeroboam/
@@ -35,7 +37,9 @@
 [tests]: https://github.com/jcbianic/flask-jeroboam/actions?workflow=Tests
 [codecov]: https://app.codecov.io/gh/jcbianic/flask-jeroboam
 [pre-commit]: https://github.com/pre-commit/pre-commit
+[pre-commit-ci]: https://github.com/jcbianic/flask-jeroboam/actions/workflows/pre-commit.yml
 [ruff]: https://github.com/astral-sh/ruff
+[scorecard]: https://scorecard.dev/viewer/?uri=github.com/jcbianic/flask-jeroboam
 [commit]: https://img.shields.io/github/last-commit/jcbianic/flask-jeroboam
 
 </div>
