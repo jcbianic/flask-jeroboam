@@ -10,7 +10,7 @@ from typing import Annotated, Any
 
 from flask import request
 from pydantic import TypeAdapter, ValidationError
-from pydantic_core import PydanticUndefined
+from pydantic_core import ErrorDetails, PydanticUndefined
 from werkzeug.datastructures import FileStorage, Headers, MultiDict
 
 from flask_jeroboam._utils import _unwrap_optional
@@ -129,7 +129,7 @@ class SolvedArgument:
 
         return values, errors
 
-    def _format_error(self, err: dict) -> dict:
+    def _format_error(self, err: ErrorDetails) -> dict:
         """Format a pydantic ValidationError entry into the Jeroboam error shape."""
         loc = [self.location.value, self.alias] + [
             str(segment) for segment in err.get("loc", ())
