@@ -130,7 +130,7 @@ class SolvedArgument:
         return values, errors
 
     def _format_error(self, err: dict) -> dict:
-        """Format a single pydantic ValidationError entry into the Jeroboam error shape."""
+        """Format a pydantic ValidationError entry into the Jeroboam error shape."""
         loc = [self.location.value, self.alias] + [
             str(segment) for segment in err.get("loc", ())
         ]
