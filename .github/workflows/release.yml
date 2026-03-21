@@ -12,7 +12,7 @@ jobs:
     environment: pypi
     permissions:
       id-token: write
-      contents: write  # required by release-drafter to publish release notes
+      contents: write # required by release-drafter to publish release notes
     steps:
       - name: Check out the repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
