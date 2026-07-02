@@ -79,6 +79,33 @@ def test_post_body_list_of_base_model(
     assert response.status_code == 201
 
 
+def test_post_body_with_non_json_request_returns_validation_error(
+    one_shot_app: Jeroboam, one_shot_client: FlaskClient
+):
+    """Body parsing should not raise Flask's unsupported media type response."""
+
+    @one_shot_app.post("/body/non_json")
+    def post_body_non_json(payload: int = Body()):
+        return {"payload": payload}
+
+    response = one_shot_client.post(
+        "/body/non_json",
+        data="payload=42",
+        content_type="text/plain",
+    )
+
+    assert response.status_code == 400
+    assert response.json == {
+        "detail": [
+            {
+                "loc": ["body", "payload"],
+                "msg": "Field required",
+                "type": "missing",
+            }
+        ]
+    }
+
+
 def test_put_body_with_empty_string_rule(
     one_shot_app: Jeroboam, one_shot_client: FlaskClient
 ):

@@ -214,7 +214,7 @@ class SolvedBodyArgument(SolvedArgument):
     """Solved Body parameter."""
 
     def _get_values(self) -> dict | str | None | list[Any]:
-        source: dict | list = request.json or {}
+        source: dict | list = request.get_json(silent=True) or {}
         if isinstance(source, list):
             return source
         return source.get(self.alias or self.name) if self.embed else source
